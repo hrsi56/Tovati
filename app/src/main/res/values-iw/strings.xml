@@ -25,7 +25,8 @@
     <string name="yes">כן</string>
     <string name="no">לא</string>
     <string name="optional">אופציונלי</string>
-    <string name="privacy_label">פרטית מלכתחילה</string>
+    <string name="privacy_label">פרטיות והנתונים שלך</string>
+    <string name="privacy_info_body">טובתי אינה מבקשת הרשאת אינטרנט, Bluetooth, מיקום או גישה רחבה לקבצים. אין בה חשבון, ענן, פרסומות או כלי מעקב. הנתונים נשמרים במרחב הפרטי של האפליקציה במכשיר; רק פעולה שתבחרי, כמו ייצוא או גיבוי, תיצור קובץ מחוץ לאפליקציה. גיבוי JSON מוצפן בסיסמה, ואילו קובץ CSV אינו מוצפן.</string>
 
     <string name="onboarding_welcome_title">להכיר את המחזור, בפרטיות</string>
     <string name="onboarding_welcome_body">רישום חום השחר וסימנים יומיים בתהליך בוקר רגוע ופשוט.</string>
@@ -62,10 +63,10 @@
     <string name="add_measurement">הוספת מדידה</string>
     <string name="edit_measurement">עריכת מדידה</string>
     <string name="measurement_quick_summary">%1$s°C · %2$s</string>
-    <string name="measurement_not_recorded">טרם נמדדה טמפרטורה</string>
+    <string name="measurement_not_recorded">טרם נרשמה מדידת טמפרטורה</string>
     <string name="signs_recorded">הסימנים נשמרו להיום</string>
     <string name="signs_recorded_summary">נשמרו: %1$s</string>
-    <string name="signs_not_recorded">דימום, נוזל צוואר הרחם ובדיקת LH</string>
+    <string name="signs_not_recorded">דימום, נוזל, LH, הרגשה ותסמינים</string>
     <string name="start_cycle_supporting">בחרי את עוצמת הדימום ביום הראשון לווסת</string>
     <string name="temperature_value">%1$s°C</string>
     <string name="measurement_time_value">נמדד בשעה %1$s</string>
@@ -74,7 +75,7 @@
     <string name="current_status">מצב הנתונים כרגע</string>
     <string name="why_this_status">למה מוצג המצב הזה?</string>
     <string name="daily_signs">סימנים יומיים</string>
-    <string name="record_signs">דימום, נוזל צוואר הרחם ובדיקת LH</string>
+    <string name="record_signs">דימום, נוזל, LH, הרגשה ותסמינים</string>
     <string name="open_chart">פתיחת גרף הטמפרטורה</string>
     <string name="measurement_saved">המדידה נשמרה</string>
     <string name="observation_saved">התצפית היומית נשמרה</string>
@@ -169,7 +170,7 @@
     <string name="bleeding_medium">בינוני</string>
     <string name="bleeding_heavy">כבד</string>
     <string name="mucus">נוזל צוואר הרחם</string>
-    <string name="mucus_appearance">מראה</string>
+    <string name="mucus_appearance">מרקם הנוזל</string>
     <string name="mucus_not_checked">לא נבדק</string>
     <string name="mucus_dry">יבש</string>
     <string name="mucus_sticky">דביק</string>
@@ -229,8 +230,8 @@
     <string name="symptom_sleep_changes">שינוי בשינה</string>
     <string name="symptom_other">אחר</string>
     <string name="pain_relief_title">כדורים להקלה על כאבים או תסמינים</string>
-    <string name="pain_relief_supporting">סמני כמה כדורים לקחת היום. ״לא נרשם״ שונה מאפס.</string>
-    <string name="pain_relief_none">לא לקחתי</string>
+    <string name="pain_relief_supporting">בחרי ״רישום״ ואז סמני כמה כדורים לקחת היום. ״לא נרשם״ הוא נתון חסר; 0 פירושו שלא לקחת.</string>
+    <string name="pain_relief_none">רישום</string>
     <string name="pain_relief_pill_count_value">כדורים היום: %1$d</string>
     <string name="pain_relief_medication_note">שם הכדור או הערה (לא חובה)</string>
     <string name="pain_relief_medication_note_supporting">למעקב אישי בלבד; אין לשנות מינון לפי התובנות באפליקציה.</string>
@@ -271,7 +272,7 @@
     <string name="history_add_or_edit_signs">הוספה או עריכה של סימנים יומיים</string>
     <string name="history_daily_signs_empty">עדיין לא נרשמו סימנים יומיים</string>
     <string name="history_signs_section">סימנים יומיים · %1$d רשומות</string>
-    <string name="history_signs_section_summary">דימום, נוזל צוואר הרחם, בדיקות LH והרגשה לפי תאריך</string>
+    <string name="history_signs_section_summary">כל הסימנים, ההרגשה והקרבה לפי תאריך</string>
     <string name="history_measurements_section">מדידות חום · %1$d רשומות</string>
     <string name="history_measurements_section_summary">צפייה ועריכה של מדידות קודמות</string>
     <string name="history_sign_value">%1$s: %2$s</string>
@@ -303,18 +304,18 @@
     <string name="unlock_action">פתיחה</string>
     <string name="block_screenshots">חסימת צילומי מסך</string>
     <string name="block_screenshots_body">חוסמת ברוב המכשירים צילום מסך ותצוגה מקדימה במסך האפליקציות האחרונות.</string>
-    <string name="export_csv">יצוא CSV</string>
+    <string name="export_csv">ייצוא CSV</string>
     <string name="csv_exported">קובץ ה־CSV נוצר</string>
     <string name="csv_warning">הקובץ יכיל מידע בריאותי רגיש ולא יהיה מוצפן.</string>
     <string name="create_backup">יצירת גיבוי מוצפן</string>
-    <string name="share_backup_email">שליחת הגיבוי במייל</string>
+    <string name="share_backup_email">שליחת הגיבוי במייל או בשיתוף</string>
     <string name="share_backup_ready">הגיבוי המוצפן האחרון מוכן לשליחה. הסיסמה אינה מצורפת.</string>
     <string name="share_backup_requires_backup">הכפתור ייפתח אחרי שתיצרי גיבוי מוצפן חדש במכשיר.</string>
     <string name="backup_share_unavailable">לא נמצא גיבוי מוצפן נגיש או שאין אפליקציה מתאימה לשליחה. צרי גיבוי חדש ונסי שוב.</string>
     <string name="backup_share_subject">גיבוי מוצפן של טובתי</string>
     <string name="backup_share_body">מצורף גיבוי מוצפן של טובתי. הסיסמה אינה מצורפת ומומלץ להעביר אותה בנפרד.\nבטלפון החדש: התקיני את טובתי ובחרי הגדרות ← שחזור מגיבוי מוצפן.</string>
     <string name="backup_share_clip_label">גיבוי מוצפן של טובתי</string>
-    <string name="backup_share_chooser_title">שליחת הגיבוי באמצעות</string>
+    <string name="backup_share_chooser_title">בחירת אפליקציה לשליחת הגיבוי</string>
     <string name="stale_backup_title">בואי ניצור גיבוי חדש קודם, טוב?</string>
     <string name="stale_backup_body">הגיבוי הקיים לא נוצר היום. גיבוי חדש יכלול גם את השינויים האחרונים.</string>
     <string name="stale_backup_continue_existing">לא, נמשיך עם הגיבוי הקיים</string>
@@ -342,7 +343,7 @@
     <string name="medical_info_title">מידע רפואי ובטיחות</string>
     <string name="medical_info_body">כלי זה מיועד למודעות למחזור ולתכנון הריון. הוא אינו אמצעי מניעה, אינו מאשר או שולל ביוץ ואינו תחליף לייעוץ, בדיקה או טיפול רפואיים. גם מחוץ לטווח המוצג ייתכן היריון. חום, LH ונוזל צוואר הרחם עשויים להיות מושפעים ממחלה, שינה, תרופות וגורמים נוספים.</string>
     <string name="app_version">גרסת אפליקציה %1$s</string>
-    <string name="offline_promise">לאפליקציה אין הרשאת רשת; הנתונים נשארים במכשיר, אלא אם תבחרי לייצא או לגבות אותם.</string>
+    <string name="offline_promise">לאפליקציה אין הרשאת אינטרנט; הנתונים נשארים במכשיר, אלא אם תבחרי לייצא או לגבות אותם.</string>
 
     <string name="reminder_channel_name">תזכורת בוקר</string>
     <string name="reminder_channel_description">תזכורת ניטרלית ואופציונלית לרישום מדידת הבוקר</string>
@@ -362,7 +363,7 @@
     <string name="mucus_obscured_helper">סמני אם זרע, חומר סיכה, תרופה וגינלית, דימום או גורם אחר הופכים את התצפית לפחות אמינה.</string>
     <string name="lh_borderline">גבולי / לא ברור</string>
     <string name="lh_metadata_optional">פרטי בדיקה אופציונליים</string>
-    <string name="lh_metadata_summary">שעה, מותג ורגישות הערכה</string>
+    <string name="lh_metadata_summary">שעה, מותג ורגישות הבדיקה</string>
     <string name="lh_add_test_time">הוספת שעת בדיקה</string>
     <string name="lh_test_time">שעת בדיקת LH</string>
     <string name="lh_test_brand">מותג הבדיקה</string>
@@ -429,12 +430,12 @@
     <string name="signal_conflict">אותות סותרים</string>
     <string name="signal_temperatures_excluded">מדידות חום הוחרגו</string>
 
-    <string name="action_continue_tracking">השלב הבא: המשיכי לרשום חום בסיסי וסימנים מדי יום.</string>
+    <string name="action_continue_tracking">השלב הבא: המשיכי לרשום חום שחר וסימנים מדי יום.</string>
     <string name="action_lh_testing">השלב הבא: התחילי או המשיכי בדיקות LH לפי הוראות הערכה.</string>
     <string name="action_repeat_lh">השלב הבא: חזרי על בדיקת LH לפי הוראות הערכה; תוצאה גבולית אינה חיובית.</string>
-    <string name="action_conception_timing">אם אתם מנסים להרות, שקלו יחסים היום וביום–יומיים הקרובים, לפי העדפתכם.</string>
+    <string name="action_conception_timing">אם את מנסה להרות, שקלי מגע מיני היום וביום–יומיים הקרובים, בהתאם למה שמתאים לך.</string>
     <string name="action_peak_awareness">הסימנים שנרשמו תומכים בפוריות מוגברת היום; המשיכי לעקוב.</string>
-    <string name="action_await_thermal">המשיכי למדוד חום בסיסי; עלייה מתמשכת יכולה לתמוך בדיעבד בכך שהביוץ התרחש.</string>
+    <string name="action_await_thermal">המשיכי למדוד חום שחר; עלייה מתמשכת יכולה לתמוך בדיעבד בכך שהביוץ התרחש.</string>
     <string name="action_improve_temperature">מדדי מיד לאחר היקיצה, באותו אתר ובשעה דומה, וסמני גורמים מפריעים.</string>
     <string name="action_review_conflict">האותות אינם מתיישבים. המשיכי לעקוב; אין כרגע מסקנה למחזור זה.</string>
 
@@ -448,7 +449,7 @@
     <string name="chart_retrospective_range">הערכת ביוץ בדיעבד: %1$s</string>
     <string name="history_estimate_support">תמיכה בהערכה: %1$s</string>
     <string name="bbt_measurement_guidance">מדדי מיד לאחר היקיצה ולפני קימה, ככל האפשר בשעה דומה ובאותו מקום.</string>
-    <string name="mucus_tracking_guidance">רשמי את המראה ואת התחושה. תחושה רטובה או חלקלקה עשויה להיות משמעותית גם כשכמות הנוזל קטנה.</string>
+    <string name="mucus_tracking_guidance">רשמי את מרקם הנוזל ואת התחושה. תחושה רטובה או חלקלקה עשויה להיות משמעותית גם כשכמות הנוזל קטנה.</string>
     <string name="lh_test_guidance">פעלי לפי הוראות הערכה הספציפית. תוצאה גבולית אינה חיובית; שעת הבדיקה עוזרת לפרש את הרצף.</string>
     <string name="settings_tracking_goal">מטרת המעקב</string>
     <string name="settings_tracking_goal_helper">המטרה משנה רק את ההכוונה המוצגת; נתוני המדידה וניתוח הסימנים נשארים זהים.</string>
@@ -504,7 +505,7 @@
     <string name="diary_sleep_value">%1$d שעות ו־%2$d דקות</string>
     <string name="diary_immediate_waking">מיד לאחר ההתעוררות</string>
     <string name="diary_not_immediate_waking">לא מיד לאחר ההתעוררות</string>
-    <string name="diary_waking_not_recorded">לא נרשם אם המדידה נעשתה מיד לאחר היקיצה</string>
+    <string name="diary_waking_not_recorded">לא תועד אם המדידה נעשתה מיד לאחר ההתעוררות</string>
     <string name="diary_disturbances_none">לא סומנו גורמים מפריעים</string>
     <string name="diary_disturbance_details">פרטי גורמים מפריעים</string>
     <string name="diary_measurement_note">הערת מדידה</string>
@@ -526,7 +527,7 @@
     <string name="diary_possible_next_start">אחד הימים האפשריים ליום 1 של המחזור הבא</string>
     <string name="diary_conception_day">בתוך טווח שבו התעברות אפשרית</string>
     <string name="diary_prospective_ovulation_day">בתוך טווח ביוץ שחושב לפי היסטוריה וסימנים מוקדמים</string>
-    <string name="diary_retrospective_ovulation_day">בתוך טווח הביוץ שהוערך בדיעבד</string>
+    <string name="diary_retrospective_ovulation_day">יום הביוץ שהוערך בדיעבד</string>
     <string name="diary_lh_positive_day">נרשמה בדיקת LH חיובית</string>
     <string name="diary_fertile_fluid_day">נרשם נוזל דמוי חלבון ביצה או תחושה חלקלקה</string>
     <string name="diary_thermal_shift_day">היום הראשון בעלייה התרמית שזוהתה</string>

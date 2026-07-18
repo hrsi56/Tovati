@@ -86,6 +86,7 @@ fun SettingsScreen(viewModel: SettingsViewModel) {
     var restoreUri by remember { mutableStateOf<String?>(null) }
     var showDeleteDialog by remember { mutableStateOf(false) }
     var showMedicalInfo by remember { mutableStateOf(false) }
+    var showPrivacyInfo by remember { mutableStateOf(false) }
     var shareAfterBackupCreation by remember { mutableStateOf(false) }
 
     val csvLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("text/csv")) { uri ->
@@ -258,7 +259,7 @@ fun SettingsScreen(viewModel: SettingsViewModel) {
             item {
                 SettingsCard(stringResource(R.string.settings_about)) {
                     DataAction(Icons.Outlined.HealthAndSafety, R.string.medical_info_title) { showMedicalInfo = true }
-                    DataAction(Icons.Outlined.Lock, R.string.privacy_label) { showMedicalInfo = true }
+                    DataAction(Icons.Outlined.Lock, R.string.privacy_label) { showPrivacyInfo = true }
                     Spacer(Modifier.height(8.dp))
                     Text(stringResource(R.string.engine_version, state.engineVersion), style = MaterialTheme.typography.bodyMedium)
                     Text(stringResource(R.string.app_version, BuildConfig.VERSION_NAME), style = MaterialTheme.typography.bodyMedium)
@@ -400,6 +401,18 @@ fun SettingsScreen(viewModel: SettingsViewModel) {
                 }
             },
             confirmButton = { TextButton(onClick = { showMedicalInfo = false }) { Text(stringResource(R.string.close)) } },
+        )
+    }
+    if (showPrivacyInfo) {
+        AlertDialog(
+            onDismissRequest = { showPrivacyInfo = false },
+            title = { Text(stringResource(R.string.privacy_label)) },
+            text = { Text(stringResource(R.string.privacy_info_body)) },
+            confirmButton = {
+                TextButton(onClick = { showPrivacyInfo = false }) {
+                    Text(stringResource(R.string.close))
+                }
+            },
         )
     }
 }

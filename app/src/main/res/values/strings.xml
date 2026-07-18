@@ -25,7 +25,8 @@
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="optional">Optional</string>
-    <string name="privacy_label">Private by design</string>
+    <string name="privacy_label">Your privacy and data</string>
+    <string name="privacy_info_body">Tovati does not request Internet, Bluetooth, location, or broad file-access permissions. It has no account, cloud service, ads, or tracking tools. Data stays in the app’s private space on your device; only an action you choose, such as export or backup, creates a file outside the app. JSON backups are password-encrypted, while CSV files are not encrypted.</string>
 
     <string name="onboarding_welcome_title">Understand your cycle, privately</string>
     <string name="onboarding_welcome_body">Record basal body temperature and daily signs in a calm, simple morning flow.</string>
@@ -65,7 +66,7 @@
     <string name="measurement_not_recorded">Temperature not recorded yet</string>
     <string name="signs_recorded">Today’s signs are saved</string>
     <string name="signs_recorded_summary">Saved: %1$s</string>
-    <string name="signs_not_recorded">Bleeding, cervical mucus and LH test</string>
+    <string name="signs_not_recorded">Bleeding, fluid, LH, wellbeing and symptoms</string>
     <string name="start_cycle_supporting">Select bleeding level on the first day of your period</string>
     <string name="temperature_value">%1$s°C</string>
     <string name="measurement_time_value">Measured at %1$s</string>
@@ -74,7 +75,7 @@
     <string name="current_status">Current data status</string>
     <string name="why_this_status">Why am I seeing this?</string>
     <string name="daily_signs">Daily signs</string>
-    <string name="record_signs">Record bleeding, mucus and LH</string>
+    <string name="record_signs">Bleeding, fluid, LH, wellbeing and symptoms</string>
     <string name="open_chart">Open temperature chart</string>
     <string name="measurement_saved">Measurement saved</string>
     <string name="observation_saved">Daily signs saved</string>
@@ -169,7 +170,7 @@
     <string name="bleeding_medium">Medium</string>
     <string name="bleeding_heavy">Heavy</string>
     <string name="mucus">Cervical mucus</string>
-    <string name="mucus_appearance">Appearance</string>
+    <string name="mucus_appearance">Fluid texture</string>
     <string name="mucus_not_checked">Not checked</string>
     <string name="mucus_dry">Dry</string>
     <string name="mucus_sticky">Sticky</string>
@@ -229,8 +230,8 @@
     <string name="symptom_sleep_changes">Sleep changes</string>
     <string name="symptom_other">Other</string>
     <string name="pain_relief_title">Pain- or symptom-relief pills</string>
-    <string name="pain_relief_supporting">Record how many pills you took today. Not recorded is different from zero.</string>
-    <string name="pain_relief_none">I took none</string>
+    <string name="pain_relief_supporting">Choose “Record,” then enter how many pills you took today. “Not recorded” means missing data; 0 means you took none.</string>
+    <string name="pain_relief_none">Record</string>
     <string name="pain_relief_pill_count_value">Pills today: %1$d</string>
     <string name="pain_relief_medication_note">Pill name or note (optional)</string>
     <string name="pain_relief_medication_note_supporting">For personal tracking only; do not change a dose based on in-app insights.</string>
@@ -271,7 +272,7 @@
     <string name="history_add_or_edit_signs">Add or edit daily signs</string>
     <string name="history_daily_signs_empty">No daily signs recorded yet</string>
     <string name="history_signs_section">Daily signs · %1$d entries</string>
-    <string name="history_signs_section_summary">Bleeding, mucus, LH tests and notes by date</string>
+    <string name="history_signs_section_summary">All signs, wellbeing and intimacy by date</string>
     <string name="history_measurements_section">Temperature measurements · %1$d entries</string>
     <string name="history_measurements_section_summary">View and edit earlier measurements</string>
     <string name="history_sign_value">%1$s: %2$s</string>
@@ -307,14 +308,14 @@
     <string name="csv_exported">CSV export created</string>
     <string name="csv_warning">The file will contain sensitive health information and will not be encrypted.</string>
     <string name="create_backup">Create encrypted backup</string>
-    <string name="share_backup_email">Send backup by email</string>
+    <string name="share_backup_email">Send backup by email or sharing</string>
     <string name="share_backup_ready">The latest encrypted backup is ready to send. Its password is not attached.</string>
     <string name="share_backup_requires_backup">This button becomes available after you create a new encrypted backup on this device.</string>
     <string name="backup_share_unavailable">No accessible encrypted backup or suitable sharing app was found. Create a new backup and try again.</string>
     <string name="backup_share_subject">Encrypted Tovati backup</string>
     <string name="backup_share_body">An encrypted Tovati backup is attached. Its password is not included and should be sent separately.\nOn the new phone: install Tovati and choose Settings → Restore encrypted backup.</string>
     <string name="backup_share_clip_label">Encrypted Tovati backup</string>
-    <string name="backup_share_chooser_title">Send backup using</string>
+    <string name="backup_share_chooser_title">Choose an app to send the backup</string>
     <string name="stale_backup_title">Shall we create a new backup first?</string>
     <string name="stale_backup_body">The existing backup was not created today. A new backup will include your latest changes.</string>
     <string name="stale_backup_continue_existing">No, continue with the existing backup</string>
@@ -342,7 +343,7 @@
     <string name="medical_info_title">Medical &amp; safety information</string>
     <string name="medical_info_body">This tool supports cycle awareness and pregnancy planning. It is not contraception, does not confirm or rule out ovulation, and does not replace medical advice, testing, or treatment. Pregnancy may still be possible outside the displayed range. Temperature, LH and mucus can be affected by illness, sleep, medication and other factors.</string>
     <string name="app_version">App version %1$s</string>
-    <string name="offline_promise">The app has no network permission. Data stays on this device unless you choose to export or back it up.</string>
+    <string name="offline_promise">The app has no Internet permission. Data stays on this device unless you choose to export or back it up.</string>
 
     <string name="reminder_channel_name">Morning reminder</string>
     <string name="reminder_channel_description">Optional neutral reminder to record a morning measurement</string>
@@ -362,7 +363,7 @@
     <string name="mucus_obscured_helper">Select when semen, lubricant, vaginal medication, bleeding, or another factor makes the observation unreliable.</string>
     <string name="lh_borderline">Borderline / unclear</string>
     <string name="lh_metadata_optional">Optional test details</string>
-    <string name="lh_metadata_summary">Time, brand and kit sensitivity</string>
+    <string name="lh_metadata_summary">Time, brand and test sensitivity</string>
     <string name="lh_add_test_time">Add test time</string>
     <string name="lh_test_time">LH test time</string>
     <string name="lh_test_brand">Test brand</string>
@@ -429,12 +430,12 @@
     <string name="signal_conflict">Conflicting signals</string>
     <string name="signal_temperatures_excluded">Temperatures excluded</string>
 
-    <string name="action_continue_tracking">Next: keep recording BBT and signs daily.</string>
+    <string name="action_continue_tracking">Next: keep recording waking temperature and daily signs.</string>
     <string name="action_lh_testing">Next: start or continue LH testing according to the kit instructions.</string>
     <string name="action_repeat_lh">Next: repeat the LH test according to the kit instructions; a borderline result is not positive.</string>
     <string name="action_conception_timing">If trying to conceive, consider intercourse today and over the next 1–2 days, according to your preference.</string>
     <string name="action_peak_awareness">Recorded signs support higher fertility today; keep tracking.</string>
-    <string name="action_await_thermal">Continue measuring BBT; a sustained rise can retrospectively support that ovulation occurred.</string>
+    <string name="action_await_thermal">Keep measuring waking temperature; a sustained rise can retrospectively support that ovulation occurred.</string>
     <string name="action_improve_temperature">Measure immediately after waking, at the same site and a similar time, and record disturbances.</string>
     <string name="action_review_conflict">The signals do not align. Keep tracking; no conclusion is drawn for this cycle yet.</string>
 
@@ -448,7 +449,7 @@
     <string name="chart_retrospective_range">Retrospective ovulation estimate: %1$s</string>
     <string name="history_estimate_support">Estimate support: %1$s</string>
     <string name="bbt_measurement_guidance">For best accuracy, measure immediately after waking and before getting up, at a similar time and the same measurement site whenever possible.</string>
-    <string name="mucus_tracking_guidance">Record both appearance and sensation during the day. A wet or slippery sensation may matter even when little mucus is visible.</string>
+    <string name="mucus_tracking_guidance">Record both fluid texture and sensation during the day. A wet or slippery sensation may matter even when little fluid is visible.</string>
     <string name="lh_test_guidance">Follow the instructions for your specific kit. A borderline result is not positive; the test time helps interpret the sequence.</string>
     <string name="settings_tracking_goal">Tracking goal</string>
     <string name="settings_tracking_goal_helper">The goal changes only the guidance shown; measurement data and signal analysis stay the same.</string>
@@ -526,7 +527,7 @@
     <string name="diary_possible_next_start">One possible cycle day 1 for the next cycle</string>
     <string name="diary_conception_day">Within the possible conception range</string>
     <string name="diary_prospective_ovulation_day">Within the ovulation range forecast from history and early signs</string>
-    <string name="diary_retrospective_ovulation_day">Within the retrospective ovulation estimate</string>
+    <string name="diary_retrospective_ovulation_day">The retrospectively estimated ovulation day</string>
     <string name="diary_lh_positive_day">A positive LH test was recorded</string>
     <string name="diary_fertile_fluid_day">Egg-white-like fluid or a slippery sensation was recorded</string>
     <string name="diary_thermal_shift_day">First high day of the detected thermal shift</string>
