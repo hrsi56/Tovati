@@ -15,7 +15,7 @@
 
 <p align="center">
   <a href="https://github.com/hrsi56/Tovati/releases/download/v1.5.0/Tovati-1.5.0.apk">
-    <img src="docs/assets/download-button.svg" width="330" alt="הורידי את טובתי לאנדרואיד">
+    <img src="docs/assets/download-button.svg" width="330" alt="Download For Android">
   </a>
 </p>
 
@@ -109,7 +109,7 @@
 
 <p align="center">
   <a href="https://github.com/hrsi56/Tovati/releases/download/v1.5.0/Tovati-1.5.0.apk">
-    <img src="docs/assets/download-button.svg" width="330" alt="הורידי את טובתי לאנדרואיד">
+    <img src="docs/assets/download-button.svg" width="330" alt="Download For Android">
   </a>
 </p>
 
