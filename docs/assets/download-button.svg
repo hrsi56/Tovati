@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="390" height="104" viewBox="0 0 390 104" role="img" aria-labelledby="title">
+  <title id="title">הורידי את טובתי לאנדרואיד</title>
+  <defs>
+    <linearGradient id="button" x1="0" x2="1" y1="0" y2="1">
+      <stop stop-color="#A8476C"/>
+      <stop offset="1" stop-color="#7D3654"/>
+    </linearGradient>
+    <filter id="shadow" x="-15%" y="-30%" width="130%" height="170%">
+      <feDropShadow dx="0" dy="8" stdDeviation="8" flood-color="#7D3654" flood-opacity=".25"/>
+    </filter>
+  </defs>
+  <rect x="12" y="8" width="366" height="80" rx="28" fill="url(#button)" filter="url(#shadow)"/>
+  <g fill="none" stroke="#FFF" stroke-linecap="round" stroke-linejoin="round" stroke-width="3.4">
+    <path d="M333 28v28m-10-10 10 10 10-10"/>
+    <path d="M319 63v5c0 4 3 7 7 7h14c4 0 7-3 7-7v-5"/>
+  </g>
+  <text x="292" y="43" fill="#FFF" font-family="Arial, sans-serif" font-size="18" font-weight="700" text-anchor="end" direction="rtl">הורידי את טובתי</text>
+  <text x="292" y="68" fill="#FADCE7" font-family="Arial, sans-serif" font-size="14" text-anchor="end" direction="rtl">חינמית · Android 8 ומעלה</text>
+</svg>
