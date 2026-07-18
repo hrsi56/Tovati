@@ -298,7 +298,7 @@
     <string name="biometric_lock">Biometric app lock</string>
     <string name="biometric_lock_body">Ask for biometrics or device credentials after the app has been in the background for 30 seconds.</string>
     <string name="biometric_unavailable">Biometric or device-credential authentication is not available on this device.</string>
-    <string name="unlock_title">Unlock Fertility Tracker</string>
+    <string name="unlock_title">Unlock Tovati</string>
     <string name="unlock_subtitle">Use biometrics or your device credential</string>
     <string name="unlock_action">Unlock</string>
     <string name="block_screenshots">Block screenshots</string>

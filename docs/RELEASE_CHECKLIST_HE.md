@@ -161,12 +161,12 @@ shasum -a 256 app/build/outputs/apk/release/app-release.apk
 | פריט | ערך |
 |---|---|
 | Git commit | אין `HEAD`; זיהוי הארטיפקט לפי SHA-256 |
-| versionName / versionCode | `1.4.1 / 6` |
+| versionName / versionCode | `1.5.0 / 7` |
 | ENGINE_VERSION | `bbt-fusion-2.2.0` |
-| Room / backup schema | `3 / 3` (שחזור backup v1–v3) |
-| תוצאות unit / lint / instrumentation | `123/123` unit; debug/release lint עם 0 שגיאות; `13/13` instrumentation |
-| SHA-256 | `3c5dccf136f282434f35ba533a9e1476622eefa2d8e168003981c7b9b73999b9` |
+| Room / backup schema | `4 / 4` (שחזור backup v1–v4) |
+| תוצאות unit / lint / instrumentation | `135/135` unit; release lint עם 0 שגיאות; `14/14` instrumentation |
+| SHA-256 | `ce54a753c356251ce337165388461a898996135a8334aa886fb10ee4665c1fea` |
 | מכשיר וגרסת Android | `BbtApi36` emulator, Android 16 / API 36 |
-| בדיקת upgrade | 1.4.0→1.4.1 עברה; 3 מחזורים, 74 מדידות ו־27 תצפיות נשמרו |
-| תאריך בדיקה | `2026-07-17` |
+| בדיקת upgrade | 1.4.1→1.5.0 עברה; 3 מחזורים, 74 מדידות ו־27 תצפיות נשמרו |
+| תאריך בדיקה | `2026-07-18` |
 | בודקת/בודק | Codex — בדיקות אוטומטיות ואימות אמולטור; בדיקת טלפון פיזי ממתינה למשתמש |

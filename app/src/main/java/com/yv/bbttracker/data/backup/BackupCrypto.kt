@@ -15,7 +15,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 /**
- * Password-based encryption for portable BBT Tracker backups.
+ * Password-based encryption for portable Tovati backups.
  *
  * Passwords are accepted as [CharArray]s so callers can erase their own buffer once the operation
  * completes. This object never retains the password. The String overloads exist for convenience

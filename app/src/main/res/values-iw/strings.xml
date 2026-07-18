@@ -298,7 +298,7 @@
     <string name="biometric_lock">נעילה ביומטרית</string>
     <string name="biometric_lock_body">בקשת זיהוי ביומטרי או קוד המכשיר לאחר שהאפליקציה הייתה ברקע 30 שניות.</string>
     <string name="biometric_unavailable">זיהוי ביומטרי או קוד מכשיר אינם זמינים במכשיר הזה.</string>
-    <string name="unlock_title">פתיחת מעקב פוריות</string>
+    <string name="unlock_title">פתיחת טובתי</string>
     <string name="unlock_subtitle">השתמשי בזיהוי ביומטרי או בקוד המכשיר</string>
     <string name="unlock_action">פתיחה</string>
     <string name="block_screenshots">חסימת צילומי מסך</string>
