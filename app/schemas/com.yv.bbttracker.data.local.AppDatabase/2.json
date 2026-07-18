@@ -1,0 +1,391 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 2,
+    "identityHash": "70f7f2339dd2084da61723008d32822a",
+    "entities": [
+      {
+        "tableName": "cycles",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `startEpochDay` INTEGER NOT NULL, `endEpochDay` INTEGER, `analysisSite` TEXT, `createdAtEpochMillis` INTEGER NOT NULL, `updatedAtEpochMillis` INTEGER NOT NULL, `note` TEXT)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "startEpochDay",
+            "columnName": "startEpochDay",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "endEpochDay",
+            "columnName": "endEpochDay",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "analysisSite",
+            "columnName": "analysisSite",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "createdAtEpochMillis",
+            "columnName": "createdAtEpochMillis",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "updatedAtEpochMillis",
+            "columnName": "updatedAtEpochMillis",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "note",
+            "columnName": "note",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_cycles_startEpochDay",
+            "unique": true,
+            "columnNames": [
+              "startEpochDay"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_cycles_startEpochDay` ON `${TABLE_NAME}` (`startEpochDay`)"
+          }
+        ]
+      },
+      {
+        "tableName": "temperature_measurements",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `measurementEpochDay` INTEGER NOT NULL, `measuredAtEpochMillis` INTEGER NOT NULL, `timezoneId` TEXT NOT NULL, `temperatureCentiC` INTEGER NOT NULL, `site` TEXT NOT NULL, `sleepMinutes` INTEGER, `measuredImmediatelyAfterWaking` INTEGER, `disturbanceMask` INTEGER NOT NULL, `disturbanceNote` TEXT, `note` TEXT, `selectedForAnalysis` INTEGER NOT NULL, `source` TEXT NOT NULL, `createdAtEpochMillis` INTEGER NOT NULL, `updatedAtEpochMillis` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "measurementEpochDay",
+            "columnName": "measurementEpochDay",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "measuredAtEpochMillis",
+            "columnName": "measuredAtEpochMillis",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "timezoneId",
+            "columnName": "timezoneId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "temperatureCentiC",
+            "columnName": "temperatureCentiC",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "site",
+            "columnName": "site",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sleepMinutes",
+            "columnName": "sleepMinutes",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "measuredImmediatelyAfterWaking",
+            "columnName": "measuredImmediatelyAfterWaking",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "disturbanceMask",
+            "columnName": "disturbanceMask",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "disturbanceNote",
+            "columnName": "disturbanceNote",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "note",
+            "columnName": "note",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "selectedForAnalysis",
+            "columnName": "selectedForAnalysis",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "source",
+            "columnName": "source",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdAtEpochMillis",
+            "columnName": "createdAtEpochMillis",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "updatedAtEpochMillis",
+            "columnName": "updatedAtEpochMillis",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_temperature_measurements_measurementEpochDay",
+            "unique": false,
+            "columnNames": [
+              "measurementEpochDay"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_temperature_measurements_measurementEpochDay` ON `${TABLE_NAME}` (`measurementEpochDay`)"
+          }
+        ]
+      },
+      {
+        "tableName": "daily_observations",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `epochDay` INTEGER NOT NULL, `bleeding` TEXT NOT NULL, `mucus` TEXT NOT NULL, `mucusSensation` TEXT NOT NULL DEFAULT 'NOT_CHECKED', `mucusObscured` INTEGER NOT NULL DEFAULT 0, `lhResult` TEXT NOT NULL, `lhTestMinutesOfDay` INTEGER, `lhTestBrand` TEXT, `lhTestSensitivityMilliIu` INTEGER, `ovulationPain` TEXT NOT NULL, `isExplicitCycleStart` INTEGER NOT NULL, `note` TEXT, `createdAtEpochMillis` INTEGER NOT NULL, `updatedAtEpochMillis` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "epochDay",
+            "columnName": "epochDay",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "bleeding",
+            "columnName": "bleeding",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "mucus",
+            "columnName": "mucus",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "mucusSensation",
+            "columnName": "mucusSensation",
+            "affinity": "TEXT",
+            "notNull": true,
+            "defaultValue": "'NOT_CHECKED'"
+          },
+          {
+            "fieldPath": "mucusObscured",
+            "columnName": "mucusObscured",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          },
+          {
+            "fieldPath": "lhResult",
+            "columnName": "lhResult",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lhTestMinutesOfDay",
+            "columnName": "lhTestMinutesOfDay",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "lhTestBrand",
+            "columnName": "lhTestBrand",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "lhTestSensitivityMilliIu",
+            "columnName": "lhTestSensitivityMilliIu",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "ovulationPain",
+            "columnName": "ovulationPain",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isExplicitCycleStart",
+            "columnName": "isExplicitCycleStart",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "note",
+            "columnName": "note",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "createdAtEpochMillis",
+            "columnName": "createdAtEpochMillis",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "updatedAtEpochMillis",
+            "columnName": "updatedAtEpochMillis",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_daily_observations_epochDay",
+            "unique": true,
+            "columnNames": [
+              "epochDay"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_daily_observations_epochDay` ON `${TABLE_NAME}` (`epochDay`)"
+          }
+        ]
+      },
+      {
+        "tableName": "prediction_snapshots",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `epochDay` INTEGER NOT NULL, `cycleId` INTEGER, `engineVersion` TEXT NOT NULL, `status` TEXT NOT NULL, `evidenceLevel` TEXT NOT NULL, `estimatedOvulationStartEpochDay` INTEGER, `estimatedOvulationEndEpochDay` INTEGER, `thermalShiftFirstHighEpochDay` INTEGER, `baselineCentiC` INTEGER, `dataQuality` TEXT NOT NULL, `explanationJson` TEXT NOT NULL, `generatedAtEpochMillis` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "epochDay",
+            "columnName": "epochDay",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cycleId",
+            "columnName": "cycleId",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "engineVersion",
+            "columnName": "engineVersion",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "status",
+            "columnName": "status",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "evidenceLevel",
+            "columnName": "evidenceLevel",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "estimatedOvulationStartEpochDay",
+            "columnName": "estimatedOvulationStartEpochDay",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "estimatedOvulationEndEpochDay",
+            "columnName": "estimatedOvulationEndEpochDay",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "thermalShiftFirstHighEpochDay",
+            "columnName": "thermalShiftFirstHighEpochDay",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "baselineCentiC",
+            "columnName": "baselineCentiC",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "dataQuality",
+            "columnName": "dataQuality",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "explanationJson",
+            "columnName": "explanationJson",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "generatedAtEpochMillis",
+            "columnName": "generatedAtEpochMillis",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_prediction_snapshots_epochDay",
+            "unique": false,
+            "columnNames": [
+              "epochDay"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_prediction_snapshots_epochDay` ON `${TABLE_NAME}` (`epochDay`)"
+          }
+        ]
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '70f7f2339dd2084da61723008d32822a')"
+    ]
+  }
+}
