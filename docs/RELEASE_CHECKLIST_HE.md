@@ -1,10 +1,10 @@
-# רשימת בדיקות לקראת Release 1.5.0
+# רשימת בדיקות לקראת Release 1.5.1
 
-מסמך זה הוא checklist לביצוע על המקור ועל ה־APK המדויק שמותקנים במכשיר. סימון סעיף פירושו שנבדק בפועל; עצם קיום הקוד או הבדיקה אינו מספיק. את התוצאות הסופיות יש לרשום ב־[דו״ח גרסה 1.5.0](RELEASE_REPORT_1.5.0_HE.md).
+מסמך זה הוא checklist לביצוע על המקור ועל ה־APK המדויק שמותקנים במכשיר. סימון סעיף פירושו שנבדק בפועל; עצם קיום הקוד או הבדיקה אינו מספיק. את התוצאות הסופיות יש לרשום ב־[דו״ח גרסה 1.5.1](RELEASE_REPORT_1.5.1_HE.md).
 
 ## 1. גרסה וסביבת בנייה
 
-- [ ] `versionName` הוא `1.5.0` ו־`versionCode` הוא `7`.
+- [ ] `versionName` הוא `1.5.1` ו־`versionCode` הוא `8`.
 - [ ] `ENGINE_VERSION` הוא `bbt-fusion-2.2.0` בכל תוצאת ניתוח.
 - [ ] `compileSdk` ו־`targetSdk` הם 36, `minSdk` הוא 26 ו־JDK 17 פעיל.
 - [ ] Gradle wrapper מצביע ל־9.4.1 וכל גרסאות הספריות מגיעות מה־version catalog.
@@ -41,6 +41,7 @@
 - [ ] בדיקות התובנות מכסות ספי דגימה, ערכים חסרים, יוזמה, מצב רוח, חשק/מגע, תסמין חוזר, כדורים ורצף תיעוד.
 - [ ] `ShareableBackupInstrumentedTest` מוודא שיתוף של מעטפת מוצפנת בלבד דרך `content://`.
 - [ ] בדיקות UI מכסות onboarding, הוספה/עריכה/מחיקה, RTL, font scale, גרף, הרשאה שנדחתה ודיאלוגי גיבוי/מחיקה.
+- [ ] בדיקת הרגרסיה של ההיסטוריה פותחת ישירות את „מדידות חום” וגוללת למדידה הישנה ביותר כאשר מזהי מחזורים ומדידות חופפים.
 - [ ] בדיקות זמן מכסות DST בישראל, שינוי timezone, חצות ותזמון מחדש.
 
 אם אין מכשיר או emulator זמין ל־instrumentation, אין לסמן את בדיקות Room migration/UI כהצלחה; יש לרשום אותן כממתינות.
@@ -160,13 +161,13 @@ shasum -a 256 app/build/outputs/apk/release/app-release.apk
 
 | פריט | ערך |
 |---|---|
-| Git commit | `4e408aa` |
-| versionName / versionCode | `1.5.0 / 7` |
+| Git commit | `b50f897` |
+| versionName / versionCode | `1.5.1 / 8` |
 | ENGINE_VERSION | `bbt-fusion-2.2.0` |
 | Room / backup schema | `4 / 4` (שחזור backup v1–v4) |
-| תוצאות unit / lint / instrumentation | `135/135` unit; release lint עם 0 שגיאות; `15/15` instrumentation |
-| SHA-256 | `f880c23a6faf10b79ec208b4f31131da8d6d3b04dd6519ffd650c21ab7630050` |
+| תוצאות unit / lint / instrumentation | `137/137` unit; release lint עם 0 שגיאות; `16/16` instrumentation |
+| SHA-256 | `88081a14409a14eaa78440354d6b004da0f85b3a15a3e713bd91732805283586` |
 | מכשיר וגרסת Android | `BbtApi36` emulator, Android 16 / API 36 |
-| בדיקת upgrade | 1.4.1→1.5.0 עברה; 3 מחזורים, 74 מדידות ו־27 תצפיות נשמרו |
-| תאריך בדיקה | `2026-07-18` |
+| בדיקת upgrade | 1.5.0→1.5.1 עברה; 3 מחזורים, 74 מדידות ו־27 תצפיות נשמרו |
+| תאריך בדיקה | `2026-07-20` |
 | בודקת/בודק | Codex — בדיקות אוטומטיות ואימות אמולטור; בדיקת טלפון פיזי ממתינה למשתמש |
