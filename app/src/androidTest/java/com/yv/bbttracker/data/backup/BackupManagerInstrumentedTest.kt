@@ -57,6 +57,8 @@ class BackupManagerInstrumentedTest {
             AppSettings(
                 onboardingCompleted = true,
                 trackingGoal = TrackingGoal.TRYING_TO_CONCEIVE,
+                typicalCycleLengthDays = 31,
+                typicalMenstruationLengthDays = 6,
                 defaultMeasurementSite = MeasurementSite.VAGINAL,
                 reminderEnabled = true,
                 reminderHour = 6,
@@ -184,6 +186,8 @@ class BackupManagerInstrumentedTest {
 
         val restoredSettings = settingsRepository.getSettings()
         assertEquals(TrackingGoal.TRYING_TO_CONCEIVE, restoredSettings.trackingGoal)
+        assertEquals(31, restoredSettings.typicalCycleLengthDays)
+        assertEquals(6, restoredSettings.typicalMenstruationLengthDays)
         assertEquals(MeasurementSite.VAGINAL, restoredSettings.defaultMeasurementSite)
         assertTrue(restoredSettings.reminderEnabled)
         assertEquals(6, restoredSettings.reminderHour)

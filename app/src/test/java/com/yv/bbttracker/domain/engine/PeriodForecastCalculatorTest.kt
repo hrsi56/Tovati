@@ -128,6 +128,67 @@ class PeriodForecastCalculatorTest {
     }
 
     @Test
+    fun `reported cycle length replaces the default before history exists`() {
+        val forecast = PeriodForecastCalculator.forecast(
+            currentCycleStart = currentCycleStart,
+            currentDate = currentCycleStart,
+            previousCycles = emptyList(),
+            ovulationEstimate = null,
+            typicalCycleLengthDays = 34,
+        )
+
+        assertEquals(PeriodForecastBasis.SELF_REPORTED_CYCLE_LENGTH, forecast.basis)
+        assertEquals(
+            currentCycleStart.plusDays(34)..currentCycleStart.plusDays(35),
+            forecast.expectedStartRange,
+        )
+    }
+
+    @Test
+    fun `reported length fades across first two completed cycles`() {
+        val oneCycle = PeriodForecastCalculator.forecast(
+            currentCycleStart = currentCycleStart,
+            currentDate = currentCycleStart,
+            previousCycles = listOf(completedCycle(LocalDate.of(2026, 4, 1), length = 28)),
+            ovulationEstimate = null,
+            typicalCycleLengthDays = 34,
+        )
+        val twoCycles = PeriodForecastCalculator.forecast(
+            currentCycleStart = currentCycleStart,
+            currentDate = currentCycleStart,
+            previousCycles = listOf(
+                completedCycle(LocalDate.of(2026, 3, 1), length = 28),
+                completedCycle(LocalDate.of(2026, 4, 1), length = 28),
+            ),
+            ovulationEstimate = null,
+            typicalCycleLengthDays = 34,
+        )
+
+        assertEquals(PeriodForecastBasis.REPORTED_AND_CYCLE_LENGTH_HISTORY, oneCycle.basis)
+        assertEquals(currentCycleStart.plusDays(31), oneCycle.expectedStartRange.start)
+        assertEquals(PeriodForecastBasis.REPORTED_AND_CYCLE_LENGTH_HISTORY, twoCycles.basis)
+        assertEquals(currentCycleStart.plusDays(30), twoCycles.expectedStartRange.start)
+    }
+
+    @Test
+    fun `three completed cycles replace the reported length`() {
+        val cycles = (1..3).map { month ->
+            completedCycle(LocalDate.of(2026, month, 1), length = 28)
+        }
+
+        val forecast = PeriodForecastCalculator.forecast(
+            currentCycleStart = currentCycleStart,
+            currentDate = currentCycleStart,
+            previousCycles = cycles,
+            ovulationEstimate = null,
+            typicalCycleLengthDays = 40,
+        )
+
+        assertEquals(PeriodForecastBasis.CYCLE_LENGTH_HISTORY, forecast.basis)
+        assertEquals(currentCycleStart.plusDays(28), forecast.expectedStartRange.start)
+    }
+
+    @Test
     fun `regular history centers the forecast on the true next period date`() {
         // 28-day cycles with ovulation on cycle day 14: the luteal phase covers days 15..28 and
         // the next period truly starts on what would be cycle day 29.

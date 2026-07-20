@@ -366,6 +366,29 @@ a:focus-visible {
   font-weight: 900;
 }
 
+.hero-install-help {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 20px;
+  color: var(--rose-700);
+  font-size: .76rem;
+  font-weight: 800;
+  text-decoration: underline;
+  text-decoration-color: rgba(125, 54, 84, .24);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 5px;
+}
+
+.hero-install-help span {
+  font-size: 1rem;
+  transition: transform .2s;
+}
+
+.hero-install-help:hover span {
+  transform: translateY(3px);
+}
+
 .hero-visual {
   position: relative;
   display: grid;
@@ -571,6 +594,821 @@ a:focus-visible {
   stroke-linecap: round;
   stroke-linejoin: round;
   stroke-width: 1.7;
+}
+
+.install-guide {
+  position: relative;
+  overflow: hidden;
+  border-bottom: 1px solid rgba(125, 54, 84, .07);
+  background:
+    radial-gradient(circle at 4% 35%, rgba(213, 237, 231, .55), transparent 24%),
+    radial-gradient(circle at 96% 78%, rgba(250, 220, 231, .6), transparent 25%),
+    #fffdfd;
+}
+
+.install-guide::before {
+  position: absolute;
+  top: 160px;
+  right: -110px;
+  width: 250px;
+  height: 250px;
+  border: 44px solid rgba(255, 255, 255, .55);
+  border-radius: 50%;
+  content: "";
+}
+
+.install-guide-layout {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, .9fr) minmax(390px, 1.1fr);
+  align-items: center;
+  gap: 70px;
+  margin-top: 62px;
+}
+
+.install-steps {
+  display: grid;
+  gap: 11px;
+}
+
+.install-step {
+  position: relative;
+  display: grid;
+  grid-template-columns: 46px minmax(0, 1fr) 24px;
+  align-items: center;
+  gap: 15px;
+  width: 100%;
+  min-height: 110px;
+  padding: 18px 20px;
+  overflow: hidden;
+  border: 1px solid rgba(125, 54, 84, .08);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, .66);
+  color: var(--ink);
+  cursor: pointer;
+  text-align: right;
+  transition: border-color .25s, box-shadow .25s, transform .25s, background .25s;
+}
+
+.install-step::before {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 4px;
+  border-radius: 0 22px 22px 0;
+  background: var(--rose-600);
+  content: "";
+  opacity: 0;
+  transform: scaleY(.35);
+  transition: opacity .25s, transform .25s;
+}
+
+.install-step:hover {
+  border-color: rgba(125, 54, 84, .18);
+  transform: translateX(-3px);
+}
+
+.install-step:focus-visible,
+.demo-toggle:focus-visible {
+  outline: 3px solid var(--mint-300);
+  outline-offset: 3px;
+}
+
+.install-step.active {
+  border-color: rgba(125, 54, 84, .19);
+  background: white;
+  box-shadow: 0 16px 48px rgba(80, 41, 57, .1);
+}
+
+.install-step.active::before {
+  opacity: 1;
+  transform: scaleY(1);
+}
+
+.install-step-number {
+  display: grid;
+  width: 46px;
+  height: 46px;
+  place-items: center;
+  border-radius: 16px;
+  background: var(--rose-50);
+  color: var(--rose-700);
+  font-size: .88rem;
+  font-weight: 900;
+  transition: background .25s, color .25s;
+}
+
+.install-step.active .install-step-number {
+  background: var(--rose-700);
+  color: white;
+}
+
+.install-step-copy {
+  display: grid;
+  gap: 7px;
+}
+
+.install-step-copy strong {
+  color: var(--rose-950);
+  font-size: .98rem;
+}
+
+.install-step-copy small {
+  color: var(--muted);
+  font-size: .75rem;
+  line-height: 1.65;
+}
+
+.install-step-copy b {
+  font-weight: 800;
+}
+
+.install-step-check {
+  display: grid;
+  width: 24px;
+  height: 24px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--mint-100);
+  color: var(--mint-900);
+  font-size: .7rem;
+  font-weight: 900;
+  opacity: 0;
+  transform: scale(.6);
+  transition: opacity .2s, transform .2s;
+}
+
+.install-step.complete .install-step-check {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.install-demo {
+  position: relative;
+  width: min(100%, 520px);
+  min-height: 690px;
+  justify-self: center;
+  padding: 18px;
+  border: 1px solid rgba(125, 54, 84, .11);
+  border-radius: 38px;
+  background: rgba(255, 255, 255, .8);
+  box-shadow: 0 35px 100px rgba(80, 41, 57, .16);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+.install-demo::before {
+  position: absolute;
+  z-index: -1;
+  right: -30px;
+  bottom: 70px;
+  width: 140px;
+  height: 140px;
+  border-radius: 45% 55% 65% 35%;
+  background: var(--mint-100);
+  content: "";
+  transform: rotate(18deg);
+}
+
+.install-demo-header,
+.install-demo-footer {
+  display: flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-inline: 7px;
+}
+
+.install-demo-header > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #63535a;
+  font-size: .69rem;
+  font-weight: 800;
+}
+
+.install-demo-header > span i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #55a387;
+  box-shadow: 0 0 0 5px rgba(85, 163, 135, .12);
+}
+
+.demo-toggle {
+  display: inline-flex;
+  min-width: 76px;
+  min-height: 34px;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 7px 11px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: white;
+  color: var(--rose-700);
+  cursor: pointer;
+  font-size: .68rem;
+  font-weight: 800;
+}
+
+.demo-toggle-icon {
+  font-size: .72rem;
+  letter-spacing: -.12em;
+}
+
+.install-demo-phone {
+  position: relative;
+  height: 550px;
+  overflow: hidden;
+  border: 8px solid #382a31;
+  border-radius: 31px;
+  background: #f9f7f8;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, .14),
+    0 18px 50px rgba(41, 28, 34, .18);
+  direction: rtl;
+}
+
+.install-demo-phone::before {
+  position: absolute;
+  z-index: 20;
+  top: 6px;
+  left: 50%;
+  width: 64px;
+  height: 16px;
+  border-radius: 0 0 10px 10px;
+  background: #382a31;
+  content: "";
+  transform: translateX(-50%);
+}
+
+.demo-statusbar {
+  position: relative;
+  z-index: 18;
+  display: flex;
+  height: 34px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 17px 0;
+  background: white;
+  color: #3e3338;
+  direction: ltr;
+  font-size: .56rem;
+  font-weight: 800;
+}
+
+.install-screen {
+  position: absolute;
+  z-index: 1;
+  top: 34px;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  overflow: hidden;
+  background: #f8f6f7;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(-24px) scale(.985);
+  transition: opacity .38s ease, transform .45s ease;
+}
+
+.install-screen.active {
+  z-index: 3;
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(0) scale(1);
+}
+
+.demo-browser-bar {
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr) 18px;
+  align-items: center;
+  gap: 7px;
+  min-height: 50px;
+  padding: 8px 13px;
+  border-bottom: 1px solid #e9e3e6;
+  background: white;
+  color: #65575d;
+  direction: ltr;
+  font-size: .58rem;
+}
+
+.demo-browser-bar > span:nth-child(2) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.demo-lock {
+  color: #5b8d7c;
+  font-size: .56rem;
+}
+
+.demo-browser-bar b {
+  font-size: 1rem;
+  text-align: center;
+}
+
+.demo-page {
+  display: grid;
+  justify-items: center;
+  padding: 55px 28px 30px;
+  background:
+    radial-gradient(circle at 20% 15%, var(--mint-100), transparent 31%),
+    linear-gradient(160deg, #fffafb, var(--rose-50));
+  text-align: center;
+}
+
+.demo-heart {
+  display: grid;
+  width: 59px;
+  height: 59px;
+  margin-bottom: 14px;
+  place-items: center;
+  border-radius: 19px;
+  background: white;
+  color: var(--rose-600);
+  box-shadow: 0 10px 28px rgba(80, 41, 57, .1);
+  font-size: 1.4rem;
+}
+
+.demo-page strong {
+  color: var(--rose-900);
+  font-size: 1.35rem;
+}
+
+.demo-page small {
+  margin-top: 5px;
+  color: var(--muted);
+  font-size: .62rem;
+}
+
+.demo-download-button {
+  min-width: 180px;
+  margin-top: 28px;
+  padding: 14px 20px;
+  border-radius: 15px;
+  background: var(--rose-700);
+  color: white;
+  box-shadow: 0 11px 30px rgba(125, 54, 84, .22);
+  font-size: .72rem;
+  font-weight: 900;
+}
+
+.demo-download-card {
+  position: absolute;
+  right: 16px;
+  bottom: 18px;
+  left: 16px;
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr) 22px;
+  align-items: center;
+  gap: 11px;
+  padding: 13px;
+  border: 1px solid #e5dce0;
+  border-radius: 16px;
+  background: white;
+  box-shadow: 0 12px 35px rgba(57, 38, 46, .13);
+}
+
+.demo-file-icon {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  border-radius: 12px;
+  background: var(--rose-50);
+  color: var(--rose-700);
+  font-weight: 900;
+}
+
+.demo-download-card > span:nth-child(2) {
+  display: grid;
+  min-width: 0;
+  gap: 4px;
+}
+
+.demo-download-card strong {
+  overflow: hidden;
+  color: #3f3037;
+  font-size: .67rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.demo-download-card small {
+  color: var(--muted);
+  font-size: .57rem;
+}
+
+.demo-download-card > i {
+  display: grid;
+  width: 21px;
+  height: 21px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--mint-100);
+  color: var(--mint-900);
+  font-size: .58rem;
+  font-style: normal;
+}
+
+.demo-settings-title {
+  display: flex;
+  min-height: 64px;
+  align-items: center;
+  gap: 18px;
+  padding: 10px 19px;
+  border-bottom: 1px solid #ece7e9;
+  background: white;
+  color: #32262c;
+}
+
+.demo-settings-title span {
+  font-size: 1.7rem;
+  transform: rotate(180deg);
+}
+
+.demo-settings-title strong {
+  font-size: .77rem;
+}
+
+.demo-source {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 30px 22px 20px;
+}
+
+.demo-source-icon {
+  display: grid;
+  width: 48px;
+  height: 48px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #dd665f, #e7b75b 45%, #64a66f 45%, #4c79c7);
+  color: white;
+  box-shadow: 0 8px 23px rgba(50, 39, 44, .12);
+  font-size: 1rem;
+  font-weight: 900;
+}
+
+.demo-source > span:last-child {
+  display: grid;
+  gap: 4px;
+}
+
+.demo-source strong {
+  color: #382c32;
+  font-size: .82rem;
+}
+
+.demo-source small {
+  color: var(--muted);
+  font-size: .58rem;
+}
+
+.demo-setting-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 44px;
+  align-items: center;
+  gap: 16px;
+  margin: 0 14px;
+  padding: 20px 12px;
+  border-block: 1px solid #e8e2e5;
+}
+
+.demo-setting-row > span:first-child {
+  display: grid;
+  gap: 5px;
+}
+
+.demo-setting-row strong {
+  color: #382c32;
+  font-size: .75rem;
+}
+
+.demo-setting-row small {
+  max-width: 230px;
+  color: var(--muted);
+  font-size: .57rem;
+  line-height: 1.5;
+}
+
+.demo-switch {
+  position: relative;
+  width: 43px;
+  height: 25px;
+  border-radius: 30px;
+  background: #d2c9cd;
+  transition: background .4s .55s;
+}
+
+.demo-switch i {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  width: 19px;
+  height: 19px;
+  border-radius: 50%;
+  background: white;
+  box-shadow: 0 2px 8px rgba(30, 23, 26, .22);
+  transition: transform .4s .55s;
+}
+
+.install-screen.active .demo-switch {
+  background: var(--rose-600);
+}
+
+.install-screen.active .demo-switch i {
+  transform: translateX(-18px);
+}
+
+.demo-settings-note {
+  margin: 18px 25px;
+  padding: 14px;
+  border-radius: 13px;
+  background: var(--mint-100);
+  color: var(--mint-900);
+  font-size: .59rem;
+  line-height: 1.65;
+}
+
+.demo-dialog {
+  position: absolute;
+  top: 50%;
+  right: 22px;
+  left: 22px;
+  display: grid;
+  justify-items: center;
+  padding: 28px 23px 20px;
+  border: 1px solid #e4dde0;
+  border-radius: 25px;
+  background: white;
+  box-shadow: 0 24px 70px rgba(45, 31, 37, .2);
+  text-align: center;
+  transform: translateY(-50%);
+}
+
+.demo-app-icon {
+  display: grid;
+  width: 58px;
+  height: 58px;
+  margin-bottom: 17px;
+  place-items: center;
+  border-radius: 18px;
+  background: linear-gradient(145deg, white, var(--rose-100));
+  color: var(--rose-600);
+  box-shadow: 0 9px 25px rgba(80, 41, 57, .12);
+  font-size: 1.35rem;
+}
+
+.demo-dialog > strong {
+  color: #33262c;
+  font-size: .92rem;
+}
+
+.demo-dialog p {
+  max-width: 300px;
+  margin: 11px 0 24px;
+  color: #66585e;
+  font-size: .64rem;
+  line-height: 1.7;
+}
+
+.demo-dialog-actions {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  border-top: 1px solid #eee8eb;
+  padding-top: 14px;
+  color: var(--rose-700);
+  font-size: .62rem;
+  font-weight: 900;
+}
+
+.demo-dialog-actions span {
+  padding: 9px 11px;
+  border-radius: 10px;
+}
+
+.demo-action-highlight {
+  background: var(--rose-50);
+  box-shadow: 0 0 0 1px rgba(125, 54, 84, .08);
+}
+
+.demo-dialog-expanded {
+  top: 44%;
+}
+
+.demo-success {
+  position: absolute;
+  z-index: 7;
+  right: 14px;
+  bottom: 14px;
+  left: 14px;
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 11px;
+  padding: 13px;
+  border: 1px solid #cadfd9;
+  border-radius: 16px;
+  background: #f2fffb;
+  box-shadow: 0 14px 38px rgba(34, 65, 57, .18);
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.install-screen.active .demo-success {
+  animation: show-install-success 4.2s ease forwards;
+}
+
+.demo-success > span:first-child {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--mint-700);
+  color: white;
+  font-size: .75rem;
+  font-weight: 900;
+}
+
+.demo-success > span:nth-child(2) {
+  display: grid;
+  gap: 3px;
+}
+
+.demo-success strong {
+  color: var(--mint-900);
+  font-size: .67rem;
+}
+
+.demo-success small {
+  color: #58716a;
+  font-size: .55rem;
+}
+
+.demo-success b {
+  padding: 8px 10px;
+  border-radius: 9px;
+  background: var(--mint-700);
+  color: white;
+  font-size: .58rem;
+}
+
+.demo-tap {
+  position: absolute;
+  z-index: 8;
+  width: 30px;
+  height: 30px;
+  border: 2px solid rgba(125, 54, 84, .68);
+  border-radius: 50%;
+  opacity: 0;
+}
+
+.install-screen.active .demo-tap {
+  animation: demo-tap 1.25s ease-out .65s 2;
+}
+
+.demo-tap-download {
+  top: 60%;
+  right: 47%;
+}
+
+.demo-tap-toggle {
+  top: 157px;
+  left: 19px;
+}
+
+.demo-tap-more {
+  right: 45px;
+  bottom: 137px;
+}
+
+.demo-tap-install {
+  right: 56px;
+  bottom: 163px;
+}
+
+.install-demo-footer {
+  min-height: 56px;
+  padding-top: 6px;
+}
+
+.install-demo-footer p {
+  margin: 0;
+  color: #67575e;
+  font-size: .65rem;
+  font-weight: 800;
+}
+
+.demo-progress {
+  display: flex;
+  gap: 5px;
+}
+
+.demo-progress i {
+  width: 6px;
+  height: 6px;
+  border-radius: 20px;
+  background: #d8ccd1;
+  transition: width .25s, background .25s;
+}
+
+.demo-progress i.active {
+  width: 20px;
+  background: var(--rose-600);
+}
+
+.install-safety {
+  display: flex;
+  max-width: 990px;
+  align-items: center;
+  gap: 16px;
+  margin: 38px auto 0;
+  padding: 18px 22px;
+  border: 1px solid rgba(73, 106, 99, .13);
+  border-radius: 20px;
+  background: rgba(213, 237, 231, .62);
+  color: var(--mint-900);
+}
+
+.install-safety-icon {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 14px;
+  background: white;
+  color: var(--rose-600);
+  box-shadow: 0 7px 20px rgba(48, 77, 69, .09);
+}
+
+.install-safety p {
+  margin: 0;
+  font-size: .76rem;
+  line-height: 1.75;
+}
+
+.install-guide-link {
+  position: relative;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 18px;
+  color: var(--rose-700);
+  font-size: .74rem;
+  font-weight: 900;
+  text-decoration: underline;
+  text-decoration-color: rgba(125, 54, 84, .25);
+  text-underline-offset: 5px;
+}
+
+.install-guide-link span {
+  transition: transform .2s;
+}
+
+.install-guide-link:hover span {
+  transform: translateX(-3px);
+}
+
+@keyframes demo-tap {
+  0% {
+    opacity: 0;
+    transform: scale(.3);
+  }
+  35% {
+    opacity: .78;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(2.1);
+  }
+}
+
+@keyframes show-install-success {
+  0%,
+  54% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  67%,
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .section {
@@ -1343,6 +2181,7 @@ a:focus-visible {
   }
 
   .hero-grid,
+  .install-guide-layout,
   .experience-grid,
   .privacy-grid,
   .move-grid {
@@ -1381,6 +2220,19 @@ a:focus-visible {
 
   .trust-grid article:nth-child(n + 3) {
     border-top: 1px solid var(--line);
+  }
+
+  .install-guide-layout {
+    gap: 42px;
+  }
+
+  .install-demo {
+    order: -1;
+  }
+
+  .install-steps {
+    width: min(100%, 680px);
+    margin-inline: auto;
   }
 
   .value-cards {
@@ -1526,6 +2378,10 @@ a:focus-visible {
     font-size: .7rem;
   }
 
+  .hero-install-help {
+    justify-content: center;
+  }
+
   .hero-visual {
     min-height: 570px;
   }
@@ -1580,6 +2436,104 @@ a:focus-visible {
   .trust-grid article:nth-child(3) {
     border-top: 1px solid var(--line);
     border-right: 0;
+  }
+
+  .install-guide-layout {
+    gap: 30px;
+    margin-top: 38px;
+  }
+
+  .install-demo {
+    min-height: 623px;
+    padding: 11px;
+    border-radius: 29px;
+  }
+
+  .install-demo-header {
+    padding-inline: 5px;
+  }
+
+  .install-demo-phone {
+    height: 500px;
+    border-width: 7px;
+    border-radius: 25px;
+  }
+
+  .install-step {
+    grid-template-columns: 39px minmax(0, 1fr) 20px;
+    min-height: 0;
+    gap: 11px;
+    padding: 15px 14px;
+    border-radius: 19px;
+  }
+
+  .install-step-number {
+    width: 39px;
+    height: 39px;
+    border-radius: 13px;
+  }
+
+  .install-step-copy strong {
+    font-size: .9rem;
+  }
+
+  .install-step-copy small {
+    font-size: .69rem;
+  }
+
+  .install-step-check {
+    width: 20px;
+    height: 20px;
+  }
+
+  .demo-page {
+    padding-top: 39px;
+  }
+
+  .demo-dialog {
+    right: 14px;
+    left: 14px;
+    padding-inline: 17px;
+  }
+
+  .demo-dialog-actions {
+    gap: 3px;
+  }
+
+  .demo-dialog-actions span {
+    padding-inline: 8px;
+  }
+
+  .demo-tap-more {
+    bottom: 115px;
+  }
+
+  .demo-tap-install {
+    bottom: 140px;
+  }
+
+  .install-demo-footer {
+    min-height: 50px;
+  }
+
+  .install-demo-footer p {
+    font-size: .59rem;
+  }
+
+  .install-safety {
+    align-items: flex-start;
+    margin-top: 28px;
+    padding: 16px;
+  }
+
+  .install-safety-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+  }
+
+  .install-safety p {
+    font-size: .7rem;
   }
 
   .section {
@@ -1686,6 +2640,12 @@ a:focus-visible {
     display: none;
   }
 
+  .install-guide-link {
+    max-width: 260px;
+    justify-content: center;
+    line-height: 1.6;
+  }
+
   .footer-links {
     flex-wrap: wrap;
     justify-content: center;
@@ -1733,5 +2693,9 @@ a:focus-visible {
   .js .reveal {
     opacity: 1;
     transform: none;
+  }
+
+  .demo-tap {
+    display: none;
   }
 }

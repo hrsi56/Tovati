@@ -534,6 +534,10 @@ private fun periodBasisText(forecast: PeriodForecast): String = when (forecast.b
     PeriodForecastBasis.OVULATION_AND_DEFAULT_LUTEAL ->
         stringResource(R.string.period_basis_ovulation_default, forecast.lutealDaysUsed ?: 0)
     PeriodForecastBasis.CYCLE_LENGTH_HISTORY -> stringResource(R.string.period_basis_cycle_history)
+    PeriodForecastBasis.SELF_REPORTED_CYCLE_LENGTH ->
+        stringResource(R.string.period_basis_reported_cycle_length)
+    PeriodForecastBasis.REPORTED_AND_CYCLE_LENGTH_HISTORY ->
+        stringResource(R.string.period_basis_reported_and_history)
     PeriodForecastBasis.DEFAULT_ESTIMATE -> stringResource(R.string.period_basis_default)
 }
 
@@ -555,10 +559,19 @@ private fun DateRangeRow(labelRes: Int, range: ClosedRange<java.time.LocalDate>)
 private fun explanationFor(analysis: CycleAnalysisResult?): String {
     if (analysis == null) return stringResource(R.string.explanation_insufficient)
     return when (analysis.status) {
-        FertilityStatus.INSUFFICIENT_DATA -> stringResource(R.string.explanation_insufficient)
+        FertilityStatus.INSUFFICIENT_DATA ->
+            if (AnalysisSignal.SELF_REPORTED_CYCLE_LENGTH in analysis.signals) {
+                stringResource(R.string.explanation_reported_cycle_length)
+            } else {
+                stringResource(R.string.explanation_insufficient)
+            }
         FertilityStatus.CALENDAR_ESTIMATE_ONLY,
         FertilityStatus.PREDICTED_FERTILE_WINDOW,
-        -> stringResource(R.string.explanation_calendar)
+        -> if (AnalysisSignal.SELF_REPORTED_CYCLE_LENGTH in analysis.signals) {
+            stringResource(R.string.explanation_reported_and_history)
+        } else {
+            stringResource(R.string.explanation_calendar)
+        }
         FertilityStatus.FERTILITY_SIGNS_PRESENT -> stringResource(R.string.explanation_fertile_mucus)
         FertilityStatus.LH_SURGE_DETECTED -> stringResource(R.string.explanation_lh_positive)
         FertilityStatus.THERMAL_SHIFT_CANDIDATE -> stringResource(R.string.explanation_shift_candidate)
@@ -590,6 +603,7 @@ private fun reliabilityResource(reliability: ForecastReliability?): Int = when (
 }
 
 private fun signalResource(signal: AnalysisSignal): Int = when (signal) {
+    AnalysisSignal.SELF_REPORTED_CYCLE_LENGTH -> R.string.signal_reported_cycle_length
     AnalysisSignal.PERSONAL_HISTORY -> R.string.signal_personal_history
     AnalysisSignal.CYCLE_LENGTH_HISTORY -> R.string.signal_cycle_history
     AnalysisSignal.LH_BORDERLINE -> R.string.signal_lh_borderline

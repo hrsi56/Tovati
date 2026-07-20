@@ -56,6 +56,7 @@ import com.yv.bbttracker.ui.navigation.DiaryRoute
 import com.yv.bbttracker.ui.navigation.HistoryRoute
 import com.yv.bbttracker.ui.navigation.MeasurementRoute
 import com.yv.bbttracker.ui.navigation.ObservationRoute
+import com.yv.bbttracker.ui.navigation.ReconfigureOnboardingRoute
 import com.yv.bbttracker.ui.navigation.SettingsRoute
 import com.yv.bbttracker.ui.navigation.TodayRoute
 import java.time.LocalDate
@@ -83,12 +84,15 @@ fun AppGraph(
             )
             OnboardingScreen(onboardingViewModel)
         }
-        else -> MainNavigation(container)
+        else -> MainNavigation(container, requireNotNull(settings))
     }
 }
 
 @Composable
-private fun MainNavigation(container: AppContainer) {
+private fun MainNavigation(
+    container: AppContainer,
+    settings: com.yv.bbttracker.domain.model.AppSettings,
+) {
     val backStack = rememberNavBackStack(TodayRoute)
     val current = backStack.lastOrNull()
     val isTopLevel = current is TodayRoute || current is ChartRoute && current.cycleId == 0L ||
@@ -209,7 +213,30 @@ private fun MainNavigation(container: AppContainer) {
                                 container.documentGateway,
                             ),
                         )
-                        SettingsScreen(vm)
+                        SettingsScreen(
+                            viewModel = vm,
+                            onReconfigure = {
+                                backStack.add(
+                                    ReconfigureOnboardingRoute(System.currentTimeMillis()),
+                                )
+                            },
+                        )
+                    }
+                    is ReconfigureOnboardingRoute -> NavEntry<NavKey>(key) {
+                        val vm: OnboardingViewModel = viewModel(
+                            key = "reconfigure-onboarding-${key.requestId}",
+                            factory = OnboardingViewModel.Factory(
+                                settingsRepository = container.settingsRepository,
+                                reminderScheduler = container.reminderScheduler,
+                                initialSettings = settings,
+                                reconfigure = true,
+                            ),
+                        )
+                        OnboardingScreen(
+                            viewModel = vm,
+                            onFinished = { backStack.removeLastOrNull() },
+                            onDismiss = { backStack.removeLastOrNull() },
+                        )
                     }
                     is MeasurementRoute -> NavEntry<NavKey>(key) {
                         val vm: MeasurementEntryViewModel = viewModel(

@@ -9,7 +9,11 @@ import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.yv.bbttracker.domain.model.AppSettings
+import com.yv.bbttracker.domain.model.MAX_TYPICAL_MENSTRUATION_LENGTH_DAYS
+import com.yv.bbttracker.domain.model.MAX_TYPICAL_CYCLE_LENGTH_DAYS
 import com.yv.bbttracker.domain.model.MeasurementSite
+import com.yv.bbttracker.domain.model.MIN_TYPICAL_MENSTRUATION_LENGTH_DAYS
+import com.yv.bbttracker.domain.model.MIN_TYPICAL_CYCLE_LENGTH_DAYS
 import com.yv.bbttracker.domain.model.TrackingGoal
 import com.yv.bbttracker.domain.repository.SettingsRepository
 import kotlinx.coroutines.flow.Flow
@@ -24,6 +28,8 @@ class SettingsRepositoryImpl(private val context: Context) : SettingsRepository 
     private object Keys {
         val onboarding = booleanPreferencesKey("onboarding_completed")
         val trackingGoal = stringPreferencesKey("tracking_goal")
+        val typicalCycleLength = intPreferencesKey("typical_cycle_length_days")
+        val typicalMenstruationLength = intPreferencesKey("typical_menstruation_length_days")
         val measurementSite = stringPreferencesKey("default_measurement_site")
         val reminderEnabled = booleanPreferencesKey("reminder_enabled")
         val reminderHour = intPreferencesKey("reminder_hour")
@@ -56,6 +62,12 @@ class SettingsRepositoryImpl(private val context: Context) : SettingsRepository 
         trackingGoal = preferences[Keys.trackingGoal]
             ?.let { runCatching { TrackingGoal.valueOf(it) }.getOrNull() }
             ?: TrackingGoal.CYCLE_AWARENESS,
+        typicalCycleLengthDays = preferences[Keys.typicalCycleLength]
+            ?.takeIf { it in MIN_TYPICAL_CYCLE_LENGTH_DAYS..MAX_TYPICAL_CYCLE_LENGTH_DAYS },
+        typicalMenstruationLengthDays = preferences[Keys.typicalMenstruationLength]
+            ?.takeIf {
+                it in MIN_TYPICAL_MENSTRUATION_LENGTH_DAYS..MAX_TYPICAL_MENSTRUATION_LENGTH_DAYS
+            },
         defaultMeasurementSite = preferences[Keys.measurementSite]
             ?.let { runCatching { MeasurementSite.valueOf(it) }.getOrNull() }
             ?: MeasurementSite.ORAL,
@@ -72,6 +84,17 @@ class SettingsRepositoryImpl(private val context: Context) : SettingsRepository 
     private fun writeSettings(preferences: androidx.datastore.preferences.core.MutablePreferences, value: AppSettings) {
         preferences[Keys.onboarding] = value.onboardingCompleted
         preferences[Keys.trackingGoal] = value.trackingGoal.name
+        value.typicalCycleLengthDays
+            ?.coerceIn(MIN_TYPICAL_CYCLE_LENGTH_DAYS, MAX_TYPICAL_CYCLE_LENGTH_DAYS)
+            ?.let { preferences[Keys.typicalCycleLength] = it }
+            ?: preferences.remove(Keys.typicalCycleLength)
+        value.typicalMenstruationLengthDays
+            ?.coerceIn(
+                MIN_TYPICAL_MENSTRUATION_LENGTH_DAYS,
+                MAX_TYPICAL_MENSTRUATION_LENGTH_DAYS,
+            )
+            ?.let { preferences[Keys.typicalMenstruationLength] = it }
+            ?: preferences.remove(Keys.typicalMenstruationLength)
         preferences[Keys.measurementSite] = value.defaultMeasurementSite.name
         preferences[Keys.reminderEnabled] = value.reminderEnabled
         preferences[Keys.reminderHour] = value.reminderHour.coerceIn(0, 23)
@@ -84,4 +107,3 @@ class SettingsRepositoryImpl(private val context: Context) : SettingsRepository 
         preferences[Keys.chartDays] = value.chartVisibleDays.coerceIn(10, 120)
     }
 }
-

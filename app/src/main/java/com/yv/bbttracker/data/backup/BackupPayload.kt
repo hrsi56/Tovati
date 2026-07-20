@@ -18,7 +18,7 @@ data class BackupPayload(
 ) {
     companion object {
         const val MIN_SUPPORTED_SCHEMA_VERSION = 1
-        const val SCHEMA_VERSION = 4
+        const val SCHEMA_VERSION = 5
     }
 }
 

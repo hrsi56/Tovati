@@ -100,6 +100,28 @@ class DiaryCalendarBuilderTest {
     }
 
     @Test
+    fun reportedMenstruationLengthMarksItsEstimatedEndOnlyForCurrentCycle() {
+        val start = LocalDate.of(2026, 7, 1)
+        val calendar = DiaryCalendarBuilder.build(
+            cycle = cycle(1, start),
+            allCycles = listOf(cycle(1, start)),
+            measurements = emptyList(),
+            observations = emptyList(),
+            analysis = analysis(),
+            today = start.plusDays(1),
+            typicalMenstruationLengthDays = 5,
+        )
+
+        assertEquals(start.plusDays(4), calendar.expectedMenstruationEndDate)
+        assertEquals(
+            listOf(start.plusDays(4)),
+            calendar.days
+                .filter { DiaryDayMarker.POSSIBLE_MENSTRUATION_END in it.markers }
+                .map { it.date },
+        )
+    }
+
+    @Test
     fun completedCycleStopsAtActualEndAndShowsKnownNextCycle() {
         val first = cycle(
             id = 1,

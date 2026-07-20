@@ -37,6 +37,15 @@
     <string name="onboarding_goal_title">למה תרצי להשתמש באפליקציה?</string>
     <string name="goal_track">היכרות ומעקב אחר המחזור</string>
     <string name="goal_conceive">תזמון ניסיון להרות</string>
+    <string name="onboarding_cycle_length_title">מה אורך המחזור שלך בדרך כלל?</string>
+    <string name="onboarding_cycle_length_body">טובתי תשתמש בתשובה כהערכת פתיחה בלבד. אחרי שיצטברו מחזורים מלאים, הנתונים שתתעדי יחליפו אותה בהדרגה.</string>
+    <string name="choose_cycle_length">בחירת אורך המחזור</string>
+    <string name="cycle_length_not_sure">אני לא בטוחה עדיין</string>
+    <string name="onboarding_menstruation_length_title">מה אורך הווסת הממוצע?</string>
+    <string name="onboarding_menstruation_length_body">ספרי כמה ימים נמשך הדימום בדרך כלל. כך נוכל להציג ביומן מתי הוא צפוי להסתיים בתחילת השימוש.</string>
+    <string name="choose_menstruation_length">בחירת אורך הווסת</string>
+    <string name="menstruation_length_not_sure">אני לא בטוחה עדיין</string>
+    <string name="days">ימים</string>
     <string name="onboarding_site_title">אתר מדידה ברירת מחדל</string>
     <string name="onboarding_site_body">כדי לזהות דפוס שימושי, חשוב למדוד בעקביות באותו אתר.</string>
     <string name="site_oral">בפה</string>
@@ -94,7 +103,7 @@
     <string name="insight_tracking_streak">איזה רצף יפה — תיעדת %1$d ימים ברצף. מעקב עקבי עוזר לראות דפוסים אישיים.</string>
 
     <string name="status_insufficient_data">עדיין אין מספיק נתונים</string>
-    <string name="status_calendar_estimate">הערכה המבוססת על היסטוריה בלבד</string>
+    <string name="status_calendar_estimate">הערכת תזמון לפי הנתונים שלך</string>
     <string name="status_predicted_window">היום עשוי להיות בתוך טווח שבו התעברות אפשרית</string>
     <string name="status_fertility_signs">זוהה היום סימן פוריות</string>
     <string name="status_lh_surge">נרשמה בדיקת LH חיובית</string>
@@ -105,6 +114,8 @@
     <string name="explanation_insufficient">עדיין אין מספיק מדידות עקביות כדי לזהות דפוס. המשיכי למדוד מיד לאחר ההתעוררות ובאותו אופן בכל יום.</string>
     <string name="explanation_no_history">אין עדיין מספיק היסטוריה לתחזית אישית</string>
     <string name="explanation_calendar">הימים המסומנים הם הערכה על סמך מחזורים קודמים בלבד. מועד הביוץ יכול להשתנות גם במחזורים סדירים.</string>
+    <string name="explanation_reported_cycle_length">עדיין אין מספיק היסטוריה אישית. ההערכה הראשונית משתמשת באורך המחזור שמסרת, ותשתנה לפי הסימנים והמחזורים שתתעדי.</string>
+    <string name="explanation_reported_and_history">ההערכה משלבת זמנית את אורך המחזור שמסרת עם המחזורים שכבר תיעדת. סימני LH, נוזל וחום עשויים להזיז אותה.</string>
     <string name="explanation_lh_positive">נרשמה בדיקת LH חיובית. הדבר עשוי להצביע על התקרבות הביוץ, אך אינו מאשר שהביוץ התרחש.</string>
     <string name="explanation_fertile_mucus">נרשם נוזל מימי או דמוי חלבון ביצה כסימן פוריות נוכחי.</string>
     <string name="explanation_shift_candidate">נראית עלייה מתמשכת בחום השחר. בדרך כלל שינוי כזה מופיע לאחר הביוץ, אך דרושות מדידות נוספות לאישור הדפוס.</string>
@@ -294,6 +305,8 @@
     <string name="settings_privacy">פרטיות</string>
     <string name="settings_data">הנתונים שלך</string>
     <string name="settings_about">אודות</string>
+    <string name="linkedin_profile">ה־LinkedIn של מפתח האפליקציה</string>
+    <string name="reconfigure_onboarding">בואי נגדיר מחדש</string>
     <string name="reminder_approximate">Android עשויה להציג את התזכורת סמוך לשעה שנבחרה, בהתאם לניהול הסוללה.</string>
     <string name="notification_permission_denied">ההתראות כבויות. ניתן להפעיל אותן בהגדרות המערכת.</string>
     <string name="biometric_lock">נעילה ביומטרית</string>
@@ -401,6 +414,8 @@
     <string name="period_basis_ovulation_personal">מבוסס על הערכת הביוץ במחזור הנוכחי ועל השלב הלוטאלי האישי שלך (כ־%1$d ימים).</string>
     <string name="period_basis_ovulation_default">מבוסס על הערכת הביוץ במחזור הנוכחי ועל שלב לוטאלי טיפוסי (כ־%1$d ימים).</string>
     <string name="period_basis_cycle_history">זהו צמד הימים בעל ההתאמה הגבוהה ביותר להיסטוריית אורכי המחזורים שלך; הוא עשוי להשתנות כשיירשמו סימני ביוץ.</string>
+    <string name="period_basis_reported_cycle_length">מבוסס זמנית על אורך המחזור שמסרת בהגדרה הראשונית; הנתונים שתתעדי יחליפו את ההערכה הזו.</string>
+    <string name="period_basis_reported_and_history">משלב זמנית את אורך המחזור שמסרת עם המחזורים שתיעדת; ההיסטוריה בפועל מקבלת בהדרגה יותר משקל.</string>
     <string name="period_basis_default">ניחוש התחלתי ממוקד; הוא יותאם אישית ככל שיירשמו מחזורים וסימנים.</string>
     <string name="period_overdue_note">הטווח הצפוי חלף, כלומר המחזור הנוכחי ארוך מההערכה. המשיכי לתעד; ההערכה אינה מסקנה רפואית.</string>
     <string name="history_luteal_length">שלב לוטאלי משוער: %1$d ימים</string>
@@ -419,6 +434,7 @@
     <string name="short_safety_disclaimer">הערכה ביתית בלבד — לא אישור ביוץ ולא אמצעי מניעה.</string>
 
     <string name="signal_personal_history">היסטוריית ביוץ אישית</string>
+    <string name="signal_reported_cycle_length">אורך המחזור שמסרת</string>
     <string name="signal_cycle_history">היסטוריית מחזורים</string>
     <string name="signal_lh_borderline">LH גבולי</string>
     <string name="signal_lh_surge">LH חיובי</string>
@@ -465,6 +481,8 @@
     <string name="diary_actual_start">תחילת המחזור בפועל</string>
     <string name="diary_actual_end">סיום המחזור בפועל</string>
     <string name="diary_expected_end">שני הימים הסבירים לסיום המחזור</string>
+    <string name="diary_expected_menstruation_end">סיום הווסת המשוער</string>
+    <string name="diary_based_on_reported_menstruation_length">לפי אורך הווסת שמסרת בהגדרה הראשונית</string>
     <string name="diary_next_cycle_expected">שני הימים הסבירים לתחילת המחזור הבא</string>
     <string name="diary_next_cycle_actual">המחזור הבא התחיל</string>
     <string name="diary_ovulation_expected">שני ימי הביוץ הסבירים ביותר</string>
@@ -480,6 +498,7 @@
     <string name="diary_legend_conception">ימים אפשריים להתעברות</string>
     <string name="diary_legend_ovulation_expected">טווח ביוץ חזוי</string>
     <string name="diary_legend_ovulation_past">ביוץ משוער בדיעבד</string>
+    <string name="diary_legend_menstruation_end">סיום וסת משוער לפי ההגדרה הראשונית</string>
     <string name="diary_legend_cycle_end">אחד משני ימי סיום המחזור החזויים</string>
     <string name="diary_legend_next_cycle">טווח אפשרי לתחילת מחזור חדש</string>
     <string name="diary_legend_today">היום</string>
@@ -524,6 +543,7 @@
     <string name="diary_add_temperature">הוספת מדידת חום ליום זה</string>
     <string name="diary_edit_signs">עריכת הסימנים של יום זה</string>
     <string name="diary_possible_cycle_end">אחד הימים האפשריים לסיום המחזור הנוכחי</string>
+    <string name="diary_possible_menstruation_end">סיום הווסת המשוער לפי ההגדרה הראשונית</string>
     <string name="diary_possible_next_start">אחד הימים האפשריים ליום 1 של המחזור הבא</string>
     <string name="diary_conception_day">בתוך טווח שבו התעברות אפשרית</string>
     <string name="diary_prospective_ovulation_day">בתוך טווח ביוץ שחושב לפי היסטוריה וסימנים מוקדמים</string>

@@ -25,6 +25,12 @@ enum class PeriodForecastBasis {
     /** No usable ovulation estimate yet; the personal cycle-length history is used instead. */
     CYCLE_LENGTH_HISTORY,
 
+    /** Early estimate based only on the cycle length supplied during onboarding. */
+    SELF_REPORTED_CYCLE_LENGTH,
+
+    /** Sparse recorded history blended with the onboarding cycle-length estimate. */
+    REPORTED_AND_CYCLE_LENGTH_HISTORY,
+
     /** Neither an ovulation estimate nor any completed cycle exists; focused default pair. */
     DEFAULT_ESTIMATE,
 }
@@ -56,6 +62,7 @@ object PeriodForecastCalculator {
     private const val MIN_PLAUSIBLE_LUTEAL_DAYS = 7
     private const val MAX_PLAUSIBLE_LUTEAL_DAYS = 20
     private const val MIN_SAMPLES_FOR_PERSONAL_LUTEAL = 2
+    private const val HISTORY_SAMPLES_TO_REPLACE_REPORTED_LENGTH = 3
 
     fun lutealStats(previousCycles: List<CycleWithAnalysis>): LutealPhaseStats? {
         val samples = previousCycles.mapNotNull { historical ->
@@ -77,9 +84,14 @@ object PeriodForecastCalculator {
         currentDate: LocalDate,
         previousCycles: List<CycleWithAnalysis>,
         ovulationEstimate: ClosedRange<LocalDate>?,
+        typicalCycleLengthDays: Int? = null,
     ): PeriodForecast {
         val completedLengths = previousCycles.mapNotNull { it.cycleLengthDays?.toDouble() }
         val luteal = lutealStats(previousCycles)
+        val cycleLengthEstimate = cycleLengthEstimate(
+            completedLengths = completedLengths,
+            typicalCycleLengthDays = typicalCycleLengthDays,
+        )
 
         // A luteal phase of L days occupies the L days after the ovulation day and ends the day
         // before menses, so the next period starts L + 1 days after the ovulation date.
@@ -99,14 +111,13 @@ object PeriodForecastCalculator {
                 DEFAULT_LUTEAL_DAYS,
             )
 
-            completedLengths.isNotEmpty() -> {
-                val medianLength = median(completedLengths)
+            cycleLengthEstimate != null -> {
                 // A cycle of N days occupies days 1..N, so the next period starts N days after
                 // the current start.
-                val center = currentCycleStart.plusDays(medianLength.roundToLong())
+                val center = currentCycleStart.plusDays(cycleLengthEstimate.days.roundToLong())
                 Triple(
                     center,
-                    PeriodForecastBasis.CYCLE_LENGTH_HISTORY,
+                    cycleLengthEstimate.basis,
                     null,
                 )
             }
@@ -129,7 +140,41 @@ object PeriodForecastCalculator {
             isOverdue = currentDate.isAfter(range.endInclusive),
         )
     }
+
+    internal fun cycleLengthEstimate(
+        completedLengths: List<Double>,
+        typicalCycleLengthDays: Int?,
+    ): CycleLengthEstimate? {
+        val reported = typicalCycleLengthDays?.toDouble()
+        val historicalMedian = completedLengths.takeIf { it.isNotEmpty() }?.let(::median)
+        return when {
+            historicalMedian == null && reported != null -> CycleLengthEstimate(
+                days = reported,
+                basis = PeriodForecastBasis.SELF_REPORTED_CYCLE_LENGTH,
+            )
+            historicalMedian != null &&
+                reported != null &&
+                completedLengths.size < HISTORY_SAMPLES_TO_REPLACE_REPORTED_LENGTH -> {
+                CycleLengthEstimate(
+                    days = (
+                        historicalMedian * completedLengths.size.toDouble() + reported
+                        ) / (completedLengths.size + 1).toDouble(),
+                    basis = PeriodForecastBasis.REPORTED_AND_CYCLE_LENGTH_HISTORY,
+                )
+            }
+            historicalMedian != null -> CycleLengthEstimate(
+                days = historicalMedian,
+                basis = PeriodForecastBasis.CYCLE_LENGTH_HISTORY,
+            )
+            else -> null
+        }
+    }
 }
+
+internal data class CycleLengthEstimate(
+    val days: Double,
+    val basis: PeriodForecastBasis,
+)
 
 private fun ClosedRange<LocalDate>.midpoint(): LocalDate =
     LocalDate.ofEpochDay((start.toEpochDay() + endInclusive.toEpochDay()) / 2L)

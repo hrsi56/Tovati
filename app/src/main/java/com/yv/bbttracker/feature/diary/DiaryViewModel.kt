@@ -63,6 +63,7 @@ class DiaryViewModel(
                 temperatures = cycleMeasurements,
                 observations = cycleObservations,
                 defaultMeasurementSite = cycleSite,
+                typicalCycleLengthDays = settings.typicalCycleLengthDays,
             ),
         )
         DiaryUiState(
@@ -74,6 +75,7 @@ class DiaryViewModel(
                 observations = cycleObservations,
                 analysis = analysis,
                 today = today,
+                typicalMenstruationLengthDays = settings.typicalMenstruationLengthDays,
             ),
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), DiaryUiState())

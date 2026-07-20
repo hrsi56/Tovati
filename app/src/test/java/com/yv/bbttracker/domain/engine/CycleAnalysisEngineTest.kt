@@ -35,6 +35,26 @@ class CycleAnalysisEngineTest {
     }
 
     @Test
+    fun `reported cycle length focuses the initial estimate without overstating reliability`() {
+        val result = analyze(
+            currentDate = currentCycleStart.plusDays(4),
+            typicalCycleLengthDays = 34,
+        )
+        val peakDate = result.dailyOvulationWeights.maxBy { it.relativeWeight }.date
+        val peakCycleDay = (peakDate.toEpochDay() - currentCycleStart.toEpochDay() + 1).toInt()
+
+        assertTrue(peakCycleDay in 19..21)
+        assertTrue(AnalysisSignal.SELF_REPORTED_CYCLE_LENGTH in result.signals)
+        assertTrue(ReasonCode.SELF_REPORTED_CYCLE_LENGTH_AVAILABLE in result.reasonCodes)
+        assertEquals(EvidenceLevel.CALENDAR_ONLY, result.evidenceLevel)
+        assertEquals(ForecastReliability.INSUFFICIENT, result.reliability)
+        assertEquals(
+            PeriodForecastBasis.SELF_REPORTED_CYCLE_LENGTH,
+            result.nextPeriodForecast?.basis,
+        )
+    }
+
+    @Test
     fun `conception opportunity starts five days before possible ovulation and ends with it`() {
         val result = analyze(
             currentDate = currentCycleStart,
@@ -652,6 +672,7 @@ class CycleAnalysisEngineTest {
                 observation(firstPositive, lhResult = LhResult.POSITIVE),
                 observation(firstPositive.plusDays(1), lhResult = LhResult.POSITIVE),
             ),
+            typicalCycleLengthDays = 40,
         )
         val forecast = requireNotNull(result.nextPeriodForecast)
 
@@ -678,7 +699,7 @@ class CycleAnalysisEngineTest {
     fun `engine version and explanation are always included`() {
         val result = analyze(currentCycleStart)
 
-        assertEquals("bbt-fusion-2.2.0", ENGINE_VERSION)
+        assertEquals("bbt-fusion-2.3.0", ENGINE_VERSION)
         assertEquals(ENGINE_VERSION, result.engineVersion)
         assertTrue(result.humanExplanation.isNotEmpty())
         assertTrue(result.humanExplanation.size <= 3)
@@ -689,6 +710,7 @@ class CycleAnalysisEngineTest {
         previousCycles: List<CycleWithAnalysis> = emptyList(),
         temperatures: List<TemperatureMeasurement> = emptyList(),
         observations: List<com.yv.bbttracker.domain.model.DailyObservation> = emptyList(),
+        typicalCycleLengthDays: Int? = null,
     ): CycleAnalysisResult = engine.analyze(
         CycleAnalysisInput(
             currentDate = currentDate,
@@ -697,6 +719,7 @@ class CycleAnalysisEngineTest {
             temperatures = temperatures,
             observations = observations,
             defaultMeasurementSite = MeasurementSite.ORAL,
+            typicalCycleLengthDays = typicalCycleLengthDays,
         ),
     )
 

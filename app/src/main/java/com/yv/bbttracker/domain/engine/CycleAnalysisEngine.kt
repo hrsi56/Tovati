@@ -44,6 +44,7 @@ class CycleAnalysisEngine {
             currentCycleStart = input.currentCycle.startDate,
             currentDate = input.currentDate,
             previousCycles = input.previousCycles,
+            typicalCycleLengthDays = input.typicalCycleLengthDays,
         )
         // A current LH episode is kept as one focused two-day estimate. A prolonged positive can
         // move the actionable pair forward, but never widens the display across the whole episode.
@@ -160,7 +161,8 @@ class CycleAnalysisEngine {
             activeLh = prospectiveLhEpisode != null,
             fertileMucusToday = mucus.fertileToday,
             conceptionWindow = conceptionWindow,
-            historyAvailable = forecast.historyCycleCount > 0,
+            historyAvailable = forecast.historyCycleCount > 0 ||
+                AnalysisSignal.SELF_REPORTED_CYCLE_LENGTH in forecast.signals,
             overdueForecast = overdueForecast,
             signsConflict = signsConflict,
         )
@@ -190,7 +192,15 @@ class CycleAnalysisEngine {
 
         val reasons = linkedSetOf<ReasonCode>().apply {
             addAll(qualityAssessment.reasonCodes)
-            if (forecast.historyCycleCount > 0) add(ReasonCode.CALENDAR_PRIOR_AVAILABLE)
+            if (
+                forecast.historyCycleCount > 0 ||
+                AnalysisSignal.SELF_REPORTED_CYCLE_LENGTH in forecast.signals
+            ) {
+                add(ReasonCode.CALENDAR_PRIOR_AVAILABLE)
+            }
+            if (AnalysisSignal.SELF_REPORTED_CYCLE_LENGTH in forecast.signals) {
+                add(ReasonCode.SELF_REPORTED_CYCLE_LENGTH_AVAILABLE)
+            }
             if (AnalysisSignal.PERSONAL_HISTORY in forecast.signals) {
                 add(ReasonCode.PERSONAL_OVULATION_HISTORY_AVAILABLE)
             }
@@ -230,6 +240,7 @@ class CycleAnalysisEngine {
             currentDate = input.currentDate,
             previousCycles = input.previousCycles,
             ovulationEstimate = retrospectiveRange ?: prospectiveLhRange,
+            typicalCycleLengthDays = input.typicalCycleLengthDays,
         )
 
         val estimatedCompatibilityRange = retrospectiveRange
@@ -243,7 +254,7 @@ class CycleAnalysisEngine {
             estimatedOvulationRange = estimatedCompatibilityRange,
             thermalShift = thermalShift,
             reasonCodes = reasons.toList(),
-            humanExplanation = explanationsFor(status, reliability, signsConflict),
+            humanExplanation = explanationsFor(status, reliability, signsConflict, signals),
             engineVersion = ENGINE_VERSION,
             prospectiveOvulationRange = prospectiveRange,
             conceptionOpportunityWindow = conceptionWindow,
@@ -354,7 +365,9 @@ class CycleAnalysisEngine {
                 EvidenceLevel.THERMAL_PATTERN
             biologicalGroups >= 2 -> EvidenceLevel.MULTIPLE_SIGNS
             biologicalGroups == 1 -> EvidenceLevel.ONE_BIOLOGICAL_SIGN
-            AnalysisSignal.PERSONAL_HISTORY in signals || AnalysisSignal.CYCLE_LENGTH_HISTORY in signals ->
+            AnalysisSignal.SELF_REPORTED_CYCLE_LENGTH in signals ||
+                AnalysisSignal.PERSONAL_HISTORY in signals ||
+                AnalysisSignal.CYCLE_LENGTH_HISTORY in signals ->
                 EvidenceLevel.CALENDAR_ONLY
             else -> EvidenceLevel.NONE
         }
@@ -425,11 +438,22 @@ class CycleAnalysisEngine {
         status: FertilityStatus,
         reliability: ForecastReliability,
         signsConflict: Boolean,
+        signals: Set<AnalysisSignal>,
     ): List<String> = buildList {
         add(
             when (status) {
-                FertilityStatus.INSUFFICIENT_DATA -> "עדיין אין מספיק נתונים אישיים; מוצג צמד הימים בעל המשקל הגבוה ביותר כהערכה התחלתית."
-                FertilityStatus.CALENDAR_ESTIMATE_ONLY -> "ההערכה מבוססת בעיקר על היסטוריה אישית ואינה אישור ביוץ."
+                FertilityStatus.INSUFFICIENT_DATA ->
+                    if (AnalysisSignal.SELF_REPORTED_CYCLE_LENGTH in signals) {
+                        "עדיין אין מספיק היסטוריה; הערכת הפתיחה משתמשת באורך המחזור שמסרת ואינה אישור ביוץ."
+                    } else {
+                        "עדיין אין מספיק נתונים אישיים; מוצג צמד הימים בעל המשקל הגבוה ביותר כהערכה התחלתית."
+                    }
+                FertilityStatus.CALENDAR_ESTIMATE_ONLY ->
+                    if (AnalysisSignal.SELF_REPORTED_CYCLE_LENGTH in signals) {
+                        "הערכת לוח־השנה משלבת את אורך המחזור שמסרת עם ההיסטוריה שנצברה ואינה אישור ביוץ."
+                    } else {
+                        "ההערכה מבוססת בעיקר על היסטוריה אישית ואינה אישור ביוץ."
+                    }
                 FertilityStatus.PREDICTED_FERTILE_WINDOW -> "היום נמצא בחלון ניסיון להרות שנגזר מטווח ביוץ אפשרי."
                 FertilityStatus.FERTILITY_SIGNS_PRESENT -> "דפוס הנוזל הנוכחי תומך בפוריות מוגברת, אך אינו מאשר ביוץ."
                 FertilityStatus.LH_SURGE_DETECTED -> "זוהתה אפיזודת LH מהחיובי הראשון; חיוביים רצופים אינם מאפסים אותה."
@@ -466,6 +490,7 @@ private object PersonalPriorCalculator {
         currentCycleStart: LocalDate,
         currentDate: LocalDate,
         previousCycles: List<CycleWithAnalysis>,
+        typicalCycleLengthDays: Int?,
     ): PersonalForecast {
         val completed = previousCycles
             .filter { it.cycle.endDate != null && it.cycle.startDate.isBefore(currentCycleStart) }
@@ -480,11 +505,15 @@ private object PersonalPriorCalculator {
 
         val cycleLengths = completed.mapNotNull { it.cycleLengthDays?.toDouble() }
         val medianLength = cycleLengths.takeIf { it.isNotEmpty() }?.let(::median)
+        val cycleLengthEstimate = PeriodForecastCalculator.cycleLengthEstimate(
+            completedLengths = cycleLengths,
+            typicalCycleLengthDays = typicalCycleLengthDays,
+        )
         val lengthMad = medianLength?.let { center -> median(cycleLengths.map { abs(it - center) }) } ?: 0.0
         // Prefer the personal median luteal length over the textbook 14-day assumption when the
         // history carries enough retrospective ovulation estimates to derive one.
         val lutealDays = PeriodForecastCalculator.lutealStats(completed)?.medianDays ?: 14.0
-        val fallbackCenter = ((medianLength ?: 29.0) - lutealDays)
+        val fallbackCenter = ((cycleLengthEstimate?.days ?: 29.0) - lutealDays)
             .coerceIn(MIN_OVULATION_CYCLE_DAY.toDouble(), maxDay.toDouble())
         val fallbackSigma = max(6.0, lengthMad + 4.0)
 
@@ -492,6 +521,22 @@ private object PersonalPriorCalculator {
         (MIN_OVULATION_CYCLE_DAY..maxDay).forEach { day ->
             val broadFallback = gaussian(day.toDouble(), fallbackCenter, fallbackSigma)
             raw[currentCycleStart.plusDays((day - 1).toLong())] = 0.005 + broadFallback
+        }
+
+        val reportedWeight = when (cycleLengths.size) {
+            0 -> 1.4
+            1 -> 0.75
+            2 -> 0.35
+            else -> 0.0
+        }
+        if (typicalCycleLengthDays != null && reportedWeight > 0.0) {
+            val reportedCenter = (typicalCycleLengthDays.toDouble() - lutealDays)
+                .coerceIn(MIN_OVULATION_CYCLE_DAY.toDouble(), maxDay.toDouble())
+            raw.keys.forEach { date ->
+                val day = ChronoUnit.DAYS.between(currentCycleStart, date).toInt() + 1
+                raw[date] = raw.getValue(date) + reportedWeight *
+                    gaussian(day.toDouble(), reportedCenter, 4.0)
+            }
         }
 
         completed.forEachIndexed { index, historical ->
@@ -525,6 +570,9 @@ private object PersonalPriorCalculator {
             median(values.map { abs(it - center) })
         } ?: 0.0
         val signals = linkedSetOf<AnalysisSignal>().apply {
+            if (typicalCycleLengthDays != null && cycleLengths.size < 3) {
+                add(AnalysisSignal.SELF_REPORTED_CYCLE_LENGTH)
+            }
             if (completed.isNotEmpty()) add(AnalysisSignal.CYCLE_LENGTH_HISTORY)
             if (personalDays.isNotEmpty()) add(AnalysisSignal.PERSONAL_HISTORY)
         }

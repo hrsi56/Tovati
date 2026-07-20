@@ -93,6 +93,7 @@ class TodayViewModel(
                     temperatures = currentMeasurements,
                     observations = observations.filter { cycle.contains(it.date) },
                     defaultMeasurementSite = currentSite,
+                    typicalCycleLengthDays = settings.typicalCycleLengthDays,
                 ),
             )
         }

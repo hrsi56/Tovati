@@ -27,7 +27,7 @@ class ShareableBackupInstrumentedTest {
     fun encryptedBackupIsKeptPrivatelyAndExposedOnlyThroughReadableContentUri() = runBlocking {
         val createdAt = Instant.parse("2026-07-18T08:15:00Z")
         val envelope = BackupCrypto.encrypt(
-            payload = """{"schemaVersion":4}""",
+            payload = """{"schemaVersion":5}""",
             password = "strong password",
             createdAt = createdAt,
         )

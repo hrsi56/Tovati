@@ -14,8 +14,12 @@ import com.yv.bbttracker.domain.model.LH_TEST_SENSITIVITY_MAX_MILLI_IU
 import com.yv.bbttracker.domain.model.LH_TEST_SENSITIVITY_MIN_MILLI_IU
 import com.yv.bbttracker.domain.model.LhResult
 import com.yv.bbttracker.domain.model.MAX_DAILY_PAIN_RELIEF_PILLS
+import com.yv.bbttracker.domain.model.MAX_TYPICAL_MENSTRUATION_LENGTH_DAYS
+import com.yv.bbttracker.domain.model.MAX_TYPICAL_CYCLE_LENGTH_DAYS
 import com.yv.bbttracker.domain.model.MOOD_NOTE_MAX_LENGTH
 import com.yv.bbttracker.domain.model.MeasurementSource
+import com.yv.bbttracker.domain.model.MIN_TYPICAL_MENSTRUATION_LENGTH_DAYS
+import com.yv.bbttracker.domain.model.MIN_TYPICAL_CYCLE_LENGTH_DAYS
 import com.yv.bbttracker.domain.model.MoodFlag
 import com.yv.bbttracker.domain.model.PhysicalSymptomFlag
 import com.yv.bbttracker.domain.model.PAIN_RELIEF_MEDICATION_NOTE_MAX_LENGTH
@@ -200,6 +204,18 @@ class BackupManager(
             throw UnsupportedBackupVersionException()
         }
         if (payload.cycles.map { it.startEpochDay }.distinct().size != payload.cycles.size) throw BackupCryptoException()
+        if (payload.settings.typicalCycleLengthDays != null &&
+            payload.settings.typicalCycleLengthDays !in
+            MIN_TYPICAL_CYCLE_LENGTH_DAYS..MAX_TYPICAL_CYCLE_LENGTH_DAYS
+        ) {
+            throw BackupCryptoException()
+        }
+        if (payload.settings.typicalMenstruationLengthDays != null &&
+            payload.settings.typicalMenstruationLengthDays !in
+            MIN_TYPICAL_MENSTRUATION_LENGTH_DAYS..MAX_TYPICAL_MENSTRUATION_LENGTH_DAYS
+        ) {
+            throw BackupCryptoException()
+        }
         val sortedCycles = payload.cycles.sortedBy { it.startEpochDay }
         if (sortedCycles.count { it.endEpochDay == null } > 1) throw BackupCryptoException()
         sortedCycles.forEachIndexed { index, cycle ->

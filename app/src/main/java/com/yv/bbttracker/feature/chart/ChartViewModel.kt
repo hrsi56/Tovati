@@ -100,6 +100,7 @@ class ChartViewModel(
                     temperatures = cycleMeasurements,
                     observations = cycleObservations,
                     defaultMeasurementSite = cycleSite,
+                    typicalCycleLengthDays = settings.typicalCycleLengthDays,
                 ),
             ),
         )

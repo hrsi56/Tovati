@@ -22,6 +22,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.FactCheck
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.HealthAndSafety
+import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.NotificationsNone
 import androidx.compose.material.icons.outlined.TrackChanges
@@ -42,6 +43,7 @@ import androidx.compose.material3.TimeInput
 import androidx.compose.material3.TimePickerDialog
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -54,15 +56,27 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.yv.bbttracker.R
+import com.yv.bbttracker.domain.model.MAX_TYPICAL_CYCLE_LENGTH_DAYS
+import com.yv.bbttracker.domain.model.MAX_TYPICAL_MENSTRUATION_LENGTH_DAYS
 import com.yv.bbttracker.domain.model.MeasurementSite
+import com.yv.bbttracker.domain.model.MIN_TYPICAL_CYCLE_LENGTH_DAYS
+import com.yv.bbttracker.domain.model.MIN_TYPICAL_MENSTRUATION_LENGTH_DAYS
 import com.yv.bbttracker.domain.model.TrackingGoal
 
 @Composable
-fun OnboardingScreen(viewModel: OnboardingViewModel) {
+fun OnboardingScreen(
+    viewModel: OnboardingViewModel,
+    onFinished: () -> Unit = {},
+    onDismiss: (() -> Unit)? = null,
+) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val notificationPermissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission(),
     ) { granted -> viewModel.onEvent(OnboardingEvent.ReminderChanged(granted)) }
+
+    LaunchedEffect(state.completed) {
+        if (state.completed) onFinished()
+    }
 
     Scaffold(
         bottomBar = {
@@ -73,11 +87,16 @@ fun OnboardingScreen(viewModel: OnboardingViewModel) {
                     .padding(horizontal = 20.dp, vertical = 14.dp),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                if (state.canGoBack) {
+                if (state.canGoBack || onDismiss != null) {
                     OutlinedButton(
-                        onClick = { viewModel.onEvent(OnboardingEvent.Back) },
+                        onClick = {
+                            if (state.canGoBack) viewModel.onEvent(OnboardingEvent.Back)
+                            else onDismiss?.invoke()
+                        },
                         modifier = Modifier.weight(1f).height(52.dp),
-                    ) { Text(stringResource(R.string.back)) }
+                    ) {
+                        Text(stringResource(if (state.canGoBack) R.string.back else R.string.cancel))
+                    }
                 }
                 Button(
                     onClick = { viewModel.onEvent(OnboardingEvent.Next) },
@@ -128,8 +147,13 @@ fun OnboardingScreen(viewModel: OnboardingViewModel) {
                     ),
                     onSelected = { viewModel.onEvent(OnboardingEvent.GoalChanged(it)) },
                 )
-                4 -> MeasurementSitePage(state, viewModel::onEvent)
-                5 -> ReminderPage(
+                4 -> CycleLengthPage(state.typicalCycleLengthDays, viewModel::onEvent)
+                5 -> MenstruationLengthPage(
+                    state.typicalMenstruationLengthDays,
+                    viewModel::onEvent,
+                )
+                6 -> MeasurementSitePage(state, viewModel::onEvent)
+                7 -> ReminderPage(
                     state = state,
                     onToggle = { enabled ->
                         if (!enabled) viewModel.onEvent(OnboardingEvent.ReminderChanged(false))
@@ -138,11 +162,147 @@ fun OnboardingScreen(viewModel: OnboardingViewModel) {
                     },
                     onTimeChanged = { h, m -> viewModel.onEvent(OnboardingEvent.ReminderTimeChanged(h, m)) },
                 )
-                6 -> DisclaimerPage(state.disclaimerAccepted) {
+                8 -> DisclaimerPage(state.disclaimerAccepted) {
                     viewModel.onEvent(OnboardingEvent.DisclaimerChanged(it))
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun CycleLengthPage(
+    selectedDays: Int?,
+    onEvent: (OnboardingEvent) -> Unit,
+) {
+    Icon(
+        Icons.Outlined.CalendarMonth,
+        contentDescription = null,
+        tint = MaterialTheme.colorScheme.primary,
+        modifier = Modifier.size(56.dp),
+    )
+    Spacer(Modifier.height(20.dp))
+    Text(stringResource(R.string.onboarding_cycle_length_title), style = MaterialTheme.typography.headlineMedium)
+    Spacer(Modifier.height(8.dp))
+    Text(stringResource(R.string.onboarding_cycle_length_body), style = MaterialTheme.typography.bodyLarge)
+    Spacer(Modifier.height(28.dp))
+    if (selectedDays == null) {
+        OutlinedButton(
+            onClick = {
+                onEvent(
+                    OnboardingEvent.TypicalCycleLengthChanged(
+                        OnboardingUiState.DEFAULT_TYPICAL_CYCLE_LENGTH_DAYS,
+                    ),
+                )
+            },
+            modifier = Modifier.fillMaxWidth().height(54.dp),
+        ) {
+            Text(stringResource(R.string.choose_cycle_length))
+        }
+    } else {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            OutlinedButton(
+                onClick = { onEvent(OnboardingEvent.TypicalCycleLengthChanged(selectedDays - 1)) },
+                enabled = selectedDays > MIN_TYPICAL_CYCLE_LENGTH_DAYS,
+            ) {
+                Text("−", style = MaterialTheme.typography.headlineSmall)
+            }
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(selectedDays.toString(), style = MaterialTheme.typography.displayMedium)
+                Text(stringResource(R.string.days), style = MaterialTheme.typography.titleMedium)
+            }
+            OutlinedButton(
+                onClick = { onEvent(OnboardingEvent.TypicalCycleLengthChanged(selectedDays + 1)) },
+                enabled = selectedDays < MAX_TYPICAL_CYCLE_LENGTH_DAYS,
+            ) {
+                Text("+", style = MaterialTheme.typography.headlineSmall)
+            }
+        }
+    }
+    Spacer(Modifier.height(18.dp))
+    OutlinedButton(
+        onClick = { onEvent(OnboardingEvent.TypicalCycleLengthChanged(null)) },
+        enabled = selectedDays != null,
+        modifier = Modifier.fillMaxWidth().height(50.dp),
+    ) {
+        Text(stringResource(R.string.cycle_length_not_sure))
+    }
+}
+
+@Composable
+private fun MenstruationLengthPage(
+    selectedDays: Int?,
+    onEvent: (OnboardingEvent) -> Unit,
+) {
+    Icon(
+        Icons.Outlined.CalendarMonth,
+        contentDescription = null,
+        tint = MaterialTheme.colorScheme.primary,
+        modifier = Modifier.size(56.dp),
+    )
+    Spacer(Modifier.height(20.dp))
+    Text(
+        stringResource(R.string.onboarding_menstruation_length_title),
+        style = MaterialTheme.typography.headlineMedium,
+    )
+    Spacer(Modifier.height(8.dp))
+    Text(
+        stringResource(R.string.onboarding_menstruation_length_body),
+        style = MaterialTheme.typography.bodyLarge,
+    )
+    Spacer(Modifier.height(28.dp))
+    if (selectedDays == null) {
+        OutlinedButton(
+            onClick = {
+                onEvent(
+                    OnboardingEvent.TypicalMenstruationLengthChanged(
+                        OnboardingUiState.DEFAULT_TYPICAL_MENSTRUATION_LENGTH_DAYS,
+                    ),
+                )
+            },
+            modifier = Modifier.fillMaxWidth().height(54.dp),
+        ) {
+            Text(stringResource(R.string.choose_menstruation_length))
+        }
+    } else {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            OutlinedButton(
+                onClick = {
+                    onEvent(OnboardingEvent.TypicalMenstruationLengthChanged(selectedDays - 1))
+                },
+                enabled = selectedDays > MIN_TYPICAL_MENSTRUATION_LENGTH_DAYS,
+            ) {
+                Text("−", style = MaterialTheme.typography.headlineSmall)
+            }
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(selectedDays.toString(), style = MaterialTheme.typography.displayMedium)
+                Text(stringResource(R.string.days), style = MaterialTheme.typography.titleMedium)
+            }
+            OutlinedButton(
+                onClick = {
+                    onEvent(OnboardingEvent.TypicalMenstruationLengthChanged(selectedDays + 1))
+                },
+                enabled = selectedDays < MAX_TYPICAL_MENSTRUATION_LENGTH_DAYS,
+            ) {
+                Text("+", style = MaterialTheme.typography.headlineSmall)
+            }
+        }
+    }
+    Spacer(Modifier.height(18.dp))
+    OutlinedButton(
+        onClick = { onEvent(OnboardingEvent.TypicalMenstruationLengthChanged(null)) },
+        enabled = selectedDays != null,
+        modifier = Modifier.fillMaxWidth().height(50.dp),
+    ) {
+        Text(stringResource(R.string.menstruation_length_not_sure))
     }
 }
 

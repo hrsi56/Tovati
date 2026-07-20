@@ -10,7 +10,7 @@ import java.time.temporal.ChronoUnit
 /**
  * Version persisted with every analysis snapshot. Threshold or rule changes must bump this value.
  */
-const val ENGINE_VERSION = "bbt-fusion-2.2.0"
+const val ENGINE_VERSION = "bbt-fusion-2.3.0"
 
 enum class FertilityStatus {
     INSUFFICIENT_DATA,
@@ -49,6 +49,7 @@ enum class ForecastReliability {
 }
 
 enum class AnalysisSignal {
+    SELF_REPORTED_CYCLE_LENGTH,
     PERSONAL_HISTORY,
     CYCLE_LENGTH_HISTORY,
     LH_BORDERLINE,
@@ -88,6 +89,7 @@ enum class ReasonCode {
     MEASUREMENT_SITE_CHANGED,
     UNRELIABLE_TEMPERATURES_EXCLUDED,
     CALENDAR_PRIOR_AVAILABLE,
+    SELF_REPORTED_CYCLE_LENGTH_AVAILABLE,
     CALENDAR_PRIOR_UNSTABLE,
     PERSONAL_OVULATION_HISTORY_AVAILABLE,
     FERTILE_MUCUS_RECORDED,
@@ -200,6 +202,8 @@ data class CycleAnalysisInput(
     val temperatures: List<TemperatureMeasurement>,
     val observations: List<DailyObservation>,
     val defaultMeasurementSite: MeasurementSite,
+    /** Optional onboarding estimate used only while completed personal history is sparse. */
+    val typicalCycleLengthDays: Int? = null,
 )
 
 data class CycleAnalysisResult(

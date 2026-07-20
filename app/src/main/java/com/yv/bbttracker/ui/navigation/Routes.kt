@@ -8,5 +8,6 @@ import kotlinx.serialization.Serializable
 @Serializable data object DiaryRoute : NavKey
 @Serializable data object HistoryRoute : NavKey
 @Serializable data object SettingsRoute : NavKey
+@Serializable data class ReconfigureOnboardingRoute(val requestId: Long) : NavKey
 @Serializable data class MeasurementRoute(val measurementId: Long = 0, val dateEpochDay: Long) : NavKey
 @Serializable data class ObservationRoute(val dateEpochDay: Long, val suggestCycleStart: Boolean = false) : NavKey

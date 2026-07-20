@@ -51,6 +51,8 @@ class BackupPayloadCompatibilityTest {
         assertEquals(0L, observation.physicalSymptomMask)
         assertNull(observation.painReliefPillCount)
         assertNull(observation.painReliefMedicationNote)
+        assertNull(payload.settings.typicalCycleLengthDays)
+        assertNull(payload.settings.typicalMenstruationLengthDays)
     }
 
     @Test

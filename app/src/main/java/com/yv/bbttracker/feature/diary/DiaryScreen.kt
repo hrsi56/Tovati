@@ -94,6 +94,7 @@ private val ActualPeriodColor = Color(0xFFF3C2D2)
 private val ConceptionColor = Color(0xFFFFE5A3)
 private val ProspectiveOvulationColor = Color(0xFFD9CEF4)
 private val RetrospectiveOvulationColor = Color(0xFFB8E3D9)
+private val PossibleMenstruationEndColor = Color(0xFF8F5A70)
 private val PossibleNextCycleColor = Color(0xFFAD3E67)
 private val PossibleCycleEndColor = Color(0xFFD17A3D)
 private val ActualCycleStartBorderColor = Color(0xFF3C2630)
@@ -301,6 +302,14 @@ private fun CycleSummaryCard(calendar: DiaryCalendar) {
             status = stringResource(R.string.diary_recorded),
         )
         if (calendar.isCurrent) {
+            calendar.expectedMenstruationEndDate?.let { date ->
+                SummaryMetric(
+                    label = stringResource(R.string.diary_expected_menstruation_end),
+                    value = Formatters.longDate(date),
+                    supporting = stringResource(R.string.diary_based_on_reported_menstruation_length),
+                    status = stringResource(R.string.diary_forecast),
+                )
+            }
             calendar.expectedCurrentCycleEndRange?.let { range ->
                 SummaryMetric(
                     label = stringResource(R.string.diary_expected_end),
@@ -438,6 +447,11 @@ private fun CalendarLegend() {
             LegendItem(RetrospectiveOvulationColor, stringResource(R.string.diary_legend_ovulation_past))
             LegendItem(
                 color = Color.Transparent,
+                label = stringResource(R.string.diary_legend_menstruation_end),
+                borderColor = PossibleMenstruationEndColor,
+            )
+            LegendItem(
+                color = Color.Transparent,
                 label = stringResource(R.string.diary_legend_cycle_end),
                 borderColor = PossibleCycleEndColor,
             )
@@ -538,6 +552,7 @@ private fun CycleDayCell(day: DiaryDay, onClick: () -> Unit, modifier: Modifier 
         day.isToday -> MaterialTheme.colorScheme.primary
         DiaryDayMarker.CYCLE_START in day.markers -> ActualCycleStartBorderColor
         DiaryDayMarker.POSSIBLE_NEXT_CYCLE_START in day.markers -> PossibleNextCycleColor
+        DiaryDayMarker.POSSIBLE_MENSTRUATION_END in day.markers -> PossibleMenstruationEndColor
         DiaryDayMarker.POSSIBLE_CYCLE_END in day.markers -> PossibleCycleEndColor
         else -> Color.Transparent
     }
@@ -774,6 +789,12 @@ private fun markerDescriptions(day: DiaryDay): List<Pair<String, Color>> = build
     }
     if (DiaryDayMarker.RETROSPECTIVE_OVULATION in day.markers) {
         add(stringResource(R.string.diary_retrospective_ovulation_day) to RetrospectiveOvulationColor)
+    }
+    if (DiaryDayMarker.POSSIBLE_MENSTRUATION_END in day.markers) {
+        add(
+            stringResource(R.string.diary_possible_menstruation_end) to
+                PossibleMenstruationEndColor.copy(alpha = 0.30f),
+        )
     }
     if (DiaryDayMarker.POSSIBLE_CYCLE_END in day.markers) {
         add(stringResource(R.string.diary_possible_cycle_end) to Color(0xFFFFE0C7))

@@ -193,6 +193,8 @@ data class PredictionSnapshot(
 data class AppSettings(
     val onboardingCompleted: Boolean = false,
     val trackingGoal: TrackingGoal = TrackingGoal.CYCLE_AWARENESS,
+    val typicalCycleLengthDays: Int? = null,
+    val typicalMenstruationLengthDays: Int? = null,
     val defaultMeasurementSite: MeasurementSite = MeasurementSite.ORAL,
     val reminderEnabled: Boolean = false,
     val reminderHour: Int = 7,
@@ -261,3 +263,7 @@ const val LH_TEST_SENSITIVITY_MAX_MILLI_IU = 100
 const val MOOD_NOTE_MAX_LENGTH = 500
 const val MAX_DAILY_PAIN_RELIEF_PILLS = 20
 const val PAIN_RELIEF_MEDICATION_NOTE_MAX_LENGTH = 200
+const val MIN_TYPICAL_CYCLE_LENGTH_DAYS = 15
+const val MAX_TYPICAL_CYCLE_LENGTH_DAYS = 60
+const val MIN_TYPICAL_MENSTRUATION_LENGTH_DAYS = 1
+const val MAX_TYPICAL_MENSTRUATION_LENGTH_DAYS = 14

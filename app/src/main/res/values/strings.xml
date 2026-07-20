@@ -37,6 +37,15 @@
     <string name="onboarding_goal_title">What would you like to use it for?</string>
     <string name="goal_track">Cycle awareness and tracking</string>
     <string name="goal_conceive">Timing attempts to conceive</string>
+    <string name="onboarding_cycle_length_title">How long is your cycle usually?</string>
+    <string name="onboarding_cycle_length_body">Tovati will use this only as a starting estimate. As complete cycles accumulate, your recorded history will gradually replace it.</string>
+    <string name="choose_cycle_length">Choose cycle length</string>
+    <string name="cycle_length_not_sure">I am not sure yet</string>
+    <string name="onboarding_menstruation_length_title">How long is your average period?</string>
+    <string name="onboarding_menstruation_length_body">Enter how many days bleeding usually lasts. This helps the diary show an estimated end while you are getting started.</string>
+    <string name="choose_menstruation_length">Choose period length</string>
+    <string name="menstruation_length_not_sure">I am not sure yet</string>
+    <string name="days">days</string>
     <string name="onboarding_site_title">Default measurement site</string>
     <string name="onboarding_site_body">For a useful pattern, measure consistently using the same site.</string>
     <string name="site_oral">Oral</string>
@@ -94,7 +103,7 @@
     <string name="insight_tracking_streak">A lovely streak — you recorded %1$d days in a row. Consistent tracking helps reveal personal patterns.</string>
 
     <string name="status_insufficient_data">Not enough data yet</string>
-    <string name="status_calendar_estimate">History-based estimate only</string>
+    <string name="status_calendar_estimate">Timing estimate from your data</string>
     <string name="status_predicted_window">Today may be within the conception window</string>
     <string name="status_fertility_signs">A fertility sign was detected today</string>
     <string name="status_lh_surge">Positive LH recorded</string>
@@ -105,6 +114,8 @@
     <string name="explanation_insufficient">There are not yet enough consistent measurements to identify a pattern. Keep measuring immediately after waking and in the same way each day.</string>
     <string name="explanation_no_history">There is not yet enough history for a personal forecast.</string>
     <string name="explanation_calendar">Highlighted days are an estimate based only on previous cycles. Ovulation timing can vary even in regular cycles.</string>
+    <string name="explanation_reported_cycle_length">There is not enough personal history yet. The initial estimate uses the cycle length you supplied and will change as you record signs and cycles.</string>
+    <string name="explanation_reported_and_history">The estimate temporarily blends the cycle length you supplied with cycles already recorded. LH, fluid, and temperature signs may move it.</string>
     <string name="explanation_lh_positive">A positive LH test was recorded. This may indicate ovulation is approaching, but does not confirm that ovulation occurred.</string>
     <string name="explanation_fertile_mucus">Watery or egg-white cervical mucus was recorded as a current fertility sign.</string>
     <string name="explanation_shift_candidate">A sustained rise in basal temperature may be developing. This pattern usually appears after ovulation, but more measurements are needed.</string>
@@ -294,6 +305,8 @@
     <string name="settings_privacy">Privacy</string>
     <string name="settings_data">Your data</string>
     <string name="settings_about">About</string>
+    <string name="linkedin_profile">App developer on LinkedIn</string>
+    <string name="reconfigure_onboarding">Set things up again</string>
     <string name="reminder_approximate">Android may deliver this reminder near the selected time, depending on battery management.</string>
     <string name="notification_permission_denied">Notifications are disabled. You can enable them in system settings.</string>
     <string name="biometric_lock">Biometric app lock</string>
@@ -401,6 +414,8 @@
     <string name="period_basis_ovulation_personal">Based on this cycle\'s ovulation estimate and your personal luteal phase (about %1$d days).</string>
     <string name="period_basis_ovulation_default">Based on this cycle\'s ovulation estimate and a typical luteal phase (about %1$d days).</string>
     <string name="period_basis_cycle_history">This is the best-matching consecutive pair from your cycle-length history; it may move when ovulation signs are recorded.</string>
+    <string name="period_basis_reported_cycle_length">Temporarily based on the cycle length supplied during setup; your recorded data will replace this estimate.</string>
+    <string name="period_basis_reported_and_history">Temporarily blends the cycle length supplied during setup with recorded cycles; actual history gradually receives more weight.</string>
     <string name="period_basis_default">An initial focused guess; it will personalize as cycles and signs are recorded.</string>
     <string name="period_overdue_note">The expected range has passed, so the current cycle is running longer than estimated. Keep recording; the estimate is not a medical conclusion.</string>
     <string name="history_luteal_length">Estimated luteal phase: %1$d days</string>
@@ -419,6 +434,7 @@
     <string name="short_safety_disclaimer">Home estimate only — not ovulation confirmation or contraception.</string>
 
     <string name="signal_personal_history">Personal ovulation history</string>
+    <string name="signal_reported_cycle_length">Cycle length you supplied</string>
     <string name="signal_cycle_history">Cycle history</string>
     <string name="signal_lh_borderline">Borderline LH</string>
     <string name="signal_lh_surge">Positive LH</string>
@@ -465,6 +481,8 @@
     <string name="diary_actual_start">Actual cycle start</string>
     <string name="diary_actual_end">Actual cycle end</string>
     <string name="diary_expected_end">Two most likely cycle-end days</string>
+    <string name="diary_expected_menstruation_end">Estimated period end</string>
+    <string name="diary_based_on_reported_menstruation_length">Based on the period length supplied during setup</string>
     <string name="diary_next_cycle_expected">Two most likely next-cycle start days</string>
     <string name="diary_next_cycle_actual">Next cycle started</string>
     <string name="diary_ovulation_expected">Two most likely ovulation days</string>
@@ -480,6 +498,7 @@
     <string name="diary_legend_conception">Possible conception days</string>
     <string name="diary_legend_ovulation_expected">Forecast ovulation range</string>
     <string name="diary_legend_ovulation_past">Retrospective ovulation</string>
+    <string name="diary_legend_menstruation_end">Estimated period end from setup</string>
     <string name="diary_legend_cycle_end">One of two forecast cycle-end days</string>
     <string name="diary_legend_next_cycle">Possible new-cycle start range</string>
     <string name="diary_legend_today">Today</string>
@@ -524,6 +543,7 @@
     <string name="diary_add_temperature">Add a temperature for this day</string>
     <string name="diary_edit_signs">Edit this day’s signs</string>
     <string name="diary_possible_cycle_end">One possible last day of the current cycle</string>
+    <string name="diary_possible_menstruation_end">Estimated period end from setup</string>
     <string name="diary_possible_next_start">One possible cycle day 1 for the next cycle</string>
     <string name="diary_conception_day">Within the possible conception range</string>
     <string name="diary_prospective_ovulation_day">Within the ovulation range forecast from history and early signs</string>

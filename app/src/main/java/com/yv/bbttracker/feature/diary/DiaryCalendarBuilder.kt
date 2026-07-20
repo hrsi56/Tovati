@@ -22,6 +22,7 @@ enum class DiaryDayMarker {
     CONCEPTION_WINDOW,
     PROSPECTIVE_OVULATION,
     RETROSPECTIVE_OVULATION,
+    POSSIBLE_MENSTRUATION_END,
     POSSIBLE_CYCLE_END,
     POSSIBLE_NEXT_CYCLE_START,
     LH_POSITIVE,
@@ -57,6 +58,7 @@ data class DiaryCalendar(
     val days: List<DiaryDay>,
     val analysis: CycleAnalysisResult,
     val knownNextCycleStart: LocalDate?,
+    val expectedMenstruationEndDate: LocalDate?,
     val expectedCurrentCycleEndRange: ClosedRange<LocalDate>?,
     val expectedNextCycleStart: PeriodForecast?,
     val currentCycleDay: Int,
@@ -75,6 +77,7 @@ object DiaryCalendarBuilder {
         observations: List<DailyObservation>,
         analysis: CycleAnalysisResult,
         today: LocalDate,
+        typicalMenstruationLengthDays: Int? = null,
     ): DiaryCalendar {
         val options = allCycles
             .sortedByDescending { it.startEpochDay }
@@ -95,6 +98,9 @@ object DiaryCalendarBuilder {
         val cycleEndRange = forecast?.expectedStartRange?.let {
             it.start.minusDays(1)..it.endInclusive.minusDays(1)
         }
+        val menstruationEndDate = typicalMenstruationLengthDays
+            ?.takeIf { cycle.endDate == null }
+            ?.let { days -> cycle.startDate.plusDays((days - 1).toLong()) }
         // Past cycles only show what was recorded and the single retrospective estimate. In the
         // current cycle, keep a new prospective forecast visible alongside a past estimate only
         // when the engine explicitly detected conflicting/new evidence.
@@ -105,6 +111,7 @@ object DiaryCalendarBuilder {
         val displayEnd = cycle.endDate
             ?: maxOf(
                 today,
+                menstruationEndDate ?: today,
                 forecast?.expectedStartRange?.endInclusive ?: today,
                 analysis.prospectiveOvulationRange
                     ?.endInclusive
@@ -153,6 +160,9 @@ object DiaryCalendarBuilder {
                 if (analysis.retrospectiveOvulationRange?.contains(date) == true) {
                     add(DiaryDayMarker.RETROSPECTIVE_OVULATION)
                 }
+                if (date == menstruationEndDate) {
+                    add(DiaryDayMarker.POSSIBLE_MENSTRUATION_END)
+                }
                 if (cycleEndRange?.contains(date) == true) {
                     add(DiaryDayMarker.POSSIBLE_CYCLE_END)
                 }
@@ -198,6 +208,7 @@ object DiaryCalendarBuilder {
             days = days,
             analysis = analysis,
             knownNextCycleStart = nextCycleStart,
+            expectedMenstruationEndDate = menstruationEndDate,
             expectedCurrentCycleEndRange = cycleEndRange,
             expectedNextCycleStart = forecast,
             currentCycleDay = (
