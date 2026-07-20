@@ -14,7 +14,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/hrsi56/Tovati/releases/download/v1.5.0/Tovati-1.5.0.apk">
+  <a href="https://github.com/hrsi56/Tovati/releases/download/v1.5.1/Tovati-1.5.1.apk">
     <img src="docs/assets/download-button.svg" width="330" alt="Download For Android">
   </a>
 </p>
@@ -24,7 +24,7 @@
   ·
   <a href="docs/PRIVACY_HE.md">לפרטיות ואבטחה</a>
   ·
-  <a href="docs/RELEASE_REPORT_1.5.0_HE.md">לדו״ח הגרסה</a>
+  <a href="docs/RELEASE_REPORT_1.5.1_HE.md">לדו״ח הגרסה</a>
 </p>
 
 ---
@@ -101,6 +101,10 @@
 - תזכורת מקומית, נעילה וחסימת צילומי מסך — כולן אופציונליות.
 - ממשק עברי מלא, נעים ומותאם לימין־לשמאל.
 
+### חדש בגרסה 1.5.1
+
+מסך ההיסטוריה הוקשח כדי למנוע סגירה בזמן פתיחה ישירה של „מדידות חום” וגלילה ברשימה ארוכה. לכל מחזור, סימן יומי ומדידה יש כעת זהות נפרדת ויציבה בתצוגה.
+
 ## מתחילות?
 
 1. הורידי את קובץ ה־APK.
@@ -108,13 +112,13 @@
 3. פתחי את טובתי והתחילי במחזור הנוכחי שלך.
 
 <p align="center">
-  <a href="https://github.com/hrsi56/Tovati/releases/download/v1.5.0/Tovati-1.5.0.apk">
+  <a href="https://github.com/hrsi56/Tovati/releases/download/v1.5.1/Tovati-1.5.1.apk">
     <img src="docs/assets/download-button.svg" width="330" alt="Download For Android">
   </a>
 </p>
 
 <p align="center">
-  <sub>גרסה 1.5.0 · קובץ חתום · כ־3.1 MB</sub>
+  <sub>גרסה 1.5.1 · קובץ חתום · כ־3.1 MB</sub>
 </p>
 
 ## הערה חשובה, כי מגיע לך מידע ישר
@@ -138,7 +142,7 @@
   - [ארכיטקטורה](docs/ARCHITECTURE_HE.md)
   - [אלגוריתם BBT ותחזית](docs/ALGORITHM_HE.md)
   - [פרטיות ואבטחה](docs/PRIVACY_HE.md)
-  - [דו״ח גרסה 1.5.0](docs/RELEASE_REPORT_1.5.0_HE.md)
+  - [דו״ח גרסה 1.5.1](docs/RELEASE_REPORT_1.5.1_HE.md)
   - [רשימת בדיקות release](docs/RELEASE_CHECKLIST_HE.md)
 </details>
 

@@ -46,6 +46,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -67,6 +68,8 @@ import com.yv.bbttracker.ui.formatting.Formatters
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneOffset
+
+internal const val HISTORY_LIST_TEST_TAG = "history-list"
 
 private data class PendingCycleStartEdit(
     val item: CycleHistoryItem,
@@ -108,11 +111,17 @@ fun HistoryScreen(
 
     Scaffold(snackbarHost = { SnackbarHost(snackbarHostState) }) { scaffoldPadding ->
         LazyColumn(
-            modifier = Modifier.fillMaxSize().padding(scaffoldPadding),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(scaffoldPadding)
+                .testTag(HISTORY_LIST_TEST_TAG),
             contentPadding = PaddingValues(horizontal = 18.dp, vertical = 20.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            item {
+            item(
+                key = HistoryListKeys.HEADER,
+                contentType = "history_header",
+            ) {
                 Text(stringResource(R.string.history_title), style = MaterialTheme.typography.headlineMedium)
                 Spacer(Modifier.height(12.dp))
                 Button(
@@ -126,10 +135,16 @@ fun HistoryScreen(
             }
 
             if (!state.isLoading && state.cycles.isEmpty()) {
-                item { EmptyHistory() }
+                item(
+                    key = HistoryListKeys.EMPTY,
+                    contentType = "history_empty",
+                ) { EmptyHistory() }
             } else {
                 state.backtest?.takeIf { it.anchoredCycleCount > 0 }?.let { backtest ->
-                    item {
+                    item(
+                        key = HistoryListKeys.BACKTEST,
+                        contentType = "history_backtest",
+                    ) {
                         BacktestSummaryCard(
                             backtest = backtest,
                             expanded = backtestExpanded,
@@ -137,7 +152,11 @@ fun HistoryScreen(
                         )
                     }
                 }
-                items(state.cycles, key = { it.cycle.id }) { item ->
+                items(
+                    items = state.cycles,
+                    key = { HistoryListKeys.cycle(it.cycle.id) },
+                    contentType = { "history_cycle" },
+                ) { item ->
                     CycleCard(
                         item = item,
                         backtestResult = state.backtestByCycleId[item.cycle.id],
@@ -149,7 +168,10 @@ fun HistoryScreen(
                 }
             }
 
-            item {
+            item(
+                key = HistoryListKeys.SIGNS_TOGGLE,
+                contentType = "history_section_toggle",
+            ) {
                 Spacer(Modifier.height(6.dp))
                 HistorySectionToggle(
                     icon = Icons.Outlined.CalendarMonth,
@@ -160,15 +182,27 @@ fun HistoryScreen(
                 )
             }
             if (observationsExpanded && !state.isLoading && state.observations.isEmpty()) {
-                item { Text(stringResource(R.string.history_daily_signs_empty), style = MaterialTheme.typography.bodyLarge) }
+                item(
+                    key = HistoryListKeys.SIGNS_EMPTY,
+                    contentType = "history_empty_message",
+                ) {
+                    Text(stringResource(R.string.history_daily_signs_empty), style = MaterialTheme.typography.bodyLarge)
+                }
             }
             if (observationsExpanded) {
-                items(state.observations, key = { it.epochDay }) { observation ->
+                items(
+                    items = state.observations,
+                    key = { HistoryListKeys.observation(it.epochDay) },
+                    contentType = { "history_observation" },
+                ) { observation ->
                     ObservationCard(observation = observation, onClick = { onEditObservation(observation.date) })
                 }
             }
 
-            item {
+            item(
+                key = HistoryListKeys.MEASUREMENTS_TOGGLE,
+                contentType = "history_section_toggle",
+            ) {
                 HistorySectionToggle(
                     icon = Icons.Outlined.Thermostat,
                     title = stringResource(R.string.history_measurements_section, state.measurements.size),
@@ -178,10 +212,19 @@ fun HistoryScreen(
                 )
             }
             if (measurementsExpanded && !state.isLoading && state.measurements.isEmpty()) {
-                item { Text(stringResource(R.string.daily_records_empty), style = MaterialTheme.typography.bodyLarge) }
+                item(
+                    key = HistoryListKeys.MEASUREMENTS_EMPTY,
+                    contentType = "history_empty_message",
+                ) {
+                    Text(stringResource(R.string.daily_records_empty), style = MaterialTheme.typography.bodyLarge)
+                }
             }
             if (measurementsExpanded) {
-                items(state.measurements, key = { it.id }) { measurement ->
+                items(
+                    items = state.measurements,
+                    key = { HistoryListKeys.measurement(it.id) },
+                    contentType = { "history_measurement" },
+                ) { measurement ->
                     Card(
                         modifier = Modifier.fillMaxWidth().clickable { onEditMeasurement(measurement.id) },
                         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
@@ -214,7 +257,10 @@ fun HistoryScreen(
                     }
                 }
             }
-            item { Spacer(Modifier.height(84.dp)) }
+            item(
+                key = HistoryListKeys.BOTTOM_SPACER,
+                contentType = "history_bottom_spacer",
+            ) { Spacer(Modifier.height(84.dp)) }
         }
     }
 
