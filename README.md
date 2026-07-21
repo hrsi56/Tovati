@@ -145,7 +145,7 @@
   - [ארכיטקטורה](docs/ARCHITECTURE_HE.md)
   - [אלגוריתם BBT ותחזית](docs/ALGORITHM_HE.md)
   - [פרטיות ואבטחה](docs/PRIVACY_HE.md)
-  - [דו״ח מועמד גרסה 1.6.0](docs/RELEASE_REPORT_1.6.0_HE.md)
+  - [דו״ח מועמד גרסה 1.6.1](docs/RELEASE_REPORT_1.6.1_HE.md)
   - [דו״ח גרסה 1.5.1](docs/RELEASE_REPORT_1.5.1_HE.md)
   - [רשימת בדיקות release](docs/RELEASE_CHECKLIST_HE.md)
 </details>

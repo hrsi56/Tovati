@@ -102,9 +102,9 @@
     <string name="insight_lower_pain_relief">איזה יופי — השבוע דיווחת על פחות כדורים להקלה מהרגיל. מקווה שזה אומר שהרגשת טוב יותר.</string>
     <string name="insight_tracking_streak">איזה רצף יפה — תיעדת %1$d ימים ברצף. מעקב עקבי עוזר לראות דפוסים אישיים.</string>
 
-    <string name="status_insufficient_data">עדיין אין מספיק נתונים</string>
+    <string name="status_insufficient_data">התחזית עדיין התחלתית</string>
     <string name="status_calendar_estimate">הערכת תזמון לפי הנתונים שלך</string>
-    <string name="status_predicted_window">היום עשוי להיות בתוך טווח שבו התעברות אפשרית</string>
+    <string name="status_predicted_window">היום עשוי להיות בתוך חלון הפוריות המשוער</string>
     <string name="status_fertility_signs">זוהה היום סימן פוריות</string>
     <string name="status_lh_surge">נרשמה בדיקת LH חיובית</string>
     <string name="status_shift_candidate">שינוי תרמי אפשרי</string>
@@ -388,13 +388,13 @@
     <string name="observation_more_details">פרטים נוספים</string>
     <string name="observation_more_details_summary">קושי בפירוש הנוזל, כאב והערות</string>
 
-    <string name="fertility_today_title">סיכום סימני הפוריות להיום</string>
-    <string name="fertility_level_unknown">אין מספיק מידע להערכת היום</string>
+    <string name="fertility_today_title">מה ידוע על הפוריות היום</string>
+    <string name="fertility_level_unknown">לא זוהה היום סימן שמעדכן את התחזית</string>
     <string name="fertility_level_background">לא זוהה היום אות פוריות פעיל</string>
-    <string name="fertility_level_elevated">ייתכן שחלון ההתעברות מתקרב</string>
+    <string name="fertility_level_elevated">ייתכן שחלון הפוריות מתקרב</string>
     <string name="fertility_level_high">הסימנים תומכים בפוריות מוגברת היום</string>
     <string name="fertility_level_peak">זוהה אות לפוריות שיא</string>
-    <string name="background_not_safe_day">אין פירוש הדבר שאין פוריות או שזהו יום בטוח.</string>
+    <string name="background_not_safe_day">זה לא אומר שהיום אינו פורה או בטוח.</string>
 
     <string name="reliability_insufficient">תמיכה בהערכה: לא מספקת</string>
     <string name="reliability_limited">תמיכה בהערכה: מוגבלת</string>
@@ -406,7 +406,7 @@
     <string name="reliability_value_strong">חזקה</string>
 
     <string name="forecast_ranges_title">האומדן הממוקד לפי הנתונים שנרשמו עד עכשיו</string>
-    <string name="conception_window_label">ימים אפשריים להתעברות</string>
+    <string name="conception_window_label">חלון הפוריות המשוער</string>
     <string name="prospective_ovulation_label">שני ימי הביוץ הסבירים ביותר</string>
     <string name="retrospective_ovulation_label">יום הביוץ המשוער בדיעבד</string>
     <string name="date_range_value">%1$s</string>
@@ -428,8 +428,8 @@
     <string name="backtest_cycle_miss">תחזית הווסת החטיאה ב־%1$d ימים.</string>
     <string name="chart_legend_period">וסת צפויה</string>
     <string name="chart_period_range">הווסת הבאה צפויה: %1$s</string>
-    <string name="chart_contact_in_window">נרשם מגע מיני ב־%1$d ימים בתוך הטווח האפשרי להתעברות.</string>
-    <string name="forecast_ranges_disclaimer">האפליקציה מציגה בכוונה את שני הימים בעלי המשקל הגבוה ביותר, לא את מלוא אי־הוודאות החישובית. היא עלולה להחטיא והאומדן יתעדכן עם נתונים חדשים. חלון ההתעברות נגזר מחמשת הימים שלפני האומדן ועד סופו; ימים מחוץ לו אינם נחשבים בטוחים או לא־פוריים.</string>
+    <string name="chart_contact_in_window">נרשם מגע מיני ב־%1$d ימים בתוך חלון הפוריות המשוער.</string>
+    <string name="forecast_ranges_disclaimer">האפליקציה מציגה בכוונה את שני הימים בעלי המשקל הגבוה ביותר, לא את מלוא אי־הוודאות החישובית. היא עלולה להחטיא והאומדן יתעדכן עם נתונים חדשים. חלון הפוריות נגזר מחמשת הימים שלפני אומדן הביוץ ועד סופו; ימים מחוץ לו אינם נחשבים בטוחים או לא־פוריים.</string>
     <string name="forecast_conflict_pair_note">הערכת הביוץ בדיעבד והתחזית החדשה אינן מתיישבות. שתיהן מוצגות במכוון, אך התמיכה בהן מוגבלת.</string>
     <string name="short_safety_disclaimer">הערכה ביתית בלבד — לא אישור ביוץ ולא אמצעי מניעה.</string>
 
@@ -446,21 +446,37 @@
     <string name="signal_conflict">אותות סותרים</string>
     <string name="signal_temperatures_excluded">מדידות חום הוחרגו</string>
 
-    <string name="action_continue_tracking">השלב הבא: המשיכי לרשום חום שחר וסימנים מדי יום.</string>
-    <string name="action_lh_testing">השלב הבא: התחילי או המשיכי בדיקות LH לפי הוראות הערכה.</string>
-    <string name="action_repeat_lh">השלב הבא: חזרי על בדיקת LH לפי הוראות הערכה; תוצאה גבולית אינה חיובית.</string>
+    <string name="forecast_basis_title">על מה ההערכה נשענת</string>
+    <string name="forecast_basis_none">עדיין לא נרשם סימן שמשנה את התזמון; מוצגת נקודת פתיחה כללית בלבד.</string>
+    <string name="signal_insight_reported_cycle_length">אורך המחזור שמסרת נותן נקודת פתיחה זמנית עד שיצטברו מחזורים אישיים.</string>
+    <string name="signal_insight_personal_history">ימי הביוץ שהוערכו במחזורים קודמים ממקמים את התחזית לפי הדפוס האישי שלך.</string>
+    <string name="signal_insight_cycle_history">אורכי המחזורים שתיעדת עוזרים למקם את התחזית הנוכחית.</string>
+    <string name="signal_insight_lh_borderline">בדיקת LH גבולית מעלה מעט את המשקל של הימים הקרובים, אך אינה נחשבת חיובית.</string>
+    <string name="signal_insight_lh_surge">בדיקת LH חיובית תורמת למיקום הביוץ סמוך למועד שבו נרשמה.</string>
+    <string name="signal_insight_fertile_mucus">נוזל מימי או דמוי חלבון ביצה מעלה את המשקל של הימים הקרובים.</string>
+    <string name="signal_insight_rising_mucus">שיפור במרקם הנוזל תומך בהתקרבות לחלון הפוריות.</string>
+    <string name="signal_insight_mucus_peak">שיא הנוזל משמש בדיעבד למיקוד יום הביוץ המשוער.</string>
+    <string name="signal_insight_thermal_candidate">נראית התחלה אפשרית של עליית חום; דרושה המשכיות לפני שהדפוס ישפיע בדיעבד.</string>
+    <string name="signal_insight_thermal_shift">עליית חום מתמשכת תומכת בדיעבד בביוץ שכבר התרחש.</string>
+    <string name="signal_caution_conflict">הסימנים אינם מתיישבים, ולכן האפליקציה הורידה את התמיכה באומדן.</string>
+    <string name="signal_caution_temperatures_excluded">חלק ממדידות החום סומנו כלא אמינות, הוחרגו ולא השפיעו על ההערכה.</string>
+    <string name="next_action_title">כדאי לשים לב עכשיו</string>
+
+    <string name="action_continue_tracking">המשיכי לרשום חום שחר וסימנים מדי יום.</string>
+    <string name="action_lh_testing">התחילי או המשיכי בדיקות LH לפי הוראות הערכה.</string>
+    <string name="action_repeat_lh">חזרי על בדיקת LH לפי הוראות הערכה; תוצאה גבולית אינה חיובית.</string>
     <string name="action_conception_timing">אם את מנסה להרות, שקלי מגע מיני היום וביום–יומיים הקרובים, בהתאם למה שמתאים לך.</string>
     <string name="action_peak_awareness">הסימנים שנרשמו תומכים בפוריות מוגברת היום; המשיכי לעקוב.</string>
     <string name="action_await_thermal">המשיכי למדוד חום שחר; עלייה מתמשכת יכולה לתמוך בדיעבד בכך שהביוץ התרחש.</string>
-    <string name="action_improve_temperature">מדדי מיד לאחר היקיצה, באותו אתר ובשעה דומה, וסמני גורמים מפריעים.</string>
+    <string name="action_improve_temperature">במדידות הקרובות נסי לשמור על שעה ואתר קבועים ולמדוד מיד לאחר היקיצה; סמני הפרעות כדי שלא יקבלו משקל מיותר.</string>
     <string name="action_review_conflict">האותות אינם מתיישבים. המשיכי לעקוב; אין כרגע מסקנה למחזור זה.</string>
 
-    <string name="chart_legend_conception_window">ימים אפשריים להתעברות (תחזית)</string>
+    <string name="chart_legend_conception_window">חלון הפוריות (תחזית)</string>
     <string name="chart_legend_ovulation_forecast">שני ימי הביוץ הסבירים ביותר</string>
     <string name="chart_legend_retrospective">יום ביוץ משוער בדיעבד</string>
     <string name="chart_forecast_summary">סיכום התחזית</string>
     <string name="chart_retrospective_summary">סיכום בדיעבד</string>
-    <string name="chart_conception_range">ימים אפשריים להתעברות: %1$s</string>
+    <string name="chart_conception_range">חלון הפוריות: %1$s</string>
     <string name="chart_prospective_range">ביוץ עשוי להתרחש: %1$s</string>
     <string name="chart_retrospective_range">הערכת ביוץ בדיעבד: %1$s</string>
     <string name="history_estimate_support">תמיכה בהערכה: %1$s</string>
@@ -495,7 +511,7 @@
     <string name="diary_tap_day">לחצי על יום כדי לראות את כל המדידות, הסימנים וההערות.</string>
     <string name="diary_legend_actual_period">דימום בפועל</string>
     <string name="diary_legend_cycle_start">יום 1 בפועל — הוזן על ידך</string>
-    <string name="diary_legend_conception">ימים אפשריים להתעברות</string>
+    <string name="diary_legend_conception">חלון הפוריות</string>
     <string name="diary_legend_ovulation_expected">טווח ביוץ חזוי</string>
     <string name="diary_legend_ovulation_past">ביוץ משוער בדיעבד</string>
     <string name="diary_legend_menstruation_end">סיום וסת משוער לפי ההגדרה הראשונית</string>
@@ -545,7 +561,7 @@
     <string name="diary_possible_cycle_end">אחד הימים האפשריים לסיום המחזור הנוכחי</string>
     <string name="diary_possible_menstruation_end">סיום הווסת המשוער לפי ההגדרה הראשונית</string>
     <string name="diary_possible_next_start">אחד הימים האפשריים ליום 1 של המחזור הבא</string>
-    <string name="diary_conception_day">בתוך טווח שבו התעברות אפשרית</string>
+    <string name="diary_conception_day">בתוך חלון הפוריות המשוער</string>
     <string name="diary_prospective_ovulation_day">בתוך טווח ביוץ שחושב לפי היסטוריה וסימנים מוקדמים</string>
     <string name="diary_retrospective_ovulation_day">יום הביוץ שהוערך בדיעבד</string>
     <string name="diary_lh_positive_day">נרשמה בדיקת LH חיובית</string>

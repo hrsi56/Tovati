@@ -4,7 +4,6 @@ import androidx.annotation.StringRes
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -44,11 +43,9 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.yv.bbttracker.R
 import com.yv.bbttracker.domain.engine.CycleAnalysisResult
-import com.yv.bbttracker.domain.engine.DataQuality
 import com.yv.bbttracker.domain.engine.AnalysisSignal
 import com.yv.bbttracker.domain.engine.FertilityStatus
 import com.yv.bbttracker.domain.engine.FertilityLevelToday
-import com.yv.bbttracker.domain.engine.ForecastReliability
 import com.yv.bbttracker.domain.engine.NextAction
 import com.yv.bbttracker.domain.engine.PeriodForecast
 import com.yv.bbttracker.domain.engine.PeriodForecastBasis
@@ -407,53 +404,77 @@ private fun StatusCard(analysis: CycleAnalysisResult?, trackingGoal: TrackingGoa
                 style = MaterialTheme.typography.titleLarge,
             )
             Text(stringResource(statusResource(analysis?.status)), style = MaterialTheme.typography.bodyLarge)
-            FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(7.dp),
+            if (analysis?.fertilityLevelToday in setOf(
+                    FertilityLevelToday.UNKNOWN,
+                    FertilityLevelToday.BACKGROUND,
+                )
             ) {
-                StatusPill(stringResource(reliabilityResource(analysis?.reliability)))
-                StatusPill(stringResource(qualityResource(analysis?.dataQuality)))
-            }
-            if (analysis?.fertilityLevelToday == FertilityLevelToday.BACKGROUND) {
                 Text(
                     stringResource(R.string.background_not_safe_day),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
-            if (!analysis?.signals.isNullOrEmpty()) {
-                FlowRow(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(7.dp),
-                ) {
-                    analysis.signals
-                        .sortedBy { it.ordinal }
-                        .take(5)
-                        .forEach { signal ->
-                            StatusPill(stringResource(signalResource(signal)))
-                        }
-                }
-            }
-            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
             Text(
-                stringResource(nextActionResource(analysis?.nextAction, trackingGoal)),
-                style = MaterialTheme.typography.bodyLarge,
+                stringResource(R.string.forecast_basis_title),
+                style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.primary,
             )
+            val basisSignals = visibleForecastBasisSignals(analysis?.signals.orEmpty())
+            if (basisSignals.isEmpty()) {
+                Text(
+                    stringResource(R.string.forecast_basis_none),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            } else {
+                basisSignals.take(5).forEach { signal ->
+                    ForecastBasisRow(stringResource(signalInsightResource(signal)))
+                }
+            }
+            visibleForecastCautionSignals(analysis?.signals.orEmpty()).forEach { signal ->
+                Text(
+                    stringResource(signalCautionResource(signal)),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = if (signal == AnalysisSignal.CONFLICTING_SIGNALS) {
+                        MaterialTheme.colorScheme.error
+                    } else {
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                    },
+                )
+            }
+            visibleNextAction(analysis?.nextAction)?.let { action ->
+                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                Text(
+                    stringResource(R.string.next_action_title),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.primary,
+                )
+                Text(
+                    stringResource(nextActionResource(action, trackingGoal)),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.primary,
+                )
+            }
         }
     }
 }
 
 @Composable
-private fun StatusPill(text: String) {
-    Surface(
-        shape = CircleShape,
-        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.72f),
+private fun ForecastBasisRow(text: String) {
+    Row(
+        verticalAlignment = Alignment.Top,
+        horizontalArrangement = Arrangement.spacedBy(9.dp),
     ) {
+        Icon(
+            Icons.Outlined.CheckCircle,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.tertiary,
+        )
         Text(
             text,
-            style = MaterialTheme.typography.labelLarge,
-            modifier = Modifier.padding(horizontal = 11.dp, vertical = 6.dp),
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.weight(1f),
         )
     }
 }
@@ -595,30 +616,33 @@ private fun fertilityLevelResource(level: FertilityLevelToday?): Int = when (lev
     FertilityLevelToday.PEAK_SIGNAL -> R.string.fertility_level_peak
 }
 
-private fun reliabilityResource(reliability: ForecastReliability?): Int = when (reliability) {
-    null, ForecastReliability.INSUFFICIENT -> R.string.reliability_insufficient
-    ForecastReliability.LIMITED -> R.string.reliability_limited
-    ForecastReliability.MODERATE -> R.string.reliability_moderate
-    ForecastReliability.STRONG -> R.string.reliability_strong
+@StringRes
+private fun signalInsightResource(signal: AnalysisSignal): Int = when (signal) {
+    AnalysisSignal.SELF_REPORTED_CYCLE_LENGTH -> R.string.signal_insight_reported_cycle_length
+    AnalysisSignal.PERSONAL_HISTORY -> R.string.signal_insight_personal_history
+    AnalysisSignal.CYCLE_LENGTH_HISTORY -> R.string.signal_insight_cycle_history
+    AnalysisSignal.LH_BORDERLINE -> R.string.signal_insight_lh_borderline
+    AnalysisSignal.LH_SURGE -> R.string.signal_insight_lh_surge
+    AnalysisSignal.FERTILE_MUCUS -> R.string.signal_insight_fertile_mucus
+    AnalysisSignal.RISING_MUCUS -> R.string.signal_insight_rising_mucus
+    AnalysisSignal.MUCUS_PEAK -> R.string.signal_insight_mucus_peak
+    AnalysisSignal.THERMAL_CANDIDATE -> R.string.signal_insight_thermal_candidate
+    AnalysisSignal.THERMAL_SHIFT -> R.string.signal_insight_thermal_shift
+    AnalysisSignal.CONFLICTING_SIGNALS,
+    AnalysisSignal.UNRELIABLE_TEMPERATURES_EXCLUDED,
+    -> error("Caution signals are not forecast bases")
 }
 
-private fun signalResource(signal: AnalysisSignal): Int = when (signal) {
-    AnalysisSignal.SELF_REPORTED_CYCLE_LENGTH -> R.string.signal_reported_cycle_length
-    AnalysisSignal.PERSONAL_HISTORY -> R.string.signal_personal_history
-    AnalysisSignal.CYCLE_LENGTH_HISTORY -> R.string.signal_cycle_history
-    AnalysisSignal.LH_BORDERLINE -> R.string.signal_lh_borderline
-    AnalysisSignal.LH_SURGE -> R.string.signal_lh_surge
-    AnalysisSignal.FERTILE_MUCUS -> R.string.signal_fertile_mucus
-    AnalysisSignal.RISING_MUCUS -> R.string.signal_rising_mucus
-    AnalysisSignal.MUCUS_PEAK -> R.string.signal_mucus_peak
-    AnalysisSignal.THERMAL_CANDIDATE -> R.string.signal_thermal_candidate
-    AnalysisSignal.THERMAL_SHIFT -> R.string.signal_thermal_shift
-    AnalysisSignal.CONFLICTING_SIGNALS -> R.string.signal_conflict
-    AnalysisSignal.UNRELIABLE_TEMPERATURES_EXCLUDED -> R.string.signal_temperatures_excluded
+@StringRes
+private fun signalCautionResource(signal: AnalysisSignal): Int = when (signal) {
+    AnalysisSignal.CONFLICTING_SIGNALS -> R.string.signal_caution_conflict
+    AnalysisSignal.UNRELIABLE_TEMPERATURES_EXCLUDED -> R.string.signal_caution_temperatures_excluded
+    else -> error("Forecast basis signal is not a caution")
 }
 
-private fun nextActionResource(action: NextAction?, goal: TrackingGoal): Int = when (action) {
-    null, NextAction.CONTINUE_DAILY_TRACKING -> R.string.action_continue_tracking
+@StringRes
+private fun nextActionResource(action: NextAction, goal: TrackingGoal): Int = when (action) {
+    NextAction.CONTINUE_DAILY_TRACKING -> R.string.action_continue_tracking
     NextAction.START_OR_CONTINUE_LH_TESTING -> R.string.action_lh_testing
     NextAction.REPEAT_LH_TEST -> R.string.action_repeat_lh
     NextAction.PRIORITIZE_CONCEPTION_TIMING -> if (goal == TrackingGoal.TRYING_TO_CONCEIVE) {
@@ -643,9 +667,27 @@ private fun statusResource(status: FertilityStatus?): Int = when (status) {
     FertilityStatus.UNCERTAIN -> R.string.status_uncertain
 }
 
-private fun qualityResource(quality: DataQuality?): Int = when (quality) {
-    null, DataQuality.INSUFFICIENT -> R.string.quality_insufficient
-    DataQuality.LOW -> R.string.quality_low
-    DataQuality.MODERATE -> R.string.quality_moderate
-    DataQuality.GOOD -> R.string.quality_good
+internal fun visibleForecastBasisSignals(signals: Set<AnalysisSignal>): List<AnalysisSignal> {
+    val priorities = listOf(
+        AnalysisSignal.LH_SURGE,
+        AnalysisSignal.FERTILE_MUCUS,
+        AnalysisSignal.RISING_MUCUS,
+        AnalysisSignal.THERMAL_SHIFT,
+        AnalysisSignal.THERMAL_CANDIDATE,
+        AnalysisSignal.MUCUS_PEAK,
+        AnalysisSignal.LH_BORDERLINE,
+        AnalysisSignal.PERSONAL_HISTORY,
+        AnalysisSignal.CYCLE_LENGTH_HISTORY,
+        AnalysisSignal.SELF_REPORTED_CYCLE_LENGTH,
+    )
+    return priorities.filter(signals::contains)
 }
+
+internal fun visibleForecastCautionSignals(signals: Set<AnalysisSignal>): List<AnalysisSignal> =
+    listOf(
+        AnalysisSignal.CONFLICTING_SIGNALS,
+        AnalysisSignal.UNRELIABLE_TEMPERATURES_EXCLUDED,
+    ).filter(signals::contains)
+
+internal fun visibleNextAction(action: NextAction?): NextAction? =
+    action?.takeUnless { it == NextAction.CONTINUE_DAILY_TRACKING }

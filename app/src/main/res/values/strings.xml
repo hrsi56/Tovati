@@ -102,9 +102,9 @@
     <string name="insight_lower_pain_relief">Nice — you recorded fewer relief pills than usual this week. Hopefully that means you felt better.</string>
     <string name="insight_tracking_streak">A lovely streak — you recorded %1$d days in a row. Consistent tracking helps reveal personal patterns.</string>
 
-    <string name="status_insufficient_data">Not enough data yet</string>
+    <string name="status_insufficient_data">The forecast is still at its starting point</string>
     <string name="status_calendar_estimate">Timing estimate from your data</string>
-    <string name="status_predicted_window">Today may be within the conception window</string>
+    <string name="status_predicted_window">Today may be within the estimated fertile window</string>
     <string name="status_fertility_signs">A fertility sign was detected today</string>
     <string name="status_lh_surge">Positive LH recorded</string>
     <string name="status_shift_candidate">Possible thermal shift</string>
@@ -388,13 +388,13 @@
     <string name="observation_more_details">More details</string>
     <string name="observation_more_details_summary">Mucus uncertainty, pain and notes</string>
 
-    <string name="fertility_today_title">Today’s fertility estimate</string>
-    <string name="fertility_level_unknown">Not enough information to assess today</string>
+    <string name="fertility_today_title">What is known about fertility today</string>
+    <string name="fertility_level_unknown">No sign recorded today has changed the forecast</string>
     <string name="fertility_level_background">No active fertility signal detected today</string>
-    <string name="fertility_level_elevated">The conception window may be approaching</string>
+    <string name="fertility_level_elevated">The fertile window may be approaching</string>
     <string name="fertility_level_high">Recorded signs support higher fertility today</string>
     <string name="fertility_level_peak">Peak-fertility signal detected</string>
-    <string name="background_not_safe_day">This does not mean infertile or safe.</string>
+    <string name="background_not_safe_day">This does not mean that today is infertile or safe.</string>
 
     <string name="reliability_insufficient">Estimate support: insufficient</string>
     <string name="reliability_limited">Estimate support: limited</string>
@@ -406,7 +406,7 @@
     <string name="reliability_value_strong">Strong</string>
 
     <string name="forecast_ranges_title">Focused estimate from the data recorded so far</string>
-    <string name="conception_window_label">Possible conception days</string>
+    <string name="conception_window_label">Estimated fertile window</string>
     <string name="prospective_ovulation_label">Two most likely ovulation days</string>
     <string name="retrospective_ovulation_label">Best retrospective ovulation day</string>
     <string name="date_range_value">%1$s</string>
@@ -428,8 +428,8 @@
     <string name="backtest_cycle_miss">Period forecast missed by %1$d days.</string>
     <string name="chart_legend_period">Expected period</string>
     <string name="chart_period_range">Expected next period: %1$s</string>
-    <string name="chart_contact_in_window">Sexual contact was recorded on %1$d days within the possible conception range.</string>
-    <string name="forecast_ranges_disclaimer">The app intentionally shows the two highest-weight days, not its full computational uncertainty. It can miss and will update as data arrives. The conception window runs from five days before that estimate through its end; days outside it are not considered safe or infertile.</string>
+    <string name="chart_contact_in_window">Sexual contact was recorded on %1$d days within the estimated fertile window.</string>
+    <string name="forecast_ranges_disclaimer">The app intentionally shows the two highest-weight days, not its full computational uncertainty. It can miss and will update as data arrives. The fertile window runs from five days before the ovulation estimate through its end; days outside it are not considered safe or infertile.</string>
     <string name="forecast_conflict_pair_note">The retrospective ovulation estimate and the new forecast do not align. Both are shown intentionally, but support is limited.</string>
     <string name="short_safety_disclaimer">Home estimate only — not ovulation confirmation or contraception.</string>
 
@@ -446,21 +446,37 @@
     <string name="signal_conflict">Conflicting signals</string>
     <string name="signal_temperatures_excluded">Temperatures excluded</string>
 
-    <string name="action_continue_tracking">Next: keep recording waking temperature and daily signs.</string>
-    <string name="action_lh_testing">Next: start or continue LH testing according to the kit instructions.</string>
-    <string name="action_repeat_lh">Next: repeat the LH test according to the kit instructions; a borderline result is not positive.</string>
+    <string name="forecast_basis_title">What the estimate is based on</string>
+    <string name="forecast_basis_none">No recorded sign has changed the timing yet; only a general starting estimate is shown.</string>
+    <string name="signal_insight_reported_cycle_length">The cycle length you supplied provides a temporary starting point until personal cycles accumulate.</string>
+    <string name="signal_insight_personal_history">Ovulation days estimated in previous cycles place the forecast according to your personal pattern.</string>
+    <string name="signal_insight_cycle_history">Your recorded cycle lengths help place the current forecast.</string>
+    <string name="signal_insight_lh_borderline">A borderline LH result slightly increases the relative weight of the next few days but is not treated as positive.</string>
+    <string name="signal_insight_lh_surge">A positive LH result helps place ovulation close to the date when it was recorded.</string>
+    <string name="signal_insight_fertile_mucus">Watery or egg-white fluid increases the relative weight of the next few days.</string>
+    <string name="signal_insight_rising_mucus">Improving fluid texture supports an approaching fertile window.</string>
+    <string name="signal_insight_mucus_peak">The fluid peak helps focus the retrospective ovulation day.</string>
+    <string name="signal_insight_thermal_candidate">A temperature rise may be starting; persistence is needed before it affects the retrospective estimate.</string>
+    <string name="signal_insight_thermal_shift">A sustained temperature rise retrospectively supports that ovulation has already occurred.</string>
+    <string name="signal_caution_conflict">The signs do not align, so the app reduced support for the estimate.</string>
+    <string name="signal_caution_temperatures_excluded">Some temperatures were marked unreliable, excluded, and did not affect the estimate.</string>
+    <string name="next_action_title">Worth noticing now</string>
+
+    <string name="action_continue_tracking">Keep recording waking temperature and daily signs.</string>
+    <string name="action_lh_testing">Start or continue LH testing according to the kit instructions.</string>
+    <string name="action_repeat_lh">Repeat the LH test according to the kit instructions; a borderline result is not positive.</string>
     <string name="action_conception_timing">If trying to conceive, consider intercourse today and over the next 1–2 days, according to your preference.</string>
     <string name="action_peak_awareness">Recorded signs support higher fertility today; keep tracking.</string>
     <string name="action_await_thermal">Keep measuring waking temperature; a sustained rise can retrospectively support that ovulation occurred.</string>
-    <string name="action_improve_temperature">Measure immediately after waking, at the same site and a similar time, and record disturbances.</string>
+    <string name="action_improve_temperature">For the next measurements, try to keep a similar time and site and measure immediately after waking; record disturbances so they do not receive undue weight.</string>
     <string name="action_review_conflict">The signals do not align. Keep tracking; no conclusion is drawn for this cycle yet.</string>
 
-    <string name="chart_legend_conception_window">Possible conception days (forecast)</string>
+    <string name="chart_legend_conception_window">Fertile window (forecast)</string>
     <string name="chart_legend_ovulation_forecast">Two most likely ovulation days</string>
     <string name="chart_legend_retrospective">Best retrospective ovulation day</string>
     <string name="chart_forecast_summary">Forecast summary</string>
     <string name="chart_retrospective_summary">Retrospective summary</string>
-    <string name="chart_conception_range">Possible conception days: %1$s</string>
+    <string name="chart_conception_range">Fertile window: %1$s</string>
     <string name="chart_prospective_range">Ovulation may occur: %1$s</string>
     <string name="chart_retrospective_range">Retrospective ovulation estimate: %1$s</string>
     <string name="history_estimate_support">Estimate support: %1$s</string>
@@ -495,7 +511,7 @@
     <string name="diary_tap_day">Tap a day to see every measurement, sign and note.</string>
     <string name="diary_legend_actual_period">Recorded bleeding</string>
     <string name="diary_legend_cycle_start">Actual day 1 — entered by you</string>
-    <string name="diary_legend_conception">Possible conception days</string>
+    <string name="diary_legend_conception">Fertile window</string>
     <string name="diary_legend_ovulation_expected">Forecast ovulation range</string>
     <string name="diary_legend_ovulation_past">Retrospective ovulation</string>
     <string name="diary_legend_menstruation_end">Estimated period end from setup</string>
@@ -545,7 +561,7 @@
     <string name="diary_possible_cycle_end">One possible last day of the current cycle</string>
     <string name="diary_possible_menstruation_end">Estimated period end from setup</string>
     <string name="diary_possible_next_start">One possible cycle day 1 for the next cycle</string>
-    <string name="diary_conception_day">Within the possible conception range</string>
+    <string name="diary_conception_day">Within the estimated fertile window</string>
     <string name="diary_prospective_ovulation_day">Within the ovulation range forecast from history and early signs</string>
     <string name="diary_retrospective_ovulation_day">The retrospectively estimated ovulation day</string>
     <string name="diary_lh_positive_day">A positive LH test was recorded</string>

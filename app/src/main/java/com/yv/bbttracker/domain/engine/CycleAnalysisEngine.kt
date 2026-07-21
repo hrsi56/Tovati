@@ -183,11 +183,14 @@ class CycleAnalysisEngine {
         )
         val nextAction = determineNextAction(
             fertilityLevel = fertilityLevelToday,
-            quality = qualityAssessment.quality,
             activeLh = prospectiveLhEpisode != null,
             borderlineLh = lh.recentBorderlineDate != null,
             thermalShift = thermalShift,
             signsConflict = signsConflict,
+            hasCorrectableTemperatureIssue = hasRecentCorrectableTemperatureIssue(
+                input = input,
+                cycleTemperatures = cycleTemperatures,
+            ),
         )
 
         val reasons = linkedSetOf<ReasonCode>().apply {
@@ -417,11 +420,11 @@ class CycleAnalysisEngine {
 
     private fun determineNextAction(
         fertilityLevel: FertilityLevelToday,
-        quality: DataQuality,
         activeLh: Boolean,
         borderlineLh: Boolean,
         thermalShift: ThermalShiftResult?,
         signsConflict: Boolean,
+        hasCorrectableTemperatureIssue: Boolean,
     ): NextAction = when {
         signsConflict -> NextAction.REVIEW_CONFLICTING_SIGNALS
         fertilityLevel in setOf(FertilityLevelToday.HIGH, FertilityLevelToday.PEAK_SIGNAL) ->
@@ -430,8 +433,50 @@ class CycleAnalysisEngine {
         thermalShift?.state == ThermalShiftState.CANDIDATE -> NextAction.AWAIT_THERMAL_CONFIRMATION
         fertilityLevel == FertilityLevelToday.ELEVATED && !activeLh ->
             NextAction.START_OR_CONTINUE_LH_TESTING
-        quality == DataQuality.LOW -> NextAction.IMPROVE_TEMPERATURE_QUALITY
+        hasCorrectableTemperatureIssue -> NextAction.IMPROVE_TEMPERATURE_QUALITY
         else -> NextAction.CONTINUE_DAILY_TRACKING
+    }
+
+    private fun hasRecentCorrectableTemperatureIssue(
+        input: CycleAnalysisInput,
+        cycleTemperatures: List<TemperatureMeasurement>,
+    ): Boolean {
+        val recentStart = maxOf(input.currentCycle.startDate, input.currentDate.minusDays(6))
+        val recentSelected = cycleTemperatures.filter { measurement ->
+            measurement.selectedForAnalysis && measurement.date in recentStart..input.currentDate
+        }
+        val recentByDay = recentSelected.groupBy(TemperatureMeasurement::date)
+        if (recentByDay.size < 3) return false
+
+        val disturbedDays = recentByDay.count { (_, measurements) ->
+            measurements.any { it.disturbanceMask != 0L }
+        }
+        val mismatchedSiteDays = recentByDay.count { (_, measurements) ->
+            measurements.any { measurement ->
+                measurement.site != input.defaultMeasurementSite ||
+                    measurement.disturbanceMask.hasFlag(DisturbanceFlag.DIFFERENT_MEASUREMENT_SITE)
+            }
+        }
+        val unreliableDays = ThermalShiftDetector.unreliableSelectedMeasurements(
+            measurements = recentSelected,
+            defaultMeasurementSite = input.defaultMeasurementSite,
+        ).map(TemperatureMeasurement::date).distinct().size
+        val recentValid = ThermalShiftDetector.chooseValidMeasurements(
+            measurements = recentSelected,
+            defaultMeasurementSite = input.defaultMeasurementSite,
+        )
+        val timeSpreadMinutes = circularTimeSpreadMinutes(
+            recentValid.map { measurement ->
+                measurement.measuredAt.atZone(measurement.zoneId).toLocalTime().let { time ->
+                    time.hour * 60 + time.minute
+                }
+            },
+        )
+
+        return disturbedDays.toDouble() / recentByDay.size >= 0.35 ||
+            mismatchedSiteDays >= 2 ||
+            unreliableDays >= 2 ||
+            (recentValid.size >= 3 && timeSpreadMinutes > 180)
     }
 
     private fun explanationsFor(
@@ -454,7 +499,7 @@ class CycleAnalysisEngine {
                     } else {
                         "ההערכה מבוססת בעיקר על היסטוריה אישית ואינה אישור ביוץ."
                     }
-                FertilityStatus.PREDICTED_FERTILE_WINDOW -> "היום נמצא בחלון ניסיון להרות שנגזר מטווח ביוץ אפשרי."
+                FertilityStatus.PREDICTED_FERTILE_WINDOW -> "היום נמצא בחלון הפוריות המשוער שנגזר מטווח ביוץ אפשרי."
                 FertilityStatus.FERTILITY_SIGNS_PRESENT -> "דפוס הנוזל הנוכחי תומך בפוריות מוגברת, אך אינו מאשר ביוץ."
                 FertilityStatus.LH_SURGE_DETECTED -> "זוהתה אפיזודת LH מהחיובי הראשון; חיוביים רצופים אינם מאפסים אותה."
                 FertilityStatus.THERMAL_SHIFT_CANDIDATE -> "נראה מועמד לשינוי תרמי שעדיין דורש התמדה."

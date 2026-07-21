@@ -488,6 +488,62 @@ class CycleAnalysisEngineTest {
     }
 
     @Test
+    fun `a short clean temperature series does not pretend there is a quality problem`() {
+        val seven = (0L..6L).map { measurement(currentCycleStart.plusDays(it), 3600) }
+
+        val result = analyze(currentCycleStart.plusDays(6), temperatures = seven)
+
+        assertEquals(DataQuality.LOW, result.dataQuality)
+        assertEquals(NextAction.CONTINUE_DAILY_TRACKING, result.nextAction)
+        assertFalse(ReasonCode.DISTURBED_MEASUREMENTS in result.reasonCodes)
+        assertFalse(ReasonCode.MEASUREMENT_SITE_CHANGED in result.reasonCodes)
+    }
+
+    @Test
+    fun `starting clean temperature tracking mid-cycle does not produce an impossible next step`() {
+        val recentSeven = (40L..46L).map { measurement(currentCycleStart.plusDays(it), 3600) }
+
+        val result = analyze(currentCycleStart.plusDays(46), temperatures = recentSeven)
+
+        assertEquals(DataQuality.LOW, result.dataQuality)
+        assertTrue(ReasonCode.TOO_MANY_MISSING_DAYS in result.reasonCodes)
+        assertEquals(NextAction.CONTINUE_DAILY_TRACKING, result.nextAction)
+    }
+
+    @Test
+    fun `an actual temperature quality problem produces corrective guidance`() {
+        val disturbed = (0L..6L).map { offset ->
+            measurement(
+                currentCycleStart.plusDays(offset),
+                3600,
+                disturbanceMask = if (offset < 3L) DisturbanceFlag.LATE_MEASUREMENT else 0L,
+            )
+        }
+
+        val result = analyze(currentCycleStart.plusDays(6), temperatures = disturbed)
+
+        assertEquals(DataQuality.LOW, result.dataQuality)
+        assertEquals(NextAction.IMPROVE_TEMPERATURE_QUALITY, result.nextAction)
+        assertTrue(ReasonCode.DISTURBED_MEASUREMENTS in result.reasonCodes)
+    }
+
+    @Test
+    fun `one isolated disturbed measurement does not become a persistent next step`() {
+        val mostlyClean = (0L..6L).map { offset ->
+            measurement(
+                currentCycleStart.plusDays(offset),
+                3600,
+                disturbanceMask = if (offset == 1L) DisturbanceFlag.LATE_MEASUREMENT else 0L,
+            )
+        }
+
+        val result = analyze(currentCycleStart.plusDays(6), temperatures = mostlyClean)
+
+        assertTrue(ReasonCode.DISTURBED_MEASUREMENTS in result.reasonCodes)
+        assertEquals(NextAction.CONTINUE_DAILY_TRACKING, result.nextAction)
+    }
+
+    @Test
     fun `elevated fertility prioritizes LH testing over low BBT quality`() {
         val currentDate = currentCycleStart.plusDays(8)
         val sixTemperatures = (0L..5L).map { measurement(currentCycleStart.plusDays(it), 3600) }
@@ -699,7 +755,7 @@ class CycleAnalysisEngineTest {
     fun `engine version and explanation are always included`() {
         val result = analyze(currentCycleStart)
 
-        assertEquals("bbt-fusion-2.3.0", ENGINE_VERSION)
+        assertEquals("bbt-fusion-2.3.1", ENGINE_VERSION)
         assertEquals(ENGINE_VERSION, result.engineVersion)
         assertTrue(result.humanExplanation.isNotEmpty())
         assertTrue(result.humanExplanation.size <= 3)

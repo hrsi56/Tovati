@@ -10,7 +10,7 @@ import java.time.temporal.ChronoUnit
 /**
  * Version persisted with every analysis snapshot. Threshold or rule changes must bump this value.
  */
-const val ENGINE_VERSION = "bbt-fusion-2.3.0"
+const val ENGINE_VERSION = "bbt-fusion-2.3.1"
 
 enum class FertilityStatus {
     INSUFFICIENT_DATA,
