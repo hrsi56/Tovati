@@ -14,7 +14,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/hrsi56/Tovati/releases/download/v1.5.1/Tovati-1.5.1.apk">
+  <a href="https://github.com/hrsi56/Tovati/releases/latest/download/Tovati.apk">
     <img src="docs/assets/download-button.svg" width="330" alt="Download For Android">
   </a>
 </p>
@@ -24,7 +24,7 @@
   ·
   <a href="docs/PRIVACY_HE.md">לפרטיות ואבטחה</a>
   ·
-  <a href="docs/RELEASE_REPORT_1.5.1_HE.md">לדו״ח הגרסה</a>
+  <a href="docs/RELEASE_REPORT_1.6.1_HE.md">לדו״ח הגרסה</a>
 </p>
 
 ---
@@ -104,9 +104,9 @@
 
 את התשובות מההגדרה הראשונית אפשר לראות ולשנות בכל עת דרך „הגדרות” ← „בואי נגדיר מחדש”, בלי למחוק או לשנות אף מחזור, מדידה או סימן שכבר תיעדת.
 
-### חדש בגרסה 1.5.1
+### חדש בגרסה 1.6.1
 
-מסך ההיסטוריה הוקשח כדי למנוע סגירה בזמן פתיחה ישירה של „מדידות חום” וגלילה ברשימה ארוכה. לכל מחזור, סימן יומי ומדידה יש כעת זהות נפרדת ויציבה בתצוגה.
+מסך „מה ידוע על הפוריות היום” מציג עכשיו רק את המקורות שבאמת השפיעו על ההערכה, בלי תגי „לא מספקת” ובלי הנחיית חום כללית שנתקעת. נוסף גם שימוש בהערכת אורך המחזור והווסת מההגדרה הראשונית, וכל המונחים בממשק משתמשים ב„חלון הפוריות”.
 
 ## מתחילות?
 
@@ -115,13 +115,13 @@
 3. פתחי את טובתי והתחילי במחזור הנוכחי שלך.
 
 <p align="center">
-  <a href="https://github.com/hrsi56/Tovati/releases/download/v1.5.1/Tovati-1.5.1.apk">
+  <a href="https://github.com/hrsi56/Tovati/releases/latest/download/Tovati.apk">
     <img src="docs/assets/download-button.svg" width="330" alt="Download For Android">
   </a>
 </p>
 
 <p align="center">
-  <sub>גרסה 1.5.1 · קובץ חתום · כ־3.1 MB</sub>
+  <sub>הגרסה העדכנית · קובץ חתום · כ־3.1 MB</sub>
 </p>
 
 ## הערה חשובה, כי מגיע לך מידע ישר
@@ -145,7 +145,7 @@
   - [ארכיטקטורה](docs/ARCHITECTURE_HE.md)
   - [אלגוריתם BBT ותחזית](docs/ALGORITHM_HE.md)
   - [פרטיות ואבטחה](docs/PRIVACY_HE.md)
-  - [דו״ח מועמד גרסה 1.6.1](docs/RELEASE_REPORT_1.6.1_HE.md)
+  - [דו״ח גרסה 1.6.1](docs/RELEASE_REPORT_1.6.1_HE.md)
   - [דו״ח גרסה 1.5.1](docs/RELEASE_REPORT_1.5.1_HE.md)
   - [רשימת בדיקות release](docs/RELEASE_CHECKLIST_HE.md)
 </details>
