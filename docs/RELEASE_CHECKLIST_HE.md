@@ -153,6 +153,9 @@ apksigner verify --verbose --print-certs app/build/outputs/apk/release/app-relea
 shasum -a 256 app/build/outputs/apk/release/app-release.apk
 ```
 
+- [ ] ה־Release כולל APK ממוספר (`Tovati-X.Y.Z.apk`) וה־workflow ‏`Keep latest APK alias` פרסם לצדו גם `Tovati.apk`.
+- [ ] הכתובת הקבועה `https://github.com/hrsi56/Tovati/releases/latest/download/Tovati.apk` מורידה את ה־APK של ה־Release האחרון וה־checksum שלו זהה ל־APK הממוספר.
+
 - [ ] ה־APK הסופי הותקן עם `adb install -r` והופעל ללא crash.
 - [ ] נוסה עדכון מעל 1.0.0 עם אותה חתימה ובלי מחיקת נתונים.
 - [ ] נשמרו יחד: APK, checksum, `versionName/versionCode`, `ENGINE_VERSION`, release notes והוראת גיבוי לפני עדכון.
