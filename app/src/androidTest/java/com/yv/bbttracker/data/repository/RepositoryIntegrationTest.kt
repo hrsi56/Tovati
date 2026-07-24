@@ -90,29 +90,35 @@ class RepositoryIntegrationTest {
     }
 
     @Test
-    fun movingEditedMeasurementOntoOccupiedDateReplacesTargetAndFreesSourceDate() = runBlocking {
+    fun editingMeasurementOntoAnotherDatesDayUpdatesThatDayWithoutErasingTheOriginalDate() = runBlocking {
         val yesterday = LocalDate.ofEpochDay(20_060)
         val today = yesterday.plusDays(1)
-        measurementRepository.saveMeasurement(
+        val yesterdayId = measurementRepository.saveMeasurement(
             measurementInput(yesterday, MeasurementSite.ORAL).copy(temperatureCentiC = 3_650),
         ).getOrThrow()
         val todayId = measurementRepository.saveMeasurement(
             measurementInput(today, MeasurementSite.ORAL).copy(temperatureCentiC = 3_670),
         ).getOrThrow()
 
-        val movedId = measurementRepository.saveMeasurement(
+        // The entry screen was opened to edit today's measurement (id = todayId) but its date
+        // field was changed to yesterday - e.g. the user actually meant to backfill yesterday's
+        // reading. The save must land on yesterday's own row and must not touch today's.
+        val resultId = measurementRepository.saveMeasurement(
             measurementInput(yesterday, MeasurementSite.ORAL).copy(
                 id = todayId,
                 temperatureCentiC = 3_680,
             ),
         ).getOrThrow()
 
+        assertEquals(yesterdayId, resultId)
         val all = database.measurementDao().getAll()
-        assertEquals(1, all.size)
-        assertEquals(todayId, movedId)
-        assertEquals(yesterday.toEpochDay(), all.single().measurementEpochDay)
-        assertEquals(3_680, all.single().temperatureCentiC)
-        assertNull(database.measurementDao().getByDay(today.toEpochDay()))
+        assertEquals(2, all.size)
+        val storedToday = database.measurementDao().getByDay(today.toEpochDay())
+        assertEquals(todayId, storedToday?.id)
+        assertEquals(3_670, storedToday?.temperatureCentiC)
+        val storedYesterday = database.measurementDao().getByDay(yesterday.toEpochDay())
+        assertEquals(yesterdayId, storedYesterday?.id)
+        assertEquals(3_680, storedYesterday?.temperatureCentiC)
     }
 
     @Test

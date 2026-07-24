@@ -69,6 +69,9 @@ class MeasurementEntryViewModelTest {
             advanceUntilIdle()
             assertEquals(today, repository.savedInputs.last().date)
             assertEquals(2, repository.values.size)
+            // isSaving must clear on a successful save too, not only on failure - otherwise a
+            // reused view model instance would refuse every future save silently.
+            assertFalse(todayEntry.state.value.isSaving)
         }
 
     private fun viewModel(

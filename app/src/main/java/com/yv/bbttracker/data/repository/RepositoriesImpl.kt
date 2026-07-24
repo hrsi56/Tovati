@@ -237,21 +237,16 @@ class MeasurementRepositoryImpl(private val database: AppDatabase) : Measurement
         database.withTransaction {
             val now = System.currentTimeMillis()
             val targetDay = input.date.toEpochDay()
-            val editedMeasurement = input.id.takeIf { it != 0L }?.let { dao.getById(it) }
-            val measurementOnTargetDay = dao.getByDay(targetDay)
 
-            // A save is an upsert by calendar date. When an edited measurement is moved onto a
-            // date that is already occupied, the edited measurement is the last save and wins.
-            if (editedMeasurement != null &&
-                measurementOnTargetDay != null &&
-                editedMeasurement.id != measurementOnTargetDay.id
-            ) {
-                dao.deleteById(measurementOnTargetDay.id)
-            }
-            val existing = editedMeasurement ?: measurementOnTargetDay
-            val storedId = existing?.id ?: 0L
+            // A save is an upsert keyed purely by calendar date, never by the measurement id the
+            // entry screen started from. If the user is editing an existing measurement and
+            // changes its date to a day that isn't the one it started on, that day's own
+            // measurement (if any) is what gets written to - the original date is left untouched
+            // instead of being silently moved/deleted. This is what keeps "add a forgotten day's
+            // reading" from ever erasing an already-recorded day.
+            val existing = dao.getByDay(targetDay)
             val entity = TemperatureMeasurementEntity(
-                id = storedId,
+                id = existing?.id ?: 0L,
                 measurementEpochDay = targetDay,
                 measuredAtEpochMillis = input.measuredAtEpochMillis,
                 timezoneId = input.timezoneId,
@@ -274,8 +269,7 @@ class MeasurementRepositoryImpl(private val database: AppDatabase) : Measurement
             if (input.selectedForAnalysis) {
                 dao.selectForAnalysis(id, targetDay, now)
             }
-            setOfNotNull(editedMeasurement?.measurementEpochDay, targetDay)
-                .forEach { database.reconcileAnalysisSiteForDay(it) }
+            database.reconcileAnalysisSiteForDay(targetDay)
             id
         }
     }

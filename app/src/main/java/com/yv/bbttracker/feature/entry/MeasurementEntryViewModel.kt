@@ -208,8 +208,12 @@ class MeasurementEntryViewModel(
                     selectedForAnalysis = current.selectedForAnalysis,
                 ),
             )
-            if (result.isSuccess) effectsChannel.send(MeasurementEntryEffect.Saved)
-            else _state.update { it.copy(isSaving = false, error = EntryError.SAVE_FAILED) }
+            if (result.isSuccess) {
+                _state.update { it.copy(isSaving = false) }
+                effectsChannel.send(MeasurementEntryEffect.Saved)
+            } else {
+                _state.update { it.copy(isSaving = false, error = EntryError.SAVE_FAILED) }
+            }
         }
     }
 
