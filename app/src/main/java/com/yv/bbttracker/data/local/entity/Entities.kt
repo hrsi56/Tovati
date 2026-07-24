@@ -30,7 +30,7 @@ data class CycleEntity(
 
 @Entity(
     tableName = "temperature_measurements",
-    indices = [Index("measurementEpochDay")],
+    indices = [Index(value = ["measurementEpochDay"], unique = true)],
 )
 data class TemperatureMeasurementEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,

@@ -166,7 +166,6 @@
     <string name="save_anyway">Save anyway</string>
     <string name="past_date_warning">This measurement is for an earlier date. Check the selected date before saving.</string>
     <string name="future_time_invalid">A measurement cannot be more than 24 hours in the future.</string>
-    <string name="duplicate_measurement">Another measurement is already selected for this date. Saving this one as selected will keep both records and exclude the previous selection.</string>
     <string name="delete_measurement_title">Delete measurement?</string>
     <string name="delete_measurement_body">This action cannot be undone.</string>
     <string name="measurement_delete_action">Delete measurement</string>

@@ -24,7 +24,7 @@ import com.yv.bbttracker.data.local.entity.TemperatureMeasurementEntity
         DailyObservationEntity::class,
         PredictionSnapshotEntity::class,
     ],
-    version = 4,
+    version = 5,
     exportSchema = true,
 )
 @TypeConverters(RoomConverters::class)
@@ -39,7 +39,7 @@ abstract class AppDatabase : RoomDatabase() {
             context.applicationContext,
             AppDatabase::class.java,
             "bbt-tracker.db",
-        ).addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4).build()
+        ).addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5).build()
 
         val MIGRATION_1_2 = object : Migration(1, 2) {
             override fun migrate(db: SupportSQLiteDatabase) {
@@ -110,6 +110,67 @@ abstract class AppDatabase : RoomDatabase() {
                 )
                 db.execSQL(
                     "ALTER TABLE daily_observations ADD COLUMN painReliefMedicationNote TEXT",
+                )
+            }
+        }
+
+        val MIGRATION_4_5 = object : Migration(4, 5) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                // Older versions allowed several measurements on the same date. Keep the one
+                // saved most recently, then enforce the new one-measurement-per-date invariant.
+                db.execSQL(
+                    """
+                    DELETE FROM temperature_measurements
+                    WHERE id != (
+                        SELECT candidate.id
+                        FROM temperature_measurements AS candidate
+                        WHERE candidate.measurementEpochDay =
+                            temperature_measurements.measurementEpochDay
+                        ORDER BY candidate.updatedAtEpochMillis DESC, candidate.id DESC
+                        LIMIT 1
+                    )
+                    """.trimIndent(),
+                )
+                db.execSQL("DROP INDEX IF EXISTS index_temperature_measurements_measurementEpochDay")
+                db.execSQL(
+                    """
+                    CREATE UNIQUE INDEX IF NOT EXISTS
+                        index_temperature_measurements_measurementEpochDay
+                    ON temperature_measurements (measurementEpochDay)
+                    """.trimIndent(),
+                )
+                db.execSQL(
+                    """
+                    UPDATE cycles
+                    SET analysisSite = CASE
+                        WHEN EXISTS (
+                            SELECT 1
+                            FROM temperature_measurements AS matching
+                            WHERE matching.selectedForAnalysis = 1
+                              AND matching.site = cycles.analysisSite
+                              AND matching.measurementEpochDay >= cycles.startEpochDay
+                              AND (
+                                  cycles.endEpochDay IS NULL OR
+                                  matching.measurementEpochDay <= cycles.endEpochDay
+                              )
+                        ) THEN cycles.analysisSite
+                        ELSE (
+                            SELECT selected.site
+                            FROM temperature_measurements AS selected
+                            WHERE selected.selectedForAnalysis = 1
+                              AND selected.measurementEpochDay >= cycles.startEpochDay
+                              AND (
+                                  cycles.endEpochDay IS NULL OR
+                                  selected.measurementEpochDay <= cycles.endEpochDay
+                              )
+                            ORDER BY selected.measurementEpochDay ASC,
+                                     selected.measuredAtEpochMillis ASC,
+                                     selected.createdAtEpochMillis ASC,
+                                     selected.id ASC
+                            LIMIT 1
+                        )
+                    END
+                    """.trimIndent(),
                 )
             }
         }

@@ -75,6 +75,25 @@ class BackupPayloadCompatibilityTest {
         assertEquals(MeasurementSite.ORAL, normalized.cycles.single().analysisSite)
     }
 
+    @Test
+    fun `restore normalization keeps the most recently saved temperature for each date`() {
+        val day = 20_100L
+        val payload = json.decodeFromString(
+            BackupPayload.serializer(),
+            LEGACY_VERSION_ONE_PAYLOAD,
+        ).copy(
+            temperatureMeasurements = listOf(
+                measurement(id = 8, day = day, site = MeasurementSite.ORAL),
+                measurement(id = 9, day = day, site = MeasurementSite.VAGINAL),
+                measurement(id = 10, day = day + 1, site = MeasurementSite.RECTAL),
+            ),
+        )
+
+        val normalized = payload.withLatestTemperaturePerDate()
+
+        assertEquals(listOf(9L, 10L), normalized.temperatureMeasurements.map { it.id })
+    }
+
     private fun measurement(
         id: Long,
         day: Long,

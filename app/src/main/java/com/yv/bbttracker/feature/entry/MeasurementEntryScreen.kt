@@ -345,7 +345,6 @@ fun MeasurementEntryScreen(
                         when (warning) {
                             EntryWarning.PAST_DATE -> R.string.past_date_warning
                             EntryWarning.SOFT_TEMPERATURE -> R.string.temperature_soft_warning
-                            EntryWarning.DUPLICATE -> R.string.duplicate_measurement
                         },
                     ),
                 )

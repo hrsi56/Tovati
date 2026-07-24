@@ -63,6 +63,80 @@ class RepositoryIntegrationTest {
     }
 
     @Test
+    fun latestSaveForDateReplacesPreviousMeasurementWithoutCreatingDuplicate() = runBlocking {
+        val date = LocalDate.ofEpochDay(20_050)
+        val cycleId = cycleRepository.startCycle(date.minusDays(2)).getOrThrow()
+        val originalId = measurementRepository.saveMeasurement(
+            measurementInput(date, MeasurementSite.ORAL).copy(
+                temperatureCentiC = 3_651,
+                note = "old",
+            ),
+        ).getOrThrow()
+
+        val replacementId = measurementRepository.saveMeasurement(
+            measurementInput(date, MeasurementSite.VAGINAL).copy(
+                temperatureCentiC = 3_689,
+                note = "latest",
+            ),
+        ).getOrThrow()
+
+        val stored = database.measurementDao().getAll().single()
+        assertEquals(originalId, replacementId)
+        assertEquals(originalId, stored.id)
+        assertEquals(3_689, stored.temperatureCentiC)
+        assertEquals(MeasurementSite.VAGINAL, stored.site)
+        assertEquals("latest", stored.note)
+        assertEquals(MeasurementSite.VAGINAL, database.cycleDao().getById(cycleId)?.analysisSite)
+    }
+
+    @Test
+    fun movingEditedMeasurementOntoOccupiedDateReplacesTargetAndFreesSourceDate() = runBlocking {
+        val yesterday = LocalDate.ofEpochDay(20_060)
+        val today = yesterday.plusDays(1)
+        measurementRepository.saveMeasurement(
+            measurementInput(yesterday, MeasurementSite.ORAL).copy(temperatureCentiC = 3_650),
+        ).getOrThrow()
+        val todayId = measurementRepository.saveMeasurement(
+            measurementInput(today, MeasurementSite.ORAL).copy(temperatureCentiC = 3_670),
+        ).getOrThrow()
+
+        val movedId = measurementRepository.saveMeasurement(
+            measurementInput(yesterday, MeasurementSite.ORAL).copy(
+                id = todayId,
+                temperatureCentiC = 3_680,
+            ),
+        ).getOrThrow()
+
+        val all = database.measurementDao().getAll()
+        assertEquals(1, all.size)
+        assertEquals(todayId, movedId)
+        assertEquals(yesterday.toEpochDay(), all.single().measurementEpochDay)
+        assertEquals(3_680, all.single().temperatureCentiC)
+        assertNull(database.measurementDao().getByDay(today.toEpochDay()))
+    }
+
+    @Test
+    fun severalPastDatesCanBeBackfilledInOneSession() = runBlocking {
+        val start = LocalDate.ofEpochDay(20_070)
+
+        repeat(7) { offset ->
+            val date = start.plusDays(offset.toLong())
+            measurementRepository.saveMeasurement(
+                measurementInput(date, MeasurementSite.ORAL).copy(
+                    temperatureCentiC = 3_650 + offset,
+                ),
+            ).getOrThrow()
+        }
+
+        val stored = database.measurementDao().getAll()
+        assertEquals(7, stored.size)
+        assertEquals(
+            (0L..6L).map { start.plusDays(it).toEpochDay() },
+            stored.map { it.measurementEpochDay },
+        )
+    }
+
+    @Test
     fun startingCycleAfterMeasurementBackfillsEarliestSelectedSite() = runBlocking {
         val start = LocalDate.ofEpochDay(21_000)
         measurementRepository.saveMeasurement(

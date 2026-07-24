@@ -66,14 +66,20 @@ private suspend fun AppDatabase.firstSelectedSiteInRange(
     endEpochDay = endEpochDay,
 )
 
-private suspend fun AppDatabase.lockAnalysisSiteForDay(epochDay: Long, site: MeasurementSite) {
+private suspend fun AppDatabase.reconcileAnalysisSiteForDay(epochDay: Long) {
     val cycle = cycleDao().getAll().lastOrNull { entity ->
         epochDay >= entity.startEpochDay && (entity.endEpochDay == null || epochDay <= entity.endEpochDay)
     }
-    if (cycle != null && cycle.analysisSite == null) {
+    if (cycle != null) {
+        val resolvedSite = measurementDao().getAll().resolveAnalysisSiteInRange(
+            currentSite = cycle.analysisSite,
+            startEpochDay = cycle.startEpochDay,
+            endEpochDay = cycle.endEpochDay,
+        )
+        if (resolvedSite == cycle.analysisSite) return
         cycleDao().update(
             cycle.copy(
-                analysisSite = site,
+                analysisSite = resolvedSite,
                 updatedAtEpochMillis = System.currentTimeMillis(),
             ),
         )
@@ -230,10 +236,23 @@ class MeasurementRepositoryImpl(private val database: AppDatabase) : Measurement
     override suspend fun saveMeasurement(input: MeasurementInput): Result<Long> = runCatching {
         database.withTransaction {
             val now = System.currentTimeMillis()
-            val existing = input.id.takeIf { it != 0L }?.let { dao.getById(it) }
+            val targetDay = input.date.toEpochDay()
+            val editedMeasurement = input.id.takeIf { it != 0L }?.let { dao.getById(it) }
+            val measurementOnTargetDay = dao.getByDay(targetDay)
+
+            // A save is an upsert by calendar date. When an edited measurement is moved onto a
+            // date that is already occupied, the edited measurement is the last save and wins.
+            if (editedMeasurement != null &&
+                measurementOnTargetDay != null &&
+                editedMeasurement.id != measurementOnTargetDay.id
+            ) {
+                dao.deleteById(measurementOnTargetDay.id)
+            }
+            val existing = editedMeasurement ?: measurementOnTargetDay
+            val storedId = existing?.id ?: 0L
             val entity = TemperatureMeasurementEntity(
-                id = input.id,
-                measurementEpochDay = input.date.toEpochDay(),
+                id = storedId,
+                measurementEpochDay = targetDay,
                 measuredAtEpochMillis = input.measuredAtEpochMillis,
                 timezoneId = input.timezoneId,
                 temperatureCentiC = input.temperatureCentiC,
@@ -253,9 +272,10 @@ class MeasurementRepositoryImpl(private val database: AppDatabase) : Measurement
                 entity.id
             }
             if (input.selectedForAnalysis) {
-                dao.selectForAnalysis(id, input.date.toEpochDay(), now)
-                database.lockAnalysisSiteForDay(input.date.toEpochDay(), input.site)
+                dao.selectForAnalysis(id, targetDay, now)
             }
+            setOfNotNull(editedMeasurement?.measurementEpochDay, targetDay)
+                .forEach { database.reconcileAnalysisSiteForDay(it) }
             id
         }
     }
@@ -264,7 +284,7 @@ class MeasurementRepositoryImpl(private val database: AppDatabase) : Measurement
         database.withTransaction {
             val measurement = dao.getById(measurementId) ?: error("Measurement not found")
             dao.selectForAnalysis(measurementId, measurement.measurementEpochDay, System.currentTimeMillis())
-            database.lockAnalysisSiteForDay(measurement.measurementEpochDay, measurement.site)
+            database.reconcileAnalysisSiteForDay(measurement.measurementEpochDay)
         }
     }
 
@@ -272,10 +292,7 @@ class MeasurementRepositoryImpl(private val database: AppDatabase) : Measurement
         database.withTransaction {
             val deleted = dao.getById(measurementId) ?: return@withTransaction
             dao.deleteById(measurementId)
-            if (deleted.selectedForAnalysis) {
-                val remaining = dao.getAll().filter { it.measurementEpochDay == deleted.measurementEpochDay }
-                remaining.lastOrNull()?.let { dao.selectForAnalysis(it.id, it.measurementEpochDay, System.currentTimeMillis()) }
-            }
+            database.reconcileAnalysisSiteForDay(deleted.measurementEpochDay)
         }
     }
 }

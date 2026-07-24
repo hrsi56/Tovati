@@ -8,6 +8,7 @@ import java.io.IOException
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -22,7 +23,7 @@ class AppDatabaseMigrationTest {
 
     @Test
     @Throws(IOException::class)
-    fun migrate1To4_preservesLegacyDataAndBackfillsNewObservationDefaults() {
+    fun migrate1To5_preservesLegacyDataAndBackfillsNewObservationDefaults() {
         helper.createDatabase(TEST_DATABASE, 1).apply {
             execSQL(
                 """
@@ -55,11 +56,12 @@ class AppDatabaseMigrationTest {
 
         val migrated = helper.runMigrationsAndValidate(
             TEST_DATABASE,
-            4,
+            5,
             true,
             AppDatabase.MIGRATION_1_2,
             AppDatabase.MIGRATION_2_3,
             AppDatabase.MIGRATION_3_4,
+            AppDatabase.MIGRATION_4_5,
         )
 
         migrated.query(
@@ -106,6 +108,69 @@ class AppDatabaseMigrationTest {
             assertNull(cursor.nullableString(15))
             assertNull(cursor.nullableString(16))
             assertEquals("legacy observation", cursor.getString(17))
+        }
+
+        migrated.close()
+    }
+
+    @Test
+    @Throws(IOException::class)
+    fun migrate4To5_keepsLatestSaveForEachDateAndAddsUniqueConstraint() {
+        helper.createDatabase(TEST_DATABASE, 4).apply {
+            execSQL(
+                """
+                INSERT INTO cycles
+                    (id, startEpochDay, endEpochDay, analysisSite,
+                     createdAtEpochMillis, updatedAtEpochMillis, note)
+                VALUES (21, 20490, 20500, 'ORAL', 1, 1, NULL)
+                """.trimIndent(),
+            )
+            insertLegacyMeasurement(id = 11, day = 20_500, site = "ORAL", selected = true)
+            insertLegacyMeasurement(id = 12, day = 20_500, site = "VAGINAL", selected = false)
+            insertLegacyMeasurement(id = 13, day = 20_501, site = "RECTAL", selected = true)
+            close()
+        }
+
+        val migrated = helper.runMigrationsAndValidate(
+            TEST_DATABASE,
+            5,
+            true,
+            AppDatabase.MIGRATION_4_5,
+        )
+
+        migrated.query(
+            """
+            SELECT id, measurementEpochDay, site
+            FROM temperature_measurements
+            ORDER BY measurementEpochDay
+            """.trimIndent(),
+        ).use { cursor ->
+            assertEquals(2, cursor.count)
+            cursor.moveToFirst()
+            assertEquals(12L, cursor.getLong(0))
+            assertEquals(20_500L, cursor.getLong(1))
+            assertEquals("VAGINAL", cursor.getString(2))
+            cursor.moveToNext()
+            assertEquals(13L, cursor.getLong(0))
+        }
+
+        migrated.query("SELECT analysisSite FROM cycles WHERE id = 21").use { cursor ->
+            cursor.moveToFirst()
+            assertNull(cursor.nullableString(0))
+        }
+
+        migrated.query("PRAGMA index_list('temperature_measurements')").use { cursor ->
+            val nameColumn = cursor.getColumnIndexOrThrow("name")
+            val uniqueColumn = cursor.getColumnIndexOrThrow("unique")
+            var uniqueDateIndexFound = false
+            while (cursor.moveToNext()) {
+                if (cursor.getString(nameColumn) ==
+                    "index_temperature_measurements_measurementEpochDay"
+                ) {
+                    uniqueDateIndexFound = cursor.getInt(uniqueColumn) == 1
+                }
+            }
+            assertTrue(uniqueDateIndexFound)
         }
 
         migrated.close()

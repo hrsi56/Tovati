@@ -100,7 +100,7 @@ class AppDatabaseInstrumentedTest {
     }
 
     @Test
-    fun uniqueDayConstraintsAndSelectionTransaction_preserveOneDailyRecordAndOneSelection() = runBlocking {
+    fun uniqueDayConstraints_preserveOneCycleObservationAndTemperaturePerDate() = runBlocking {
         val cycleDao = database.cycleDao()
         val observationDao = database.observationDao()
         val measurementDao = database.measurementDao()
@@ -121,21 +121,22 @@ class AppDatabaseInstrumentedTest {
         val firstId = measurementDao.insert(
             measurement(day = day, measuredAt = 10L, selected = true),
         )
-        val secondId = measurementDao.insert(
-            measurement(day = day, measuredAt = 20L, selected = false),
-        )
+        val duplicateMeasurement = runCatching {
+            measurementDao.insert(measurement(day = day, measuredAt = 20L, selected = false))
+        }
+        assertTrue(duplicateMeasurement.exceptionOrNull() is SQLiteConstraintException)
+        assertEquals(1, measurementDao.getAll().size)
+
         measurementDao.insert(
             measurement(day = day + 1, measuredAt = 30L, selected = true),
         )
-
-        measurementDao.selectForAnalysis(id = secondId, epochDay = day, updatedAt = 99L)
+        measurementDao.selectForAnalysis(id = firstId, epochDay = day, updatedAt = 99L)
 
         val sameDay = measurementDao.observeForDate(day).first()
-        assertEquals(2, sameDay.size)
-        assertEquals(listOf(secondId), sameDay.filter { it.selectedForAnalysis }.map { it.id })
-        assertFalse(requireNotNull(measurementDao.getById(firstId)).selectedForAnalysis)
+        assertEquals(1, sameDay.size)
+        assertEquals(listOf(firstId), sameDay.filter { it.selectedForAnalysis }.map { it.id })
+        assertTrue(requireNotNull(measurementDao.getById(firstId)).selectedForAnalysis)
         assertEquals(99L, requireNotNull(measurementDao.getById(firstId)).updatedAtEpochMillis)
-        assertEquals(99L, requireNotNull(measurementDao.getById(secondId)).updatedAtEpochMillis)
 
         val nextDay = measurementDao.observeForDate(day + 1).first().single()
         assertTrue(nextDay.selectedForAnalysis)

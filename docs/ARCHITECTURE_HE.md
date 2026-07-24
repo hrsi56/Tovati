@@ -1,4 +1,4 @@
-# ארכיטקטורת האפליקציה — גרסה 1.6.1
+# ארכיטקטורת האפליקציה — גרסה 1.6.2
 
 ## סקירה
 
@@ -14,7 +14,7 @@ flowchart TB
     VM --> H["HistoricalCycleBuilder"]
     E --> S["LH / mucus / thermal analyzers"]
     H --> S
-    R --> ROOM["Room v4"]
+    R --> ROOM["Room v5"]
     R --> DS["Preferences DataStore"]
     VM --> B["BackupManager / DocumentGateway"]
     B --> ROOM
@@ -55,18 +55,18 @@ flowchart TB
 
 מסכי היום, הגרף וההיסטוריה מריצים ניתוח מחדש בכל emission רלוונטי. `HistoricalCycleBuilder` הוא מקור האמת להמרת מחזורים מלאים ל־`CycleWithAnalysis`; כך שלושת המסכים אינם ממציאים בנפרד כלל היסטורי שונה.
 
-## אחסון מקומי ו־Room v4
+## אחסון מקומי ו־Room v5
 
-מסד Room נקרא `bbt-tracker.db`, גרסתו הנוכחית 4, וה־schemas המיוצאים של v1–v4 נמצאים ב־`app/schemas`. אין `fallbackToDestructiveMigration`.
+מסד Room נקרא `bbt-tracker.db`, גרסתו הנוכחית 5, וה־schemas המיוצאים של v1–v5 נמצאים ב־`app/schemas`. אין `fallbackToDestructiveMigration`.
 
 | טבלה | תוכן וכללי עקביות |
 |---|---|
 | `cycles` | התחלה ייחודית, סוף אופציונלי, הערה ו־`analysisSite` אופציונלי וקבוע למחזור; repository מונע חפיפה וסוגר את המחזור הקודם בעסקה |
-| `temperature_measurements` | זמן, timezone, טמפרטורה ב־centi-°C, אתר, שינה, הפרעות ובחירת מדידה לניתוח |
+| `temperature_measurements` | רשומה ייחודית לתאריך עם זמן, timezone, טמפרטורה ב־centi-°C, אתר, שינה, הפרעות ובחירה אם לכלול בניתוח |
 | `daily_observations` | רשומה ייחודית ליום עבור דימום, מרקם ותחושת נוזל צוואר הרחם, סימון תצפית שקשה לפרש, תוצאת LH ומטא־נתונים אופציונליים, כאב, מצב רוח והערה, חשק/אוננות, מגע מיני ומי יזמה, תסמינים, כדורים להקלה והתחלת מחזור |
 | `prediction_snapshots` | מבנה קיים לתוצאות מנוע עם גרסה; התוצאות מחושבות ריאקטיבית ואינן נכתבות אליו בשימוש הרגיל |
 
-בחירת מדידה אחת לניתוח בכל יום מתבצעת בעסקת Room: הבחירה הקודמת מתאפסת והחדשה מסומנת. ניתן לשמור כמה מדידות באותו יום, אך רק אחת נבחרת לניתוח.
+שמירת מדידה היא upsert אטומי לפי התאריך שנבחר: אם כבר קיימת מדידה לתאריך, כל פרטיה מוחלפים במדידה האחרונה שנשמרה; שמירה לתאריך אחר אינה חסומה. אינדקס ייחודי ב־Room מונע כפילויות גם במקרה של קריאות מקבילות.
 
 Preferences DataStore מחזיק בין היתר onboarding, מטרת מעקב, אתר מדידה ברירת מחדל, תזכורת, נעילה, חסימת צילומי מסך, גרסת הצהרת הבטיחות, מועד גיבוי אחרון וטווח גרף.
 
@@ -79,7 +79,7 @@ Preferences DataStore מחזיק בין היתר onboarding, מטרת מעקב, 
 3. מוסיף ל־`daily_observations` את `mucusSensation` עם ברירת המחדל `NOT_CHECKED` ואת `mucusObscured` עם ברירת המחדל `false`.
 4. מוסיף את `lhTestMinutesOfDay`, `lhTestBrand` ו־`lhTestSensitivityMilliIu` כעמודות nullable.
 
-`AppDatabaseMigrationTest` מוודא ששרשרת v1→v4 שומרת את הנתונים, משלימה אתר ניתוח ידוע ומחילה ברירות מחדל שמרניות. יש להריץ את בדיקת ה־instrumentation על debug test artifact שנבנה מאותו מקור שממנו נבנה ה־release הסופי.
+`AppDatabaseMigrationTest` מוודא ששרשרת v1→v5 שומרת את הנתונים, משלימה אתר ניתוח ידוע ומחילה ברירות מחדל שמרניות. יש להריץ את בדיקת ה־instrumentation על debug test artifact שנבנה מאותו מקור שממנו נבנה ה־release הסופי.
 
 ### migration מ־v2 ל־v3
 
@@ -88,6 +88,10 @@ Preferences DataStore מחזיק בין היתר onboarding, מטרת מעקב, 
 ### migration מ־v3 ל־v4
 
 `MIGRATION_3_4` מוסיף שדות nullable עבור יוזמת המגע המיני, מספר כדורים להקלה והערת תרופה. ערך חסר נשאר ״לא נרשם״ ואינו מתפרש כ״לא״ או כאפס.
+
+### migration מ־v4 ל־v5
+
+`MIGRATION_4_5` מאחד מדידות ישנות שחולקות תאריך: המדידה בעלת `updatedAtEpochMillis` המאוחר ביותר נשמרת, ובשוויון המזהה הגבוה מכריע. לאחר מכן נוצר אינדקס ייחודי לתאריך ואתר הניתוח של המחזור מותאם מחדש רק אם האתר הקודם כבר אינו מיוצג במדידה נבחרת.
 
 ## מנוע התחום
 
@@ -112,13 +116,13 @@ Preferences DataStore מחזיק בין היתר onboarding, מטרת מעקב, 
 
 - גיבוי חדש נוצר כ־`BackupPayload` schema v5 עם `appVersion` שנלקח אוטומטית מגרסת הבנייה הנוכחית, כולל מחזורים, מדידות, תצפיות והגדרות — ובהן אורכי המחזור והווסת שנמסרו ב־onboarding — ואז מוצפן לפני כתיבה למסמך.
 - JSON מקודד עם ברירות מחדל ו־null מפורשים; מפתחות לא מוכרים אינם מתקבלים בשקט.
-- השחזור תומך בסכמות 1–5. בשחזור סכמות ישנות שדות חדשים מקבלים את ברירות המחדל של המודל, ו־`analysisSite` מושלם מהמדידה הנבחרת הראשונה במחזור כאשר אפשר.
+- השחזור תומך בסכמות 1–5. בשחזור סכמות ישנות שדות חדשים מקבלים את ברירות המחדל של המודל; אם הגיבוי מכיל כמה מדידות לאותו תאריך, האחרונה שנשמרה היא זו שמשוחזרת, ו־`analysisSite` מותאם לנתונים שנותרו.
 - לפני שינוי נתונים מתבצעים פענוח, אימות גרסת schema ובדיקות עקביות, לרבות שעה, אורך מותג ורגישות LH. החלפת נתוני Room מתבצעת בעסקה; snapshot מקומי בזיכרון מאפשר שחזור אם עדכון DataStore נכשל לאחר commit.
 - `prediction_snapshots` אינם מגובים משום שהם נתונים נגזרים, ונעילה ביומטרית אינה משוחזרת.
 - CSV הוא UTF-8 עם BOM ובכללי RFC 4180. הוא כולל שורה לכל מדידת טמפרטורה וגם שורה ליום שיש בו תצפית בלבד, וכן מצב רוח והערה, חשק מיני, מגע ומי יזמה, תסמינים, כדורים להקלה והערת תרופה, לצד נתוני נוזל צוואר הרחם, LH, כאב והערות.
 - לאחר יצירת גיבוי נשמר עותק מוצפן נוסף בתיקייה הפרטית של האפליקציה. `FileProvider` מעניק לאפליקציית השיתוף הרשאת קריאה זמנית בלבד; הסיסמה אינה נשמרת ואינה מצורפת. אם תאריך יצירת מעטפת הגיבוי אינו היום, הממשק מציע ליצור גיבוי חדש לפני השיתוף.
 
-`BackupPayloadCompatibilityTest` מכסה פענוח payload v1 והשלמת `analysisSite`; `BackupManagerInstrumentedTest` מכסה round-trip מוצפן של schema v5, כולל הגדרות ה־onboarding, וכל עמודות CSV; `ShareableBackupInstrumentedTest` מכסה את קובץ השיתוף המוצפן ואת ה־content URI.
+`BackupPayloadCompatibilityTest` מכסה פענוח payload v1, איחוד מדידות ישנות לפי תאריך והשלמת `analysisSite`; `BackupManagerInstrumentedTest` מכסה round-trip מוצפן של schema v5, כולל הגדרות ה־onboarding, וכל עמודות CSV; `ShareableBackupInstrumentedTest` מכסה את קובץ השיתוף המוצפן ואת ה־content URI.
 
 ## תזכורות ואבטחת מסך
 
@@ -128,6 +132,6 @@ Preferences DataStore מחזיק בין היתר onboarding, מטרת מעקב, 
 
 ## בנייה וגרסאות
 
-הגרסאות מרוכזות ב־`gradle/libs.versions.toml`. גרסה 1.6.1 משתמשת ב־`versionCode=10`, נבנית עם Java 17, `compileSdk/targetSdk 36` ו־`minSdk 26`. build מסוג release מפעיל R8 וכיווץ resources, וחתימה נטענת רק מ־`keystore.properties` מקומי.
+הגרסאות מרוכזות ב־`gradle/libs.versions.toml`. גרסה 1.6.2 משתמשת ב־`versionCode=11`, נבנית עם Java 17, `compileSdk/targetSdk 36` ו־`minSdk 26`. build מסוג release מפעיל R8 וכיווץ resources, וחתימה נטענת רק מ־`keystore.properties` מקומי.
 
 בעת שינוי schema יש להוסיף migration מפורש, לייצא schema חדש ולבדוק שדרוג מהגרסה הקודמת עם אותה חתימה. בעת שינוי כלל ניתוח יש להעלות `ENGINE_VERSION`, להוסיף בדיקות רגרסיה ולתעד אם השתנתה משמעותו של פלט קיים.

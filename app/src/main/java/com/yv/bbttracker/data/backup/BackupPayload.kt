@@ -27,3 +27,20 @@ data class RestoreSummary(
     val measurementCount: Int,
     val observationCount: Int,
 )
+
+/**
+ * Backups created before app version 1.6.2 may contain several temperatures for one date.
+ * Restoring follows the current rule: the record saved most recently for each date wins.
+ */
+internal fun BackupPayload.withLatestTemperaturePerDate(): BackupPayload = copy(
+    temperatureMeasurements = temperatureMeasurements
+        .groupBy(TemperatureMeasurement::measurementEpochDay)
+        .values
+        .map { sameDay ->
+            sameDay.maxWith(
+                compareBy<TemperatureMeasurement> { it.updatedAtEpochMillis }
+                    .thenBy { it.id },
+            )
+        }
+        .sortedBy(TemperatureMeasurement::measurementEpochDay),
+)

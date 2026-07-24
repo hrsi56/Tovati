@@ -60,6 +60,9 @@ interface MeasurementDao {
     @Query("SELECT * FROM temperature_measurements WHERE id = :id")
     suspend fun getById(id: Long): TemperatureMeasurementEntity?
 
+    @Query("SELECT * FROM temperature_measurements WHERE measurementEpochDay = :epochDay LIMIT 1")
+    suspend fun getByDay(epochDay: Long): TemperatureMeasurementEntity?
+
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insert(entity: TemperatureMeasurementEntity): Long
 
@@ -132,4 +135,3 @@ interface PredictionDao {
     @Query("DELETE FROM prediction_snapshots")
     suspend fun deleteAll()
 }
-

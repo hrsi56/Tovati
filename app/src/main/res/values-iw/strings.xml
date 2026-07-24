@@ -166,7 +166,6 @@
     <string name="save_anyway">שמירה בכל זאת</string>
     <string name="past_date_warning">המדידה מיועדת לתאריך קודם. כדאי לבדוק את התאריך לפני השמירה.</string>
     <string name="future_time_invalid">לא ניתן לשמור מדידה שנמצאת יותר מ־24 שעות בעתיד.</string>
-    <string name="duplicate_measurement">כבר קיימת מדידה נבחרת בתאריך הזה. שמירת המדידה החדשה כנבחרת תשמור את שתיהן ותחריג את הקודמת.</string>
     <string name="delete_measurement_title">למחוק את המדידה?</string>
     <string name="delete_measurement_body">לא ניתן לבטל פעולה זו.</string>
     <string name="measurement_delete_action">מחיקת המדידה</string>

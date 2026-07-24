@@ -13,7 +13,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * Pins the current schema to the checked-in Room schema export. Version 1 to 4 is covered by
+ * Pins the current schema to the checked-in Room schema export. Version 1 to 5 is covered by
  * [AppDatabaseMigrationTest].
  */
 @RunWith(AndroidJUnit4::class)
@@ -36,9 +36,9 @@ class AppDatabaseSchemaBaselineTest {
     }
 
     @Test
-    fun versionFour_hasExpectedIdentityTablesColumnsAndUniqueDailyIndexes() {
-        assertEquals(4, sqliteDatabase.version)
-        assertEquals(EXPORTED_V4_IDENTITY_HASH, readIdentityHash())
+    fun versionFive_hasExpectedIdentityTablesColumnsAndUniqueDailyIndexes() {
+        assertEquals(5, sqliteDatabase.version)
+        assertEquals(EXPORTED_V5_IDENTITY_HASH, readIdentityHash())
 
         val applicationTables = mutableSetOf<String>()
         sqliteDatabase.query(
@@ -54,6 +54,10 @@ class AppDatabaseSchemaBaselineTest {
         )
 
         assertTrue(uniqueIndexes("cycles").contains("index_cycles_startEpochDay"))
+        assertTrue(
+            uniqueIndexes("temperature_measurements")
+                .contains("index_temperature_measurements_measurementEpochDay"),
+        )
         assertTrue(uniqueIndexes("daily_observations").contains("index_daily_observations_epochDay"))
         assertTrue(columns("cycles").contains("analysisSite"))
         assertTrue(
@@ -106,7 +110,7 @@ class AppDatabaseSchemaBaselineTest {
     }
 
     private companion object {
-        // app/schemas/com.yv.bbttracker.data.local.AppDatabase/4.json
-        const val EXPORTED_V4_IDENTITY_HASH = "e8b2a253f5fcbfc0478c134044430e00"
+        // app/schemas/com.yv.bbttracker.data.local.AppDatabase/5.json
+        const val EXPORTED_V5_IDENTITY_HASH = "4ffe81e9a9eb0ea1fbcf5a8fa62a7eab"
     }
 }

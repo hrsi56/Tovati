@@ -186,7 +186,9 @@ class BackupManager(
         } catch (_: Exception) {
             throw BackupCryptoException()
         }
-        val payload = decodedPayload.withBackfilledAnalysisSites()
+        val payload = decodedPayload
+            .withLatestTemperaturePerDate()
+            .withBackfilledAnalysisSites()
         validate(payload)
         return payload
     }
@@ -286,8 +288,11 @@ class BackupManager(
             if (measurement.source != MeasurementSource.MANUAL) throw BackupCryptoException()
             if (measurement.sleepMinutes != null && measurement.sleepMinutes !in 0..1_440) throw BackupCryptoException()
         }
-        val selectedCounts = payload.temperatureMeasurements.filter { it.selectedForAnalysis }.groupingBy { it.measurementEpochDay }.eachCount()
-        if (selectedCounts.values.any { it > 1 }) throw BackupCryptoException()
+        if (payload.temperatureMeasurements.map { it.measurementEpochDay }.distinct().size !=
+            payload.temperatureMeasurements.size
+        ) {
+            throw BackupCryptoException()
+        }
     }
 }
 
@@ -374,20 +379,16 @@ private fun formatPhysicalSymptoms(mask: Long): String = buildList {
 
 internal fun BackupPayload.withBackfilledAnalysisSites(): BackupPayload = copy(
     cycles = cycles.map { cycle ->
-        if (cycle.analysisSite != null) {
-            cycle
-        } else {
-            val firstSelectedSite = temperatureMeasurements
-                .asSequence()
-                .filter { it.selectedForAnalysis && cycle.contains(it.date) }
-                .minWithOrNull(
-                    compareBy<TemperatureMeasurement> { it.measurementEpochDay }
-                        .thenBy { it.measuredAtEpochMillis }
-                        .thenBy { it.createdAtEpochMillis }
-                        .thenBy { it.id },
-                )
-                ?.site
-            cycle.copy(analysisSite = firstSelectedSite)
-        }
+        val selectedInCycle = temperatureMeasurements
+            .filter { it.selectedForAnalysis && cycle.contains(it.date) }
+        val resolvedSite = cycle.analysisSite
+            ?.takeIf { currentSite -> selectedInCycle.any { it.site == currentSite } }
+            ?: selectedInCycle.minWithOrNull(
+                compareBy<TemperatureMeasurement> { it.measurementEpochDay }
+                    .thenBy { it.measuredAtEpochMillis }
+                    .thenBy { it.createdAtEpochMillis }
+                    .thenBy { it.id },
+            )?.site
+        cycle.copy(analysisSite = resolvedSite)
     },
 )

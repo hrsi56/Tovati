@@ -14,7 +14,6 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -23,7 +22,7 @@ import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneId
 
-enum class EntryWarning { PAST_DATE, SOFT_TEMPERATURE, DUPLICATE }
+enum class EntryWarning { PAST_DATE, SOFT_TEMPERATURE }
 
 data class MeasurementEntryUiState(
     val id: Long = 0,
@@ -187,12 +186,6 @@ class MeasurementEntryViewModel(
             }
             if (validation.hasSoftWarning && EntryWarning.SOFT_TEMPERATURE !in acceptedWarnings) {
                 _state.update { it.copy(warning = EntryWarning.SOFT_TEMPERATURE) }
-                return@launch
-            }
-            val selectedAlready = measurementRepository.observeMeasurementForDate(current.date).first()
-                .any { it.id != current.id && it.selectedForAnalysis }
-            if (current.selectedForAnalysis && selectedAlready && EntryWarning.DUPLICATE !in acceptedWarnings) {
-                _state.update { it.copy(warning = EntryWarning.DUPLICATE) }
                 return@launch
             }
             _state.update { it.copy(isSaving = true, error = null) }
