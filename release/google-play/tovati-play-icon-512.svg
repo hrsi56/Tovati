@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <defs>
+    <radialGradient id="background" cx="34%" cy="24%" r="92%">
+      <stop offset="0" stop-color="#FFF9FC"/>
+      <stop offset="0.58" stop-color="#F7EAF0"/>
+      <stop offset="1" stop-color="#EDD5E0"/>
+    </radialGradient>
+    <linearGradient id="heart" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#B65A7D"/>
+      <stop offset="1" stop-color="#8D3657"/>
+    </linearGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="180%">
+      <feDropShadow dx="0" dy="16" stdDeviation="18" flood-color="#702A45" flood-opacity=".20"/>
+    </filter>
+  </defs>
+
+  <rect width="512" height="512" fill="url(#background)"/>
+  <circle cx="256" cy="250" r="174" fill="#FFFFFF" fill-opacity=".34"/>
+  <circle cx="256" cy="250" r="143" fill="#FFFFFF" fill-opacity=".22"/>
+
+  <g filter="url(#shadow)" transform="translate(0 2)">
+    <path fill="url(#heart)" d="M256 410.8 226.9 384.2C145.2 310.2 115 282.3 115 232c0-41.3 32-73.3 73.3-73.3 23.4 0 45.5 10.9 67.7 35.9 22.1-25 44.3-35.9 67.7-35.9 41.3 0 73.3 32 73.3 73.3 0 50.3-30.2 78.2-111.9 152.2L256 410.8Z"/>
+    <path fill="#FFF8FA" fill-opacity=".38" d="M185.1 185.9c-26.3 0-46.5 20.5-46.5 46.8 0 23.1 11.5 40.7 41.3 70.2-18.3-33.3-19.9-68.9-1.9-96.4a68.9 68.9 0 0 1 21.8-21.5c-4.8.3-9.9.9-14.7.9Z"/>
+  </g>
+
+  <circle cx="390" cy="112" r="13" fill="#DCA9BD" fill-opacity=".55"/>
+  <circle cx="407" cy="137" r="6" fill="#B65A7D" fill-opacity=".34"/>
+</svg>
