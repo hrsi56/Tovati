@@ -24,6 +24,7 @@ import androidx.compose.material.icons.automirrored.outlined.OpenInNew
 import androidx.compose.material.icons.outlined.DeleteForever
 import androidx.compose.material.icons.outlined.FileDownload
 import androidx.compose.material.icons.outlined.HealthAndSafety
+import androidx.compose.material.icons.automirrored.outlined.HelpOutline
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.outlined.Refresh
@@ -262,6 +263,9 @@ fun SettingsScreen(
                         modifier = Modifier.padding(horizontal = 12.dp),
                     )
                     DataAction(Icons.Outlined.UploadFile, R.string.restore_backup, enabled = !state.isBusy) { passwordMode = PasswordDialogMode.RESTORE }
+                    DataAction(Icons.AutoMirrored.Outlined.HelpOutline, R.string.phone_transfer_guide) {
+                        runCatching { uriHandler.openUri(PHONE_TRANSFER_GUIDE_URL) }
+                    }
                     DataAction(Icons.Outlined.DeleteForever, R.string.delete_all_data, destructive = true, enabled = !state.isBusy) {
                         showDeleteDialog = true
                     }
@@ -517,7 +521,7 @@ private fun DataAction(
 }
 
 @Composable
-private fun BackupPasswordDialog(
+internal fun BackupPasswordDialog(
     requireConfirmation: Boolean,
     onDismiss: () -> Unit,
     onConfirm: (String) -> Unit,
@@ -605,3 +609,4 @@ private fun SettingsMessage.stringResource(): Int = when (this) {
 }
 
 private const val LINKEDIN_PROFILE_URL = "https://www.linkedin.com/in/yvdejorno/"
+private const val PHONE_TRANSFER_GUIDE_URL = "https://hrsi56.github.io/Tovati/#backup-guide"

@@ -185,6 +185,7 @@ class BackupManagerInstrumentedTest {
         assertEquals("הערה יומית", observation.note)
 
         val restoredSettings = settingsRepository.getSettings()
+        assertTrue(restoredSettings.initialRestorePromptCompleted)
         assertEquals(TrackingGoal.TRYING_TO_CONCEIVE, restoredSettings.trackingGoal)
         assertEquals(31, restoredSettings.typicalCycleLengthDays)
         assertEquals(6, restoredSettings.typicalMenstruationLengthDays)

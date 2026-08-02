@@ -94,6 +94,25 @@ class BackupPayloadCompatibilityTest {
         assertEquals(listOf(9L, 10L), normalized.temperatureMeasurements.map { it.id })
     }
 
+    @Test
+    fun `first run restore prompt state stays local and is not written to portable backups`() {
+        val payload = json.decodeFromString(
+            BackupPayload.serializer(),
+            LEGACY_VERSION_ONE_PAYLOAD,
+        ).copy(
+            settings = json.decodeFromString(
+                BackupPayload.serializer(),
+                LEGACY_VERSION_ONE_PAYLOAD,
+            ).settings.copy(initialRestorePromptCompleted = true),
+        )
+
+        val encoded = json.encodeToString(BackupPayload.serializer(), payload)
+        val decoded = json.decodeFromString(BackupPayload.serializer(), encoded)
+
+        assertFalse(encoded.contains("initialRestorePromptCompleted"))
+        assertFalse(decoded.settings.initialRestorePromptCompleted)
+    }
+
     private fun measurement(
         id: Long,
         day: Long,

@@ -302,6 +302,11 @@
     <string name="open_cycle_chart">הצגת המחזור בגרף</string>
 
     <string name="settings_title">הגדרות ופרטיות</string>
+    <string name="initial_restore_title">השתמשת באפליקציה בעבר?</string>
+    <string name="initial_restore_body">אפשר להתחיל עם גיבוי משוחזר ולהמשיך בדיוק מהמקום שבו הפסקת.</string>
+    <string name="initial_restore_privacy">הגיבוי מוצפן. נבקש את הסיסמה ורק אז נשחזר את הנתונים וההגדרות שלך.</string>
+    <string name="choose_backup">בחרי גיבוי</string>
+    <string name="skip_restore">דלגי</string>
     <string name="settings_measurement">איך מודדים</string>
     <string name="settings_reminders">תזכורת</string>
     <string name="settings_privacy">פרטיות</string>
@@ -328,13 +333,14 @@
     <string name="share_backup_requires_backup">הכפתור ייפתח אחרי שתיצרי גיבוי מוצפן חדש במכשיר.</string>
     <string name="backup_share_unavailable">לא נמצא גיבוי מוצפן נגיש או שאין אפליקציה מתאימה לשליחה. צרי גיבוי חדש ונסי שוב.</string>
     <string name="backup_share_subject">גיבוי מוצפן של טובתי</string>
-    <string name="backup_share_body">מצורף גיבוי מוצפן של טובתי. הסיסמה אינה מצורפת ומומלץ להעביר אותה בנפרד.\nבטלפון החדש: התקיני את טובתי ובחרי הגדרות ← שחזור מגיבוי מוצפן.</string>
+    <string name="backup_share_body">מצורף גיבוי מוצפן של טובתי. הסיסמה אינה מצורפת ומומלץ להעביר אותה בנפרד.\nבטלפון החדש: התקיני את טובתי ובחרי הגדרות ← שחזור מגיבוי מוצפן.\nמדריך מעבר קצר: https://hrsi56.github.io/Tovati/#backup-guide</string>
     <string name="backup_share_clip_label">גיבוי מוצפן של טובתי</string>
     <string name="backup_share_chooser_title">בחירת אפליקציה לשליחת הגיבוי</string>
     <string name="stale_backup_title">בואי ניצור גיבוי חדש קודם, טוב?</string>
     <string name="stale_backup_body">הגיבוי הקיים לא נוצר היום. גיבוי חדש יכלול גם את השינויים האחרונים.</string>
     <string name="stale_backup_continue_existing">לא, נמשיך עם הגיבוי הקיים</string>
     <string name="restore_backup">שחזור מגיבוי מוצפן</string>
+    <string name="phone_transfer_guide">מדריך מעבר לטלפון חדש</string>
     <string name="backup_password">סיסמת הגיבוי</string>
     <string name="backup_password_confirm">אימות הסיסמה</string>
     <string name="backup_password_helper">יש להשתמש ב־8 תווים לפחות. הסיסמה אינה נשמרת ולא ניתן לשחזר אותה.</string>

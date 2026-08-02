@@ -1,6 +1,7 @@
 package com.yv.bbttracker.domain.model
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
@@ -198,6 +199,8 @@ data class PredictionSnapshot(
 @Serializable
 data class AppSettings(
     val onboardingCompleted: Boolean = false,
+    @Transient
+    val initialRestorePromptCompleted: Boolean = false,
     val trackingGoal: TrackingGoal = TrackingGoal.CYCLE_AWARENESS,
     val typicalCycleLengthDays: Int? = null,
     val typicalMenstruationLengthDays: Int? = null,

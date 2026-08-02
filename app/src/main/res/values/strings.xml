@@ -302,6 +302,11 @@
     <string name="open_cycle_chart">View this cycle on the chart</string>
 
     <string name="settings_title">Settings &amp; privacy</string>
+    <string name="initial_restore_title">Used Tovati before?</string>
+    <string name="initial_restore_body">Start right where you left off using a backup you saved or sent to yourself.</string>
+    <string name="initial_restore_privacy">Your backup is encrypted. We’ll ask for its password before restoring your data and settings.</string>
+    <string name="choose_backup">Choose backup</string>
+    <string name="skip_restore">Skip</string>
     <string name="settings_measurement">How to measure</string>
     <string name="settings_reminders">Reminder</string>
     <string name="settings_privacy">Privacy</string>
@@ -328,13 +333,14 @@
     <string name="share_backup_requires_backup">This button becomes available after you create a new encrypted backup on this device.</string>
     <string name="backup_share_unavailable">No accessible encrypted backup or suitable sharing app was found. Create a new backup and try again.</string>
     <string name="backup_share_subject">Encrypted Tovati backup</string>
-    <string name="backup_share_body">An encrypted Tovati backup is attached. Its password is not included and should be sent separately.\nOn the new phone: install Tovati and choose Settings → Restore encrypted backup.</string>
+    <string name="backup_share_body">An encrypted Tovati backup is attached. Its password is not included and should be sent separately.\nOn the new phone: install Tovati and choose Settings → Restore encrypted backup.\nShort transfer guide: https://hrsi56.github.io/Tovati/#backup-guide</string>
     <string name="backup_share_clip_label">Encrypted Tovati backup</string>
     <string name="backup_share_chooser_title">Choose an app to send the backup</string>
     <string name="stale_backup_title">Shall we create a new backup first?</string>
     <string name="stale_backup_body">The existing backup was not created today. A new backup will include your latest changes.</string>
     <string name="stale_backup_continue_existing">No, continue with the existing backup</string>
     <string name="restore_backup">Restore encrypted backup</string>
+    <string name="phone_transfer_guide">Guide: move to a new phone</string>
     <string name="backup_password">Backup password</string>
     <string name="backup_password_confirm">Confirm password</string>
     <string name="backup_password_helper">Use at least 8 characters. The password is never stored and cannot be recovered.</string>

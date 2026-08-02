@@ -168,6 +168,10 @@ class SettingsViewModel(
         operation.update { it.copy(restorePreview = null) }
     }
 
+    fun dismissInitialRestorePrompt() {
+        updateSettings { it.copy(initialRestorePromptCompleted = true) }
+    }
+
     fun prepareBackupShare() {
         if (operation.value.isBusy || !operation.value.hasShareableBackup) return
         viewModelScope.launch {
