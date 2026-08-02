@@ -11,7 +11,7 @@ class CsvEncoderTest {
     fun `output starts with UTF-8 BOM and exact header`() {
         val bytes = CsvEncoder.encode(emptyList())
         val requiredHeader =
-            "date,cycle_day,temperature_c,time,site,selected_for_analysis," +
+            "date,cycle_day,temperature_c,time,selected_for_analysis," +
                 "disturbances,sleep_minutes,bleeding,mucus,mucus_sensation,mucus_obscured," +
                 "lh_result,lh_test_time,lh_test_brand,lh_test_sensitivity_miu,ovulation_pain," +
                 "mood_flags,mood_note,libido_level,sexual_contact," +
@@ -29,7 +29,6 @@ class CsvEncoderTest {
             "3",
             "36.55",
             "06:45",
-            "פה",
             "true",
             "שינה, קצרה",
             "420",
@@ -55,7 +54,7 @@ class CsvEncoderTest {
 
         val encoded = CsvEncoder.encode(listOf(row)).toString(Charsets.UTF_8)
         val requiredHeader =
-            "date,cycle_day,temperature_c,time,site,selected_for_analysis," +
+            "date,cycle_day,temperature_c,time,selected_for_analysis," +
                 "disturbances,sleep_minutes,bleeding,mucus,mucus_sensation,mucus_obscured," +
                 "lh_result,lh_test_time,lh_test_brand,lh_test_sensitivity_miu,ovulation_pain," +
                 "mood_flags,mood_note,libido_level,sexual_contact," +
@@ -64,7 +63,7 @@ class CsvEncoderTest {
 
         assertEquals(
             "\uFEFF$requiredHeader\r\n" +
-                "2026-07-16,3,36.55,06:45,פה,true,\"שינה, קצרה\",420,קל,קרמי,חלקלק,false," +
+                "2026-07-16,3,36.55,06:45,true,\"שינה, קצרה\",420,קל,קרמי,חלקלק,false," +
                 "חיובי,13:25,\"מותג, בדיקה\",25,לא נרשם,HAPPY|ENERGETIC,מצב רוח טוב,HIGH,SOME,true," +
                 "BLOATING|HEADACHE,2,איבופרופן," +
                 "\"אמרה \"\"בוקר טוב\"\"\nואז מדדה\"\r\n",

@@ -138,6 +138,41 @@ class CycleAnalysisEngineTest {
     }
 
     @Test
+    fun `first observed LH positive after an untested day is broader than a confirmed transition`() {
+        val positiveDate = currentCycleStart.plusDays(8)
+        val afterMissing = analyze(
+            currentDate = positiveDate,
+            observations = listOf(observation(positiveDate, lhResult = LhResult.POSITIVE)),
+        )
+        val afterRecordedNegative = analyze(
+            currentDate = positiveDate,
+            observations = listOf(
+                observation(positiveDate.minusDays(1), lhResult = LhResult.NEGATIVE),
+                observation(positiveDate, lhResult = LhResult.POSITIVE),
+            ),
+        )
+
+        assertEquals(positiveDate..positiveDate.plusDays(1), afterMissing.prospectiveOvulationRange)
+        assertEquals(
+            positiveDate.plusDays(1)..positiveDate.plusDays(2),
+            afterRecordedNegative.prospectiveOvulationRange,
+        )
+    }
+
+    @Test
+    fun `not tested LH and not checked mucus remain missing and do not change the forecast`() {
+        val currentDate = currentCycleStart.plusDays(8)
+        val withoutObservation = analyze(currentDate, previousCycles = stablePreviousCycles(1))
+        val explicitlyUnobserved = analyze(
+            currentDate,
+            previousCycles = stablePreviousCycles(1),
+            observations = listOf(observation(currentDate)),
+        )
+
+        assertEquals(withoutObservation, explicitlyUnobserved)
+    }
+
+    @Test
     fun `LH episode remains active through day two after first positive`() {
         val firstPositive = currentCycleStart.plusDays(8)
         val currentDate = firstPositive.plusDays(2)
@@ -146,7 +181,7 @@ class CycleAnalysisEngineTest {
             observations = listOf(observation(firstPositive, lhResult = LhResult.POSITIVE)),
         )
 
-        assertEquals(currentDate..currentDate.plusDays(1), result.prospectiveOvulationRange)
+        assertEquals(firstPositive.plusDays(1)..firstPositive.plusDays(2), result.prospectiveOvulationRange)
         assertEquals(FertilityStatus.LH_SURGE_DETECTED, result.status)
         assertEquals(FertilityLevelToday.PEAK_SIGNAL, result.fertilityLevelToday)
     }
@@ -168,9 +203,10 @@ class CycleAnalysisEngineTest {
     }
 
     @Test
-    fun `prolonged positive LH keeps a focused actionable pair`() {
+    fun `prolonged positive LH does not keep moving the prospective pair`() {
         val firstPositive = currentCycleStart.plusDays(8)
         val currentDate = firstPositive.plusDays(3)
+        val baseline = analyze(currentDate)
         val result = analyze(
             currentDate = currentDate,
             observations = listOf(
@@ -179,26 +215,24 @@ class CycleAnalysisEngineTest {
             ),
         )
 
-        assertEquals(currentDate..currentDate.plusDays(1), result.prospectiveOvulationRange)
-        assertTrue(currentDate in result.conceptionOpportunityWindow!!)
-        assertEquals(FertilityStatus.LH_SURGE_DETECTED, result.status)
-        assertEquals(FertilityLevelToday.PEAK_SIGNAL, result.fertilityLevelToday)
-        assertTrue(AnalysisSignal.LH_SURGE in result.signals)
+        assertEquals(baseline.prospectiveOvulationRange, result.prospectiveOvulationRange)
+        assertFalse(AnalysisSignal.LH_SURGE in result.signals)
+        assertFalse(result.fertilityLevelToday == FertilityLevelToday.PEAK_SIGNAL)
     }
 
     @Test
-    fun `continued daily positive LH remains visible as a two day pair on day four`() {
+    fun `continued daily positive LH on day four does not reset the first surge`() {
         val firstPositive = currentCycleStart.plusDays(8)
         val currentDate = firstPositive.plusDays(4)
         val positives = (0L..4L).map { offset ->
             observation(firstPositive.plusDays(offset), lhResult = LhResult.POSITIVE)
         }
 
+        val baseline = analyze(currentDate)
         val result = analyze(currentDate = currentDate, observations = positives)
 
-        assertEquals(currentDate..currentDate.plusDays(1), result.prospectiveOvulationRange)
-        assertTrue(currentDate in result.conceptionOpportunityWindow!!)
-        assertEquals(FertilityLevelToday.PEAK_SIGNAL, result.fertilityLevelToday)
+        assertEquals(baseline.prospectiveOvulationRange, result.prospectiveOvulationRange)
+        assertFalse(result.fertilityLevelToday == FertilityLevelToday.PEAK_SIGNAL)
     }
 
     @Test
@@ -288,6 +322,44 @@ class CycleAnalysisEngineTest {
         assertEquals(2, rangeDays(ovulation))
         assertTrue(ovulation.start in currentDate..currentDate.plusDays(3))
         assertTrue(ovulation.endInclusive in currentDate..currentDate.plusDays(3))
+    }
+
+    @Test
+    fun `fertile mucus anchors the next period forecast without any LH test`() {
+        val currentDate = currentCycleStart.plusDays(11)
+        val result = analyze(
+            currentDate = currentDate,
+            observations = listOf(
+                observation(currentDate, mucus = CervicalMucus.EGG_WHITE)
+                    .copy(mucusSensation = MucusSensation.SLIPPERY),
+            ),
+            typicalCycleLengthDays = 40,
+        )
+
+        assertFalse(AnalysisSignal.LH_SURGE in result.signals)
+        assertTrue(AnalysisSignal.FERTILE_MUCUS in result.signals)
+        assertEquals(
+            PeriodForecastBasis.OVULATION_AND_DEFAULT_LUTEAL,
+            result.nextPeriodForecast?.basis,
+        )
+    }
+
+    @Test
+    fun `recorded creamy mucus can move the prospective estimate without pretending it is peak`() {
+        val currentDate = currentCycleStart.plusDays(9)
+        val baseline = analyze(currentDate, typicalCycleLengthDays = 40)
+        val withCreamy = analyze(
+            currentDate = currentDate,
+            typicalCycleLengthDays = 40,
+            observations = listOf(observation(currentDate, mucus = CervicalMucus.CREAMY)),
+        )
+
+        assertFalse(AnalysisSignal.FERTILE_MUCUS in withCreamy.signals)
+        assertFalse(AnalysisSignal.MUCUS_PEAK in withCreamy.signals)
+        assertTrue(
+            requireNotNull(withCreamy.prospectiveOvulationRange).start
+                .isBefore(requireNotNull(baseline.prospectiveOvulationRange).start),
+        )
     }
 
     @Test
@@ -468,6 +540,26 @@ class CycleAnalysisEngineTest {
     }
 
     @Test
+    fun `clear observed thermal trend survives one missing high day without becoming confirmation`() {
+        val firstHigh = currentCycleStart.plusDays(6)
+        val temperatures = (0L..5L).map { offset ->
+            measurement(currentCycleStart.plusDays(offset), 3600 + (offset % 2L).toInt())
+        } + listOf(
+            measurement(firstHigh, 3620),
+            measurement(firstHigh.plusDays(2), 3621),
+            measurement(firstHigh.plusDays(3), 3622),
+        )
+
+        val result = analyze(firstHigh.plusDays(3), temperatures = temperatures)
+
+        assertNull(result.thermalShift)
+        assertEquals(firstHigh.minusDays(1)..firstHigh.minusDays(1), result.retrospectiveOvulationRange)
+        assertTrue(AnalysisSignal.THERMAL_TREND in result.signals)
+        assertTrue(ReasonCode.OBSERVED_THERMAL_TREND in result.reasonCodes)
+        assertFalse(ReasonCode.THERMAL_SHIFT_CONFIRMED in result.reasonCodes)
+    }
+
+    @Test
     fun `fever measurement is excluded and traced`() {
         val temperatures = regularConfirmedPattern(currentCycleStart).toMutableList()
         temperatures[7] = temperatures[7].copy(disturbanceMask = DisturbanceFlag.ILLNESS_OR_FEVER)
@@ -544,7 +636,7 @@ class CycleAnalysisEngineTest {
     }
 
     @Test
-    fun `elevated fertility prioritizes LH testing over low BBT quality`() {
+    fun `elevated fertility does not require optional LH testing`() {
         val currentDate = currentCycleStart.plusDays(8)
         val sixTemperatures = (0L..5L).map { measurement(currentCycleStart.plusDays(it), 3600) }
         val result = analyze(
@@ -555,7 +647,7 @@ class CycleAnalysisEngineTest {
 
         assertEquals(DataQuality.LOW, result.dataQuality)
         assertEquals(FertilityLevelToday.ELEVATED, result.fertilityLevelToday)
-        assertEquals(NextAction.START_OR_CONTINUE_LH_TESTING, result.nextAction)
+        assertEquals(NextAction.CONTINUE_DAILY_TRACKING, result.nextAction)
     }
 
     @Test
@@ -734,7 +826,7 @@ class CycleAnalysisEngineTest {
 
         assertEquals(PeriodForecastBasis.OVULATION_AND_DEFAULT_LUTEAL, forecast.basis)
         assertEquals(
-            firstPositive.plusDays(15)..firstPositive.plusDays(16),
+            firstPositive.plusDays(16)..firstPositive.plusDays(17),
             forecast.expectedStartRange,
         )
     }
@@ -755,7 +847,7 @@ class CycleAnalysisEngineTest {
     fun `engine version and explanation are always included`() {
         val result = analyze(currentCycleStart)
 
-        assertEquals("bbt-fusion-2.3.1", ENGINE_VERSION)
+        assertEquals("bbt-fusion-3.0.0", ENGINE_VERSION)
         assertEquals(ENGINE_VERSION, result.engineVersion)
         assertTrue(result.humanExplanation.isNotEmpty())
         assertTrue(result.humanExplanation.size <= 3)

@@ -5,6 +5,12 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 
+/**
+ * Legacy database and encrypted-backup marker.
+ *
+ * The current UI deliberately does not ask for or expose a body site. New users keep the neutral
+ * default value so older databases, backups, and thermal-analysis inputs remain compatible.
+ */
 @Serializable
 enum class MeasurementSite { ORAL, VAGINAL, RECTAL }
 

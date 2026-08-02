@@ -34,15 +34,31 @@ internal object FocusedEstimateSelector {
         return first..first.plusDays(1)
     }
 
-    /**
-     * Positive urinary LH most often points to ovulation over the following two days. If a surge
-     * remains positive longer, keep the estimate actionable without painting the whole episode.
-     */
+    /** Positive urinary LH is anchored to the first observed positive, never to later positives. */
     fun lhProspectiveRange(episode: LhEpisode, currentDate: LocalDate): ClosedRange<LocalDate> {
-        val firstExpected = episode.firstPositiveDate.plusDays(1)
-        val firstShown = maxOf(firstExpected, currentDate)
-        return firstShown..firstShown.plusDays(1)
+        val firstExpected = if (
+            episode.onsetObservedAfterNegative || currentDate.isAfter(episode.firstPositiveDate)
+        ) {
+            episode.firstPositiveDate.plusDays(1)
+        } else {
+            // The first observed positive can be late when the preceding day was not tested.
+            // Broaden one day earlier without manufacturing a result for the untested day.
+            episode.firstPositiveDate
+        }
+        return firstExpected..firstExpected.plusDays(1)
     }
+
+    fun bestDay(
+        weights: Map<LocalDate, Double>,
+        allowedRange: ClosedRange<LocalDate>,
+    ): LocalDate? = weights
+        .asSequence()
+        .filter { (date, weight) -> date in allowedRange && weight.isFinite() && weight > 0.0 }
+        .maxWithOrNull(
+            compareBy<Map.Entry<LocalDate, Double>> { it.value }
+                .thenByDescending { it.key.toEpochDay() },
+        )
+        ?.key
 
     fun retrospectiveDay(
         thermalShift: ThermalShiftResult?,

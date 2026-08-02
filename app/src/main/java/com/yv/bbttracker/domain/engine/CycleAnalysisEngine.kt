@@ -33,6 +33,13 @@ class CycleAnalysisEngine {
             defaultMeasurementSite = input.defaultMeasurementSite,
             asOfDate = input.currentDate,
         )
+        val thermalTrend = if (thermalShift?.isConfirmed == true) null else {
+            ThermalTrendDetector.detect(
+                measurements = cycleTemperatures,
+                defaultMeasurementSite = input.defaultMeasurementSite,
+                asOfDate = input.currentDate,
+            )
+        }
         val qualityAssessment = assessDataQuality(
             input = input,
             cycleTemperatures = cycleTemperatures,
@@ -46,11 +53,9 @@ class CycleAnalysisEngine {
             previousCycles = input.previousCycles,
             typicalCycleLengthDays = input.typicalCycleLengthDays,
         )
-        // A current LH episode is kept as one focused two-day estimate. A prolonged positive can
-        // move the actionable pair forward, but never widens the display across the whole episode.
-        val prospectiveLhEpisode = lh.activeEpisode ?: lh.latestEpisode?.takeIf {
-            lh.positiveToday && it.lastPositiveDate == input.currentDate
-        }
+        // LH is optional supporting evidence. Later positives in the same episode never reset or
+        // indefinitely advance the estimate; after day +2 the no-LH model continues on its own.
+        val prospectiveLhEpisode = lh.activeEpisode
         val prospectiveLhRange = prospectiveLhEpisode?.let { episode ->
             FocusedEstimateSelector.lhProspectiveRange(episode, input.currentDate)
         }
@@ -59,10 +64,21 @@ class CycleAnalysisEngine {
         val thermalRange = thermalShift?.takeIf { it.isConfirmed }?.estimatedOvulationRange
         val retrospectiveLhSupported = lhRange != null && listOfNotNull(thermalRange, mucusPeakRange)
             .any { rangesAlign(it, lhRange) }
-        val prospectiveMucusDate = mucus.latestFertileDate?.takeIf { date ->
-            (mucus.peakDate == null || date.isAfter(mucus.peakDate)) &&
-                ChronoUnit.DAYS.between(date, input.currentDate) in 0L..1L
+        val prospectiveMucusEvidence = mucus.observedEvidence.lastOrNull()?.takeIf { evidence ->
+            ChronoUnit.DAYS.between(evidence.date, input.currentDate) in 0L..1L
         }
+        val prospectiveMucusDate = prospectiveMucusEvidence
+            ?.takeIf { it.quality >= 3 }
+            ?.date
+        val recentMucusStart = maxOf(input.currentCycle.startDate, input.currentDate.minusDays(6))
+        val recentMucusObservedDays = mucus.observedEvidence
+            .asSequence()
+            .map(MucusObservationEvidence::date)
+            .filter { it in recentMucusStart..input.currentDate }
+            .distinct()
+            .count()
+        val recentMucusExpectedDays =
+            ChronoUnit.DAYS.between(recentMucusStart, input.currentDate).toInt() + 1
 
         val signals = linkedSetOf<AnalysisSignal>().apply {
             addAll(forecast.signals)
@@ -76,6 +92,7 @@ class CycleAnalysisEngine {
                 ThermalShiftState.CONFIRMED -> add(AnalysisSignal.THERMAL_SHIFT)
                 null -> Unit
             }
+            if (thermalTrend != null) add(AnalysisSignal.THERMAL_TREND)
             if (qualityAssessment.excludedUnreliableCount > 0) {
                 add(AnalysisSignal.UNRELIABLE_TEMPERATURES_EXCLUDED)
             }
@@ -87,7 +104,9 @@ class CycleAnalysisEngine {
         if (prospectiveLhEpisode == null) {
             lh.recentBorderlineDate?.let { applyBorderlineLh(prospectiveRaw, it) }
         }
-        prospectiveMucusDate?.let { applyFertileMucus(prospectiveRaw, it, mucus.rising) }
+        prospectiveMucusEvidence?.let { evidence ->
+            applyMucusObservationEvidence(prospectiveRaw, evidence, mucus.rising)
+        }
         val prospectiveNormalized = normalize(prospectiveRaw)
         val prospectiveRange = when {
             // A live surge is more time-specific than the personal prior.
@@ -98,6 +117,11 @@ class CycleAnalysisEngine {
                 weights = prospectiveNormalized,
                 allowedRange = input.currentDate..input.currentDate.plusDays(3),
             )
+            prospectiveMucusEvidence?.quality == 2 || mucus.rising ->
+                FocusedEstimateSelector.bestTwoDayRange(
+                    weights = prospectiveNormalized,
+                    allowedRange = input.currentDate..input.currentDate.plusDays(4),
+                )
             else -> FocusedEstimateSelector.bestTwoDayRange(prospectiveNormalized)
         }
 
@@ -106,6 +130,7 @@ class CycleAnalysisEngine {
         if (prospectiveLhEpisode == null) lh.latestEpisode?.let { applyLhEpisode(fusedRaw, it) }
         mucus.peakDate?.let { applyMucusPeak(fusedRaw, it) }
         thermalShift?.let { applyThermalEvidence(fusedRaw, it) }
+        thermalTrend?.let { applyThermalTrendEvidence(fusedRaw, it) }
 
         val conflictRanges = mutableListOf<ClosedRange<LocalDate>>().apply {
             addAll(listOfNotNull(lhRange, mucusPeakRange).filter { signRange ->
@@ -139,11 +164,18 @@ class CycleAnalysisEngine {
         val retrospectiveLhEpisode = lh.latestEpisode?.takeIf {
             prospectiveLhEpisode == null || thermalRange != null || mucusPeakRange != null
         }
-        val retrospectiveRange = FocusedEstimateSelector.retrospectiveDay(
+        val ruleBasedRetrospectiveDay = FocusedEstimateSelector.retrospectiveDay(
             thermalShift = thermalShift,
             lhEpisode = retrospectiveLhEpisode,
             mucusPeakDate = mucus.peakDate,
-        )?.let { day -> day..day }
+        )
+        val trendBasedRetrospectiveDay = if (ruleBasedRetrospectiveDay == null && thermalTrend != null) {
+            thermalTrend.firstHighDate.minusDays(1)
+        } else {
+            null
+        }
+        val retrospectiveRange = (ruleBasedRetrospectiveDay ?: trendBasedRetrospectiveDay)
+            ?.let { day -> day..day }
 
         val conceptionWindow = prospectiveRange?.let { range ->
             maxOf(input.currentCycle.startDate, range.start.minusDays(5))..range.endInclusive
@@ -158,6 +190,7 @@ class CycleAnalysisEngine {
             currentDate = input.currentDate,
             quality = qualityAssessment.quality,
             thermalShift = thermalShift,
+            hasThermalTrend = thermalTrend != null,
             activeLh = prospectiveLhEpisode != null,
             fertileMucusToday = mucus.fertileToday,
             conceptionWindow = conceptionWindow,
@@ -171,6 +204,8 @@ class CycleAnalysisEngine {
             quality = qualityAssessment.quality,
             signals = signals,
             historyCycleCount = forecast.historyCycleCount,
+            recentMucusObservedDays = recentMucusObservedDays,
+            recentMucusExpectedDays = recentMucusExpectedDays,
         )
         val fertilityLevelToday = determineFertilityLevel(
             currentDate = input.currentDate,
@@ -186,6 +221,7 @@ class CycleAnalysisEngine {
             activeLh = prospectiveLhEpisode != null,
             borderlineLh = lh.recentBorderlineDate != null,
             thermalShift = thermalShift,
+            hasThermalTrend = thermalTrend != null,
             signsConflict = signsConflict,
             hasCorrectableTemperatureIssue = hasRecentCorrectableTemperatureIssue(
                 input = input,
@@ -227,6 +263,7 @@ class CycleAnalysisEngine {
                 }
                 null -> Unit
             }
+            if (thermalTrend != null) add(ReasonCode.OBSERVED_THERMAL_TREND)
             if (signsConflict) add(ReasonCode.SIGNS_DO_NOT_ALIGN)
             if (overdueForecast) {
                 add(ReasonCode.CURRENT_CYCLE_LONGER_THAN_EXPECTED)
@@ -244,6 +281,9 @@ class CycleAnalysisEngine {
             previousCycles = input.previousCycles,
             ovulationEstimate = retrospectiveRange ?: prospectiveLhRange,
             typicalCycleLengthDays = input.typicalCycleLengthDays,
+            ovulationWeights = prospectiveNormalized.takeIf {
+                prospectiveMucusEvidence?.quality?.let { quality -> quality >= 2 } == true
+            },
         )
 
         val estimatedCompatibilityRange = retrospectiveRange
@@ -334,6 +374,7 @@ class CycleAnalysisEngine {
         currentDate: LocalDate,
         quality: DataQuality,
         thermalShift: ThermalShiftResult?,
+        hasThermalTrend: Boolean,
         activeLh: Boolean,
         fertileMucusToday: Boolean,
         conceptionWindow: ClosedRange<LocalDate>?,
@@ -348,6 +389,7 @@ class CycleAnalysisEngine {
         activeLh -> FertilityStatus.LH_SURGE_DETECTED
         fertileMucusToday -> FertilityStatus.FERTILITY_SIGNS_PRESENT
         thermalShift?.state == ThermalShiftState.CANDIDATE -> FertilityStatus.THERMAL_SHIFT_CANDIDATE
+        hasThermalTrend -> FertilityStatus.THERMAL_SHIFT_CANDIDATE
         quality == DataQuality.INSUFFICIENT && !historyAvailable -> FertilityStatus.INSUFFICIENT_DATA
         overdueForecast -> FertilityStatus.UNCERTAIN
         conceptionWindow != null && currentDate in conceptionWindow -> FertilityStatus.PREDICTED_FERTILE_WINDOW
@@ -359,12 +401,15 @@ class CycleAnalysisEngine {
         val biologicalGroups = listOf(
             AnalysisSignal.LH_SURGE in signals || AnalysisSignal.LH_BORDERLINE in signals,
             AnalysisSignal.FERTILE_MUCUS in signals || AnalysisSignal.MUCUS_PEAK in signals,
-            AnalysisSignal.THERMAL_SHIFT in signals || AnalysisSignal.THERMAL_CANDIDATE in signals,
+            AnalysisSignal.THERMAL_SHIFT in signals || AnalysisSignal.THERMAL_CANDIDATE in signals ||
+                AnalysisSignal.THERMAL_TREND in signals,
         ).count { it }
         return when {
             biologicalGroups >= 2 && (AnalysisSignal.THERMAL_SHIFT in signals ||
-                AnalysisSignal.THERMAL_CANDIDATE in signals) -> EvidenceLevel.COMBINED_PATTERN
-            AnalysisSignal.THERMAL_SHIFT in signals || AnalysisSignal.THERMAL_CANDIDATE in signals ->
+                AnalysisSignal.THERMAL_CANDIDATE in signals ||
+                AnalysisSignal.THERMAL_TREND in signals) -> EvidenceLevel.COMBINED_PATTERN
+            AnalysisSignal.THERMAL_SHIFT in signals || AnalysisSignal.THERMAL_CANDIDATE in signals ||
+                AnalysisSignal.THERMAL_TREND in signals ->
                 EvidenceLevel.THERMAL_PATTERN
             biologicalGroups >= 2 -> EvidenceLevel.MULTIPLE_SIGNS
             biologicalGroups == 1 -> EvidenceLevel.ONE_BIOLOGICAL_SIGN
@@ -380,16 +425,23 @@ class CycleAnalysisEngine {
         quality: DataQuality,
         signals: Set<AnalysisSignal>,
         historyCycleCount: Int,
+        recentMucusObservedDays: Int,
+        recentMucusExpectedDays: Int,
     ): ForecastReliability {
         if (AnalysisSignal.CONFLICTING_SIGNALS in signals) return ForecastReliability.LIMITED
+        val mucusCoverageAdequate = recentMucusExpectedDays > 0 &&
+            recentMucusObservedDays * 2 >= recentMucusExpectedDays
         val biologicalGroups = listOf(
             AnalysisSignal.LH_SURGE in signals,
             AnalysisSignal.FERTILE_MUCUS in signals || AnalysisSignal.MUCUS_PEAK in signals,
-            AnalysisSignal.THERMAL_SHIFT in signals,
+            AnalysisSignal.THERMAL_SHIFT in signals || AnalysisSignal.THERMAL_TREND in signals,
         ).count { it }
         return when {
-            biologicalGroups >= 2 && quality in setOf(DataQuality.MODERATE, DataQuality.GOOD) ->
+            biologicalGroups >= 2 && quality in setOf(DataQuality.MODERATE, DataQuality.GOOD) &&
+                (AnalysisSignal.FERTILE_MUCUS !in signals || mucusCoverageAdequate) ->
                 ForecastReliability.STRONG
+            AnalysisSignal.FERTILE_MUCUS in signals && mucusCoverageAdequate && historyCycleCount >= 1 ->
+                ForecastReliability.MODERATE
             biologicalGroups >= 1 && (historyCycleCount >= 2 || quality != DataQuality.INSUFFICIENT) ->
                 ForecastReliability.MODERATE
             biologicalGroups >= 1 || historyCycleCount >= 1 -> ForecastReliability.LIMITED
@@ -423,6 +475,7 @@ class CycleAnalysisEngine {
         activeLh: Boolean,
         borderlineLh: Boolean,
         thermalShift: ThermalShiftResult?,
+        hasThermalTrend: Boolean,
         signsConflict: Boolean,
         hasCorrectableTemperatureIssue: Boolean,
     ): NextAction = when {
@@ -431,8 +484,7 @@ class CycleAnalysisEngine {
             NextAction.PRIORITIZE_CONCEPTION_TIMING
         borderlineLh && !activeLh -> NextAction.REPEAT_LH_TEST
         thermalShift?.state == ThermalShiftState.CANDIDATE -> NextAction.AWAIT_THERMAL_CONFIRMATION
-        fertilityLevel == FertilityLevelToday.ELEVATED && !activeLh ->
-            NextAction.START_OR_CONTINUE_LH_TESTING
+        hasThermalTrend -> NextAction.AWAIT_THERMAL_CONFIRMATION
         hasCorrectableTemperatureIssue -> NextAction.IMPROVE_TEMPERATURE_QUALITY
         else -> NextAction.CONTINUE_DAILY_TRACKING
     }
@@ -555,9 +607,9 @@ private object PersonalPriorCalculator {
             typicalCycleLengthDays = typicalCycleLengthDays,
         )
         val lengthMad = medianLength?.let { center -> median(cycleLengths.map { abs(it - center) }) } ?: 0.0
-        // Prefer the personal median luteal length over the textbook 14-day assumption when the
-        // history carries enough retrospective ovulation estimates to derive one.
-        val lutealDays = PeriodForecastCalculator.lutealStats(completed)?.medianDays ?: 14.0
+        // A real first completed cycle already informs the estimate, but is shrunk toward the
+        // population center so one noisy chart cannot dominate month two.
+        val lutealDays = PeriodForecastCalculator.lutealEstimate(completed).centerDays
         val fallbackCenter = ((cycleLengthEstimate?.days ?: 29.0) - lutealDays)
             .coerceIn(MIN_OVULATION_CYCLE_DAY.toDouble(), maxDay.toDouble())
         val fallbackSigma = max(6.0, lengthMad + 4.0)
@@ -586,7 +638,7 @@ private object PersonalPriorCalculator {
 
         completed.forEachIndexed { index, historical ->
             val center = historical.estimatedOvulationCycleDay?.toDouble()
-                ?: historical.cycleLengthDays?.minus(14)?.toDouble()
+                ?: historical.cycleLengthDays?.minus(lutealDays.roundToInt())?.toDouble()
                 ?: return@forEachIndexed
             if (center !in MIN_OVULATION_CYCLE_DAY.toDouble()..maxDay.toDouble()) return@forEachIndexed
             val recencyWeight = 0.82.pow(index.toDouble())
@@ -636,13 +688,26 @@ private object PersonalPriorCalculator {
 private fun applyLhEpisode(weights: MutableMap<LocalDate, Double>, episode: LhEpisode) {
     weights.keys.forEach { candidate ->
         val offset = ChronoUnit.DAYS.between(episode.firstPositiveDate, candidate).toInt()
-        val multiplier = when (offset) {
-            -1 -> 1.2
-            0 -> 5.0
-            1 -> 8.0
-            2 -> 4.5
-            3 -> 1.4
-            else -> if (offset < -1) 0.75 else 0.65
+        val multiplier = if (episode.onsetObservedAfterNegative) {
+            when (offset) {
+                -1 -> 1.1
+                0 -> 3.5
+                1 -> 8.0
+                2 -> 4.5
+                3 -> 1.3
+                else -> if (offset < -1) 0.75 else 0.65
+            }
+        } else {
+            // The preceding day was not explicitly negative, so the first observed positive may
+            // be late in the surge. Keep the evidence useful but broader and less concentrated.
+            when (offset) {
+                -1 -> 1.2
+                0 -> 5.5
+                1 -> 6.0
+                2 -> 2.8
+                3 -> 1.1
+                else -> if (offset < -1) 0.80 else 0.70
+            }
         }
         weights[candidate] = weights.getValue(candidate) * multiplier
     }
@@ -662,23 +727,59 @@ private fun applyBorderlineLh(weights: MutableMap<LocalDate, Double>, date: Loca
     }
 }
 
-private fun applyFertileMucus(
+private fun applyMucusObservationEvidence(
     weights: MutableMap<LocalDate, Double>,
-    date: LocalDate,
+    evidence: MucusObservationEvidence,
     rising: Boolean,
 ) {
     weights.keys.forEach { candidate ->
-        val offset = ChronoUnit.DAYS.between(date, candidate).toInt()
-        val base = when (offset) {
-            -1 -> 1.4
-            0 -> 3.0
-            1 -> 3.8
-            2 -> 3.2
-            3 -> 2.0
-            4 -> 1.25
-            else -> 0.90
+        val offset = ChronoUnit.DAYS.between(evidence.date, candidate).toInt()
+        val base = when (evidence.quality) {
+            0 -> when (offset) {
+                -1, 0, 1 -> 0.82
+                2, 3 -> 0.94
+                else -> 1.0
+            }
+            1 -> when (offset) {
+                0 -> 1.05
+                1 -> 1.20
+                2 -> 1.25
+                3 -> 1.15
+                else -> 0.98
+            }
+            2 -> when (offset) {
+                -1 -> 1.05
+                0 -> 1.35
+                1 -> 1.85
+                2 -> 2.05
+                3 -> 1.65
+                4 -> 1.20
+                else -> 0.95
+            }
+            3 -> when (offset) {
+                -1 -> 1.35
+                0 -> 3.0
+                1 -> 3.8
+                2 -> 3.2
+                3 -> 2.0
+                4 -> 1.25
+                else -> 0.90
+            }
+            else -> when (offset) {
+                -1 -> 1.5
+                0 -> 4.0
+                1 -> 4.4
+                2 -> 3.3
+                3 -> 1.8
+                4 -> 1.15
+                else -> 0.85
+            }
         }
-        val multiplier = if (rising && offset in 1..3) base * 1.20 else base
+        val multiplier = if (rising && evidence.quality >= 2 && offset in 1..3) {
+            base * 1.20
+        } else {
+            base
+        }
         weights[candidate] = weights.getValue(candidate) * multiplier
     }
 }
@@ -715,6 +816,21 @@ private fun applyThermalEvidence(
                 1L -> 1.4
                 else -> 0.80
             }
+        }
+        weights[candidate] = weights.getValue(candidate) * multiplier
+    }
+}
+
+private fun applyThermalTrendEvidence(
+    weights: MutableMap<LocalDate, Double>,
+    trend: ThermalTrendResult,
+) {
+    weights.keys.forEach { candidate ->
+        val distance = distanceFromRange(candidate, trend.estimatedOvulationRange)
+        val multiplier = when (distance) {
+            0L -> 3.0
+            1L -> 1.45
+            else -> 0.82
         }
         weights[candidate] = weights.getValue(candidate) * multiplier
     }

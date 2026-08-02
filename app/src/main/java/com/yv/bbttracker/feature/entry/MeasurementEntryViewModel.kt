@@ -53,7 +53,6 @@ sealed interface MeasurementEntryEvent {
     data class DateChanged(val date: LocalDate) : MeasurementEntryEvent
     data class TimeChanged(val time: LocalTime) : MeasurementEntryEvent
     data class TemperatureChanged(val value: String) : MeasurementEntryEvent
-    data class SiteChanged(val site: MeasurementSite) : MeasurementEntryEvent
     data class SleepHoursChanged(val value: String) : MeasurementEntryEvent
     data class SleepMinutesChanged(val value: String) : MeasurementEntryEvent
     data class ImmediatelyAfterWakingChanged(val value: Boolean) : MeasurementEntryEvent
@@ -117,13 +116,6 @@ class MeasurementEntryViewModel(
             is MeasurementEntryEvent.DateChanged -> change { it.copy(date = event.date, error = null) }
             is MeasurementEntryEvent.TimeChanged -> change { it.copy(time = event.time, error = null) }
             is MeasurementEntryEvent.TemperatureChanged -> change { it.copy(temperatureText = event.value.take(6), error = null) }
-            is MeasurementEntryEvent.SiteChanged -> change { current ->
-                current.copy(site = event.site, error = null).let { updated ->
-                    if ((updated.disturbanceMask and DisturbanceFlag.DIFFERENT_MEASUREMENT_SITE) != 0L) {
-                        updated.copy(selectedForAnalysis = false)
-                    } else updated
-                }
-            }
             is MeasurementEntryEvent.SleepHoursChanged -> change {
                 it.copy(sleepHoursText = event.value.filter(Char::isDigit).take(2))
             }

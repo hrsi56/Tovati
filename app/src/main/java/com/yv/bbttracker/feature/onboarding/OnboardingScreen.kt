@@ -58,7 +58,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.yv.bbttracker.R
 import com.yv.bbttracker.domain.model.MAX_TYPICAL_CYCLE_LENGTH_DAYS
 import com.yv.bbttracker.domain.model.MAX_TYPICAL_MENSTRUATION_LENGTH_DAYS
-import com.yv.bbttracker.domain.model.MeasurementSite
 import com.yv.bbttracker.domain.model.MIN_TYPICAL_CYCLE_LENGTH_DAYS
 import com.yv.bbttracker.domain.model.MIN_TYPICAL_MENSTRUATION_LENGTH_DAYS
 import com.yv.bbttracker.domain.model.TrackingGoal
@@ -152,7 +151,7 @@ fun OnboardingScreen(
                     state.typicalMenstruationLengthDays,
                     viewModel::onEvent,
                 )
-                6 -> MeasurementSitePage(state, viewModel::onEvent)
+                6 -> HowToMeasurePage()
                 7 -> ReminderPage(
                     state = state,
                     onToggle = { enabled ->
@@ -351,30 +350,35 @@ private fun <T> ChoicePage(
 }
 
 @Composable
-private fun MeasurementSitePage(state: OnboardingUiState, onEvent: (OnboardingEvent) -> Unit) {
+private fun HowToMeasurePage() {
     Icon(Icons.Outlined.Thermostat, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(56.dp))
     Spacer(Modifier.height(20.dp))
     Text(stringResource(R.string.onboarding_site_title), style = MaterialTheme.typography.headlineMedium)
     Spacer(Modifier.height(8.dp))
     Text(stringResource(R.string.onboarding_site_body), style = MaterialTheme.typography.bodyLarge)
-    Spacer(Modifier.height(20.dp))
-    val options = listOf(
-        MeasurementSite.ORAL to R.string.site_oral,
-        MeasurementSite.VAGINAL to R.string.site_vaginal,
-        MeasurementSite.RECTAL to R.string.site_rectal,
-    )
-    options.forEach { (site, label) ->
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .selectable(state.measurementSite == site, role = Role.RadioButton) {
-                    onEvent(OnboardingEvent.SiteChanged(site))
-                }
-                .padding(vertical = 13.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            RadioButton(selected = state.measurementSite == site, onClick = null)
-            Text(stringResource(label), modifier = Modifier.padding(start = 12.dp), style = MaterialTheme.typography.bodyLarge)
+    Spacer(Modifier.height(22.dp))
+    MeasurementGuidancePoint(R.string.measure_when_title, R.string.measure_when_body)
+    Spacer(Modifier.height(18.dp))
+    MeasurementGuidancePoint(R.string.measure_thermometer_title, R.string.measure_thermometer_body)
+    Spacer(Modifier.height(18.dp))
+    MeasurementGuidancePoint(R.string.measure_consistency_title, R.string.measure_consistency_body)
+}
+
+@Composable
+private fun MeasurementGuidancePoint(@StringRes title: Int, @StringRes body: Int) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        verticalAlignment = Alignment.Top,
+    ) {
+        Text("\u2022", style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.colorScheme.primary)
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Text(stringResource(title), style = MaterialTheme.typography.titleMedium)
+            Text(
+                stringResource(body),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
         }
     }
 }

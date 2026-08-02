@@ -46,11 +46,14 @@
     <string name="choose_menstruation_length">Choose period length</string>
     <string name="menstruation_length_not_sure">I am not sure yet</string>
     <string name="days">days</string>
-    <string name="onboarding_site_title">Default measurement site</string>
-    <string name="onboarding_site_body">For a useful pattern, measure consistently using the same site.</string>
-    <string name="site_oral">Oral</string>
-    <string name="site_vaginal">Vaginal</string>
-    <string name="site_rectal">Rectal</string>
+    <string name="onboarding_site_title">How to measure</string>
+    <string name="onboarding_site_body">Basal body temperature is your temperature at complete rest. A few simple habits make the small changes across your cycle easier to see.</string>
+    <string name="measure_when_title">When to measure</string>
+    <string name="measure_when_body">Measure as soon as you wake, before getting out of bed, talking, drinking, eating, or starting any activity. Aim for roughly the same time after at least 3 hours of uninterrupted sleep.</string>
+    <string name="measure_thermometer_title">Which thermometer to use</string>
+    <string name="measure_thermometer_body">A basal or fertility thermometer that shows two decimal places, such as 36.47°C, is more sensitive to the small changes we are looking for. A regular digital thermometer can also be used, but its reading will be less detailed.</string>
+    <string name="measure_consistency_title">How to stay consistent</string>
+    <string name="measure_consistency_body">Measure at the same body site and in the same way every day, following the thermometer instructions. You do not need to tell Tovati which site you chose.</string>
     <string name="onboarding_reminder_title">Morning reminder</string>
     <string name="onboarding_reminder_body">Optional and approximate. You can change this later.</string>
     <string name="enable_reminder">Enable a daily reminder</string>
@@ -133,15 +136,15 @@
     <string name="time">Time</string>
     <string name="temperature">Temperature</string>
     <string name="temperature_hint">36.47</string>
-    <string name="temperature_helper">Enter °C with up to two decimal places</string>
-    <string name="measurement_site">Measurement site</string>
-    <string name="measurement_conditions_title">Measurement conditions</string>
-    <string name="measurement_conditions_supporting">Consistent timing and measurement site make patterns easier to detect.</string>
+    <string name="temperature_helper">In Celsius, for example 36.47 or 36.5</string>
+    <string name="measurement_conditions_title">How was the measurement?</string>
+    <string name="measurement_conditions_supporting">A few small details help Tovati refine the pattern.</string>
+    <string name="thermometer_choice_guidance">Two decimals are more precise — a regular thermometer works too.</string>
     <string name="sleep_duration">Sleep duration</string>
     <string name="sleep_hours">Hours</string>
     <string name="sleep_minutes">Minutes</string>
-    <string name="measured_after_waking">Measured immediately after waking</string>
-    <string name="measured_after_waking_supporting">Before getting up, drinking or activity</string>
+    <string name="measured_after_waking">Measured as soon as I woke</string>
+    <string name="measured_after_waking_supporting">Before getting up and starting my day</string>
     <string name="measurement_more_details">More details</string>
     <string name="measurement_more_details_summary">Sleep, disturbances and notes — only when needed</string>
     <string name="disturbances">Factors that may affect this measurement</string>
@@ -152,7 +155,7 @@
     <string name="disturbance_alcohol">Alcohol</string>
     <string name="disturbance_medication">Medication</string>
     <string name="disturbance_travel">Travel or time-zone change</string>
-    <string name="disturbance_site_changed">Different measurement site</string>
+    <string name="disturbance_site_changed">Measured differently than usual</string>
     <string name="disturbance_not_immediate">Not immediately after waking</string>
     <string name="disturbance_other">Other</string>
     <string name="disturbance_note">Details about disturbances</string>
@@ -160,7 +163,7 @@
     <string name="notes_optional">Notes (optional)</string>
     <string name="use_for_analysis">Use this measurement for analysis</string>
     <string name="use_for_analysis_supporting">Turn off only when the measurement does not represent your basal temperature.</string>
-    <string name="exclusion_recommended">Because of fever or a site change, excluding this measurement is recommended. You can override this.</string>
+    <string name="exclusion_recommended">Because of illness, fever, or a change in measurement method, excluding this measurement is recommended. You can override this.</string>
     <string name="temperature_invalid">Enter a temperature between 32.00°C and 43.00°C with up to two decimals.</string>
     <string name="temperature_soft_warning">This is outside the typical BBT range of 35.00–38.50°C. Save anyway?</string>
     <string name="save_anyway">Save anyway</string>
@@ -299,7 +302,7 @@
     <string name="open_cycle_chart">View this cycle on the chart</string>
 
     <string name="settings_title">Settings &amp; privacy</string>
-    <string name="settings_measurement">Measurement</string>
+    <string name="settings_measurement">How to measure</string>
     <string name="settings_reminders">Reminder</string>
     <string name="settings_privacy">Privacy</string>
     <string name="settings_data">Your data</string>
@@ -467,7 +470,7 @@
     <string name="action_conception_timing">If trying to conceive, consider intercourse today and over the next 1–2 days, according to your preference.</string>
     <string name="action_peak_awareness">Recorded signs support higher fertility today; keep tracking.</string>
     <string name="action_await_thermal">Keep measuring waking temperature; a sustained rise can retrospectively support that ovulation occurred.</string>
-    <string name="action_improve_temperature">For the next measurements, try to keep a similar time and site and measure immediately after waking; record disturbances so they do not receive undue weight.</string>
+    <string name="action_improve_temperature">For the next measurements, try to measure immediately after waking, at roughly the same time and in the same way; record disturbances so they do not receive undue weight.</string>
     <string name="action_review_conflict">The signals do not align. Keep tracking; no conclusion is drawn for this cycle yet.</string>
 
     <string name="chart_legend_conception_window">Fertile window (forecast)</string>
@@ -479,7 +482,7 @@
     <string name="chart_prospective_range">Ovulation may occur: %1$s</string>
     <string name="chart_retrospective_range">Retrospective ovulation estimate: %1$s</string>
     <string name="history_estimate_support">Estimate support: %1$s</string>
-    <string name="bbt_measurement_guidance">For best accuracy, measure immediately after waking and before getting up, at a similar time and the same measurement site whenever possible.</string>
+    <string name="bbt_measurement_guidance">Good morning ☀️ Before getting up · around the same time · always the same way</string>
     <string name="mucus_tracking_guidance">Record both fluid texture and sensation during the day. A wet or slippery sensation may matter even when little fluid is visible.</string>
     <string name="lh_test_guidance">Follow the instructions for your specific kit. A borderline result is not positive; the test time helps interpret the sequence.</string>
     <string name="settings_tracking_goal">Tracking goal</string>

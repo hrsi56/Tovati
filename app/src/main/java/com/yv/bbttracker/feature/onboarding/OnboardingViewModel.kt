@@ -7,7 +7,6 @@ import com.yv.bbttracker.domain.model.AppSettings
 import com.yv.bbttracker.domain.model.DISCLAIMER_VERSION
 import com.yv.bbttracker.domain.model.MAX_TYPICAL_MENSTRUATION_LENGTH_DAYS
 import com.yv.bbttracker.domain.model.MAX_TYPICAL_CYCLE_LENGTH_DAYS
-import com.yv.bbttracker.domain.model.MeasurementSite
 import com.yv.bbttracker.domain.model.MIN_TYPICAL_MENSTRUATION_LENGTH_DAYS
 import com.yv.bbttracker.domain.model.MIN_TYPICAL_CYCLE_LENGTH_DAYS
 import com.yv.bbttracker.domain.model.TrackingGoal
@@ -24,7 +23,6 @@ data class OnboardingUiState(
     val trackingGoal: TrackingGoal = TrackingGoal.CYCLE_AWARENESS,
     val typicalCycleLengthDays: Int? = DEFAULT_TYPICAL_CYCLE_LENGTH_DAYS,
     val typicalMenstruationLengthDays: Int? = DEFAULT_TYPICAL_MENSTRUATION_LENGTH_DAYS,
-    val measurementSite: MeasurementSite = MeasurementSite.ORAL,
     val reminderEnabled: Boolean = false,
     val reminderHour: Int = 7,
     val reminderMinute: Int = 0,
@@ -50,7 +48,6 @@ sealed interface OnboardingEvent {
     data class GoalChanged(val goal: TrackingGoal) : OnboardingEvent
     data class TypicalCycleLengthChanged(val days: Int?) : OnboardingEvent
     data class TypicalMenstruationLengthChanged(val days: Int?) : OnboardingEvent
-    data class SiteChanged(val site: MeasurementSite) : OnboardingEvent
     data class ReminderChanged(val enabled: Boolean) : OnboardingEvent
     data class ReminderTimeChanged(val hour: Int, val minute: Int) : OnboardingEvent
     data class DisclaimerChanged(val accepted: Boolean) : OnboardingEvent
@@ -70,7 +67,6 @@ class OnboardingViewModel(
                 ?: OnboardingUiState.DEFAULT_TYPICAL_CYCLE_LENGTH_DAYS,
             typicalMenstruationLengthDays = initialSettings.typicalMenstruationLengthDays
                 ?: OnboardingUiState.DEFAULT_TYPICAL_MENSTRUATION_LENGTH_DAYS,
-            measurementSite = initialSettings.defaultMeasurementSite,
             reminderEnabled = initialSettings.reminderEnabled,
             reminderHour = initialSettings.reminderHour,
             reminderMinute = initialSettings.reminderMinute,
@@ -104,7 +100,6 @@ class OnboardingViewModel(
                     ),
                 )
             }
-            is OnboardingEvent.SiteChanged -> _state.update { it.copy(measurementSite = event.site) }
             is OnboardingEvent.ReminderChanged -> _state.update { it.copy(reminderEnabled = event.enabled) }
             is OnboardingEvent.ReminderTimeChanged -> _state.update {
                 it.copy(reminderHour = event.hour.coerceIn(0, 23), reminderMinute = event.minute.coerceIn(0, 59))
@@ -124,7 +119,6 @@ class OnboardingViewModel(
                     trackingGoal = current.trackingGoal,
                     typicalCycleLengthDays = current.typicalCycleLengthDays,
                     typicalMenstruationLengthDays = current.typicalMenstruationLengthDays,
-                    defaultMeasurementSite = current.measurementSite,
                     reminderEnabled = current.reminderEnabled,
                     reminderHour = current.reminderHour,
                     reminderMinute = current.reminderMinute,

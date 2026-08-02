@@ -7,7 +7,6 @@ object CsvEncoder {
         "cycle_day",
         "temperature_c",
         "time",
-        "site",
         "selected_for_analysis",
         "disturbances",
         "sleep_minutes",
@@ -32,7 +31,7 @@ object CsvEncoder {
     )
 
     const val HEADER: String =
-        "date,cycle_day,temperature_c,time,site,selected_for_analysis," +
+        "date,cycle_day,temperature_c,time,selected_for_analysis," +
             "disturbances,sleep_minutes,bleeding,mucus,mucus_sensation,mucus_obscured," +
             "lh_result,lh_test_time,lh_test_brand,lh_test_sensitivity_miu,ovulation_pain," +
             "mood_flags,mood_note,libido_level,sexual_contact,sexual_contact_initiated_by_user," +

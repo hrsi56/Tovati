@@ -11,6 +11,8 @@ internal data class LhEpisode(
     val firstPositiveDate: LocalDate,
     val lastPositiveDate: LocalDate,
     val positiveDates: List<LocalDate>,
+    /** True only when the immediately preceding calendar day was explicitly recorded negative. */
+    val onsetObservedAfterNegative: Boolean = false,
 ) {
     val estimatedOvulationRange: ClosedRange<LocalDate>
         get() = firstPositiveDate.plusDays(1)..firstPositiveDate.plusDays(2)
@@ -58,10 +60,14 @@ internal object LhSignalAnalyzer {
 
         val immutableEpisodes = episodes.map { episode ->
             val dates = episode.map { it.date }
+            val dayBeforeFirstPositive = latestByDay.lastOrNull { observation ->
+                observation.date == dates.first().minusDays(1)
+            }
             LhEpisode(
                 firstPositiveDate = dates.first(),
                 lastPositiveDate = dates.last(),
                 positiveDates = dates,
+                onsetObservedAfterNegative = dayBeforeFirstPositive?.lhResult == LhResult.NEGATIVE,
             )
         }
         val active = immutableEpisodes.lastOrNull()?.takeIf { episode ->
@@ -91,6 +97,13 @@ internal data class MucusSignalSummary(
     val latestFertileDate: LocalDate?,
     val peakDate: LocalDate?,
     val todayQuality: Int?,
+    /** Only explicitly recorded, unobscured observations. Missing days are absent from this list. */
+    val observedEvidence: List<MucusObservationEvidence>,
+)
+
+internal data class MucusObservationEvidence(
+    val date: LocalDate,
+    val quality: Int,
 )
 
 internal object MucusSignalAnalyzer {
@@ -147,6 +160,9 @@ internal object MucusSignalAnalyzer {
             // retrospective marker until a new decline is observed.
             peakDate = completedPeak.takeIf { lastFertileInRun == null },
             todayQuality = today?.second,
+            observedEvidence = usable.map { (observation, quality) ->
+                MucusObservationEvidence(observation.date, quality)
+            },
         )
     }
 

@@ -25,11 +25,15 @@ object HistoricalCycleBuilder {
         val analysisSite = cycle.analysisSite
             ?: ThermalShiftDetector.preferredSite(cycleMeasurements, fallbackSite)
         val thermal = ThermalShiftDetector.detect(cycleMeasurements, analysisSite, effectiveAsOf)
+        val thermalTrend = if (thermal?.isConfirmed == true) null else {
+            ThermalTrendDetector.detect(cycleMeasurements, analysisSite, effectiveAsOf)
+        }
         val lh = LhSignalAnalyzer.analyze(cycleObservations, effectiveAsOf)
         val mucus = MucusSignalAnalyzer.analyze(cycleObservations, effectiveAsOf)
 
         val thermalRange = thermal?.takeIf { it.isConfirmed }?.estimatedOvulationRange
-        val chosenLhEpisode = chooseLhEpisode(lh.episodes, thermalRange)
+        val thermalSupportRange = thermalRange ?: thermalTrend?.estimatedOvulationRange
+        val chosenLhEpisode = chooseLhEpisode(lh.episodes, thermalSupportRange)
         val lhRange = chosenLhEpisode?.estimatedOvulationRange
         val mucusRange = mucus.peakDate?.let { it.minusDays(1)..it.plusDays(1) }
         val signs = linkedSetOf<AnalysisSignal>().apply {
@@ -40,6 +44,7 @@ object HistoricalCycleBuilder {
                 ThermalShiftState.CONFIRMED -> add(AnalysisSignal.THERMAL_SHIFT)
                 null -> Unit
             }
+            if (thermalTrend != null) add(AnalysisSignal.THERMAL_TREND)
             if (thermal?.excludedUnreliableMeasurementCount?.let { it > 0 } == true) {
                 add(AnalysisSignal.UNRELIABLE_TEMPERATURES_EXCLUDED)
             }
@@ -60,20 +65,27 @@ object HistoricalCycleBuilder {
             signs += AnalysisSignal.CONFLICTING_SIGNALS
         }
 
-        val estimate = FocusedEstimateSelector.retrospectiveDay(
+        val strictEstimate = FocusedEstimateSelector.retrospectiveDay(
             thermalShift = thermal,
             lhEpisode = chosenLhEpisode,
             mucusPeakDate = mucus.peakDate,
-        )?.let { day -> day..day }
+        )
+        val trendEstimate = thermalTrend?.let { trend ->
+            // A limited trend does not confirm ovulation; day -1 is the conventional most useful
+            // retrospective point inside its deliberately broad support range.
+            trend.firstHighDate.minusDays(1)
+        }
+        val estimate = (strictEstimate ?: trendEstimate)?.let { day -> day..day }
         val biologicalSignalCount = listOfNotNull(
             chosenLhEpisode,
             mucus.peakDate,
-            thermal?.takeIf { it.isConfirmed },
+            thermal?.takeIf { it.isConfirmed } ?: thermalTrend,
         ).size
         val reliability = when {
             AnalysisSignal.CONFLICTING_SIGNALS in signs -> ForecastReliability.LIMITED
             thermal?.isConfirmed == true && biologicalSignalCount >= 2 -> ForecastReliability.STRONG
             thermal?.isConfirmed == true -> ForecastReliability.MODERATE
+            thermalTrend != null && biologicalSignalCount >= 2 -> ForecastReliability.MODERATE
             chosenLhEpisode != null && mucus.peakDate != null -> ForecastReliability.MODERATE
             estimate != null -> ForecastReliability.LIMITED
             else -> ForecastReliability.INSUFFICIENT

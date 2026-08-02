@@ -46,11 +46,14 @@
     <string name="choose_menstruation_length">בחירת אורך הווסת</string>
     <string name="menstruation_length_not_sure">אני לא בטוחה עדיין</string>
     <string name="days">ימים</string>
-    <string name="onboarding_site_title">אתר מדידה ברירת מחדל</string>
-    <string name="onboarding_site_body">כדי לזהות דפוס שימושי, חשוב למדוד בעקביות באותו אתר.</string>
-    <string name="site_oral">בפה</string>
-    <string name="site_vaginal">בנרתיק</string>
-    <string name="site_rectal">בפי הטבעת</string>
+    <string name="onboarding_site_title">איך מודדים?</string>
+    <string name="onboarding_site_body">חום השחר הוא טמפרטורת הגוף במנוחה מלאה. כמה הרגלים פשוטים יעזרו לראות את השינויים הקטנים לאורך המחזור.</string>
+    <string name="measure_when_title">מתי למדוד</string>
+    <string name="measure_when_body">מיד כשאת מתעוררת, לפני שאת קמה מהמיטה, מדברת, שותה, אוכלת או מתחילה פעילות. נסי למדוד בערך באותה שעה ולאחר לפחות 3 שעות שינה רצופה.</string>
+    <string name="measure_thermometer_title">באיזה מדחום</string>
+    <string name="measure_thermometer_body">מדחום ביוץ (מדחום לחום בסיסי) שמציג שתי ספרות אחרי הנקודה, למשל 36.47°C, רגיש יותר לשינויים הקטנים שאנחנו מחפשות. אפשר להשתמש גם במדחום דיגיטלי רגיל, אך המדידה תהיה פחות מפורטת.</string>
+    <string name="measure_consistency_title">איך לשמור על עקביות</string>
+    <string name="measure_consistency_body">מדדי תמיד באותו מקום בגוף ובאותה דרך, לפי הוראות המדחום. אין צורך לדווח לטובתי היכן בחרת למדוד.</string>
     <string name="onboarding_reminder_title">תזכורת בוקר</string>
     <string name="onboarding_reminder_body">אופציונלית ובשעה משוערת. ניתן לשנות זאת בהמשך.</string>
     <string name="enable_reminder">הפעלת תזכורת יומית</string>
@@ -133,15 +136,15 @@
     <string name="time">שעה</string>
     <string name="temperature">טמפרטורה</string>
     <string name="temperature_hint">36.47</string>
-    <string name="temperature_helper">במעלות צלזיוס, לדוגמה 36.47</string>
-    <string name="measurement_site">מקום המדידה</string>
-    <string name="measurement_conditions_title">תנאי המדידה</string>
-    <string name="measurement_conditions_supporting">עקביות במקום המדידה ובתזמון משפרת את היכולת לזהות דפוס.</string>
+    <string name="temperature_helper">במעלות צלזיוס, למשל 36.47 או 36.5</string>
+    <string name="measurement_conditions_title">איך הייתה המדידה?</string>
+    <string name="measurement_conditions_supporting">כמה סימונים קטנים שיעזרו לטובתי לדייק.</string>
+    <string name="thermometer_choice_guidance">שתי ספרות מדויקות יותר — גם מדחום רגיל מתאים.</string>
     <string name="sleep_duration">משך שינה</string>
     <string name="sleep_hours">שעות</string>
     <string name="sleep_minutes">דקות</string>
-    <string name="measured_after_waking">מדדתי מיד לאחר ההתעוררות</string>
-    <string name="measured_after_waking_supporting">לפני קימה, שתייה או פעילות</string>
+    <string name="measured_after_waking">מדדתי מיד כשהתעוררתי</string>
+    <string name="measured_after_waking_supporting">לפני שקמתי והתחלתי את היום</string>
     <string name="measurement_more_details">פרטים נוספים</string>
     <string name="measurement_more_details_summary">שינה, גורמים מפריעים והערות — רק כשצריך</string>
     <string name="disturbances">גורמים שעשויים להשפיע על המדידה</string>
@@ -152,7 +155,7 @@
     <string name="disturbance_alcohol">אלכוהול</string>
     <string name="disturbance_medication">תרופות</string>
     <string name="disturbance_travel">נסיעה או שינוי אזור זמן</string>
-    <string name="disturbance_site_changed">אתר מדידה שונה</string>
+    <string name="disturbance_site_changed">מדדתי בדרך שונה מהרגיל</string>
     <string name="disturbance_not_immediate">לא מיד לאחר ההתעוררות</string>
     <string name="disturbance_other">אחר</string>
     <string name="disturbance_note">פרטים על ההפרעות</string>
@@ -160,7 +163,7 @@
     <string name="notes_optional">הערות (לא חובה)</string>
     <string name="use_for_analysis">כלילת המדידה בניתוח</string>
     <string name="use_for_analysis_supporting">בטלי רק אם ידוע שהמדידה אינה מייצגת את טמפרטורת הבסיס.</string>
-    <string name="exclusion_recommended">בגלל חום או שינוי אתר מדידה מומלץ להחריג את המדידה. ניתן לשנות את הבחירה.</string>
+    <string name="exclusion_recommended">בגלל מחלה, חום או שינוי בדרך המדידה מומלץ להחריג את המדידה. ניתן לשנות את הבחירה.</string>
     <string name="temperature_invalid">יש להזין טמפרטורה בין 32.00°C ל־43.00°C, עם עד שתי ספרות עשרוניות.</string>
     <string name="temperature_soft_warning">הערך מחוץ לטווח BBT אופייני של 35.00–38.50°C. לשמור בכל זאת?</string>
     <string name="save_anyway">שמירה בכל זאת</string>
@@ -299,7 +302,7 @@
     <string name="open_cycle_chart">הצגת המחזור בגרף</string>
 
     <string name="settings_title">הגדרות ופרטיות</string>
-    <string name="settings_measurement">מדידה</string>
+    <string name="settings_measurement">איך מודדים</string>
     <string name="settings_reminders">תזכורת</string>
     <string name="settings_privacy">פרטיות</string>
     <string name="settings_data">הנתונים שלך</string>
@@ -467,7 +470,7 @@
     <string name="action_conception_timing">אם את מנסה להרות, שקלי מגע מיני היום וביום–יומיים הקרובים, בהתאם למה שמתאים לך.</string>
     <string name="action_peak_awareness">הסימנים שנרשמו תומכים בפוריות מוגברת היום; המשיכי לעקוב.</string>
     <string name="action_await_thermal">המשיכי למדוד חום שחר; עלייה מתמשכת יכולה לתמוך בדיעבד בכך שהביוץ התרחש.</string>
-    <string name="action_improve_temperature">במדידות הקרובות נסי לשמור על שעה ואתר קבועים ולמדוד מיד לאחר היקיצה; סמני הפרעות כדי שלא יקבלו משקל מיותר.</string>
+    <string name="action_improve_temperature">במדידות הקרובות נסי למדוד מיד לאחר היקיצה, בערך באותה שעה ובאותה דרך; סמני הפרעות כדי שלא יקבלו משקל מיותר.</string>
     <string name="action_review_conflict">האותות אינם מתיישבים. המשיכי לעקוב; אין כרגע מסקנה למחזור זה.</string>
 
     <string name="chart_legend_conception_window">חלון הפוריות (תחזית)</string>
@@ -479,7 +482,7 @@
     <string name="chart_prospective_range">ביוץ עשוי להתרחש: %1$s</string>
     <string name="chart_retrospective_range">הערכת ביוץ בדיעבד: %1$s</string>
     <string name="history_estimate_support">תמיכה בהערכה: %1$s</string>
-    <string name="bbt_measurement_guidance">מדדי מיד לאחר היקיצה ולפני קימה, ככל האפשר בשעה דומה ובאותו מקום.</string>
+    <string name="bbt_measurement_guidance">בוקר טוב ☀️ לפני שקמים · בערך באותה שעה · תמיד באותה דרך</string>
     <string name="mucus_tracking_guidance">רשמי את מרקם הנוזל ואת התחושה. תחושה רטובה או חלקלקה עשויה להיות משמעותית גם כשכמות הנוזל קטנה.</string>
     <string name="lh_test_guidance">פעלי לפי הוראות הערכה הספציפית. תוצאה גבולית אינה חיובית; שעת הבדיקה עוזרת לפרש את הרצף.</string>
     <string name="settings_tracking_goal">מטרת המעקב</string>

@@ -122,7 +122,6 @@ class BackupManager(
                     cycle?.let { (epochDay - it.startEpochDay + 1).toString() },
                     measurement?.let { Formatters.temperature(it.temperatureCentiC) },
                     measurement?.let { Formatters.time(it.measuredAtEpochMillis, it.zoneId) },
-                    measurement?.site?.name,
                     measurement?.selectedForAnalysis?.toString(),
                     measurement?.disturbanceMask?.toString(),
                     measurement?.sleepMinutes?.toString(),

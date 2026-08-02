@@ -2,6 +2,9 @@ package com.yv.bbttracker.domain.engine
 
 import java.time.LocalDate
 import kotlin.math.abs
+import kotlin.math.exp
+import kotlin.math.max
+import kotlin.math.pow
 import kotlin.math.roundToLong
 
 /**
@@ -13,6 +16,13 @@ data class LutealPhaseStats(
     val medianDays: Double,
     val madDays: Double,
     val sampleSize: Int,
+)
+
+/** Population-shrunk estimate; a single personal cycle can inform it without dominating it. */
+internal data class LutealPhaseEstimate(
+    val centerDays: Double,
+    val spreadDays: Double,
+    val personalSampleSize: Int,
 )
 
 enum class PeriodForecastBasis {
@@ -63,6 +73,8 @@ object PeriodForecastCalculator {
     private const val MAX_PLAUSIBLE_LUTEAL_DAYS = 20
     private const val MIN_SAMPLES_FOR_PERSONAL_LUTEAL = 2
     private const val HISTORY_SAMPLES_TO_REPLACE_REPORTED_LENGTH = 3
+    private const val POPULATION_PRIOR_WEIGHT = 1.5
+    private const val DEFAULT_LUTEAL_SPREAD_DAYS = 1.75
 
     fun lutealStats(previousCycles: List<CycleWithAnalysis>): LutealPhaseStats? {
         val samples = previousCycles.mapNotNull { historical ->
@@ -79,37 +91,95 @@ object PeriodForecastCalculator {
         )
     }
 
+    /**
+     * Uses every plausible observed personal sample, including the first one, but shrinks sparse
+     * history toward the population center. This is learning from a real completed cycle, not
+     * filling a missing cycle or inventing a luteal length.
+     */
+    internal fun lutealEstimate(previousCycles: List<CycleWithAnalysis>): LutealPhaseEstimate {
+        val samples = previousCycles.mapNotNull { historical ->
+            val days = historical.lutealPhaseDays
+                ?.takeIf { it in MIN_PLAUSIBLE_LUTEAL_DAYS..MAX_PLAUSIBLE_LUTEAL_DAYS }
+                ?.toDouble()
+                ?: return@mapNotNull null
+            val reliabilityWeight = when (historical.reliability) {
+                ForecastReliability.STRONG -> 1.0
+                ForecastReliability.MODERATE -> 0.80
+                ForecastReliability.LIMITED -> 0.45
+                ForecastReliability.INSUFFICIENT -> 0.0
+            }
+            days to reliabilityWeight
+        }.filter { (_, weight) -> weight > 0.0 }
+
+        val personalWeight = samples.sumOf { (_, weight) -> weight }
+        val center = (
+            DEFAULT_LUTEAL_DAYS * POPULATION_PRIOR_WEIGHT +
+                samples.sumOf { (days, weight) -> days * weight }
+            ) / (POPULATION_PRIOR_WEIGHT + personalWeight)
+        val personalValues = samples.map { (days, _) -> days }
+        val spread = if (personalValues.size >= 2) {
+            val personalCenter = median(personalValues)
+            max(1.0, 1.4826 * median(personalValues.map { abs(it - personalCenter) }))
+        } else {
+            DEFAULT_LUTEAL_SPREAD_DAYS
+        }
+        return LutealPhaseEstimate(
+            centerDays = center,
+            spreadDays = spread,
+            personalSampleSize = samples.size,
+        )
+    }
+
     fun forecast(
         currentCycleStart: LocalDate,
         currentDate: LocalDate,
         previousCycles: List<CycleWithAnalysis>,
         ovulationEstimate: ClosedRange<LocalDate>?,
         typicalCycleLengthDays: Int? = null,
+        /** Optional current-cycle distribution, supplied only when a biological sign supports it. */
+        ovulationWeights: Map<LocalDate, Double>? = null,
     ): PeriodForecast {
         val completedLengths = previousCycles.mapNotNull { it.cycleLengthDays?.toDouble() }
-        val luteal = lutealStats(previousCycles)
+        val luteal = lutealEstimate(previousCycles)
         val cycleLengthEstimate = cycleLengthEstimate(
             completedLengths = completedLengths,
             typicalCycleLengthDays = typicalCycleLengthDays,
         )
 
-        // A luteal phase of L days occupies the L days after the ovulation day and ends the day
-        // before menses, so the next period starts L + 1 days after the ovulation date.
+        val ovulationDistribution = when {
+            ovulationEstimate != null -> ovulationEstimate.dates().associateWith { 1.0 }
+            !ovulationWeights.isNullOrEmpty() -> ovulationWeights
+            else -> null
+        }?.normalizedWeights()
+
+        // Convolve the observed ovulation evidence with a luteal-length distribution. This keeps
+        // uncertainty instead of collapsing both quantities to one midpoint before calculating.
         val (bestStart, basis, lutealDaysUsed) = when {
-            ovulationEstimate != null && luteal != null -> {
-                val lutealDays = luteal.medianDays.roundToLong()
+            !ovulationDistribution.isNullOrEmpty() -> {
+                val periodWeights = linkedMapOf<LocalDate, Double>()
+                ovulationDistribution.forEach { (ovulationDate, ovulationWeight) ->
+                    (MIN_PLAUSIBLE_LUTEAL_DAYS..MAX_PLAUSIBLE_LUTEAL_DAYS).forEach { lutealDays ->
+                        val lutealWeight = gaussian(
+                            lutealDays.toDouble(),
+                            luteal.centerDays,
+                            luteal.spreadDays,
+                        )
+                        val periodDate = ovulationDate.plusDays(lutealDays + 1L)
+                        periodWeights[periodDate] =
+                            (periodWeights[periodDate] ?: 0.0) + ovulationWeight * lutealWeight
+                    }
+                }
+                val bestRange = requireNotNull(bestTwoDayPeriodRange(periodWeights))
                 Triple(
-                    ovulationEstimate.midpoint().plusDays(lutealDays + 1),
-                    PeriodForecastBasis.OVULATION_AND_PERSONAL_LUTEAL,
-                    lutealDays.toInt(),
+                    bestRange.start,
+                    if (luteal.personalSampleSize > 0) {
+                        PeriodForecastBasis.OVULATION_AND_PERSONAL_LUTEAL
+                    } else {
+                        PeriodForecastBasis.OVULATION_AND_DEFAULT_LUTEAL
+                    },
+                    luteal.centerDays.roundToLong().toInt(),
                 )
             }
-
-            ovulationEstimate != null -> Triple(
-                ovulationEstimate.midpoint().plusDays(DEFAULT_LUTEAL_DAYS + 1L),
-                PeriodForecastBasis.OVULATION_AND_DEFAULT_LUTEAL,
-                DEFAULT_LUTEAL_DAYS,
-            )
 
             cycleLengthEstimate != null -> {
                 // A cycle of N days occupies days 1..N, so the next period starts N days after
@@ -178,6 +248,37 @@ internal data class CycleLengthEstimate(
 
 private fun ClosedRange<LocalDate>.midpoint(): LocalDate =
     LocalDate.ofEpochDay((start.toEpochDay() + endInclusive.toEpochDay()) / 2L)
+
+private fun ClosedRange<LocalDate>.dates(): List<LocalDate> = buildList {
+    var date = start
+    while (!date.isAfter(endInclusive)) {
+        add(date)
+        date = date.plusDays(1)
+    }
+}
+
+private fun Map<LocalDate, Double>.normalizedWeights(): Map<LocalDate, Double> {
+    val clean = entries.filter { (_, weight) -> weight.isFinite() && weight > 0.0 }
+    val total = clean.sumOf(Map.Entry<LocalDate, Double>::value)
+    if (clean.isEmpty() || total <= 0.0 || !total.isFinite()) return emptyMap()
+    return clean.associate { (date, weight) -> date to weight / total }
+}
+
+private fun gaussian(x: Double, center: Double, spread: Double): Double =
+    exp(-0.5 * ((x - center) / spread).pow(2.0))
+
+/** Display the modal start date and the following day, while deriving the mode by convolution. */
+private fun bestTwoDayPeriodRange(weights: Map<LocalDate, Double>): ClosedRange<LocalDate>? {
+    val clean = weights.filterValues { it.isFinite() && it > 0.0 }
+    val start = clean.entries
+        .maxWithOrNull(
+            compareBy<Map.Entry<LocalDate, Double>> { it.value }
+                .thenBy { it.key.toEpochDay() },
+        )
+        ?.key
+        ?: return null
+    return start..start.plusDays(1)
+}
 
 internal fun median(values: List<Double>): Double {
     require(values.isNotEmpty())

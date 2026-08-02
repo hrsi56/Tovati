@@ -34,6 +34,38 @@ class PeriodForecastCalculatorTest {
     }
 
     @Test
+    fun `one real completed cycle informs a shrunk luteal estimate`() {
+        val oneCycle = listOf(
+            analyzedCycle(LocalDate.of(2026, 1, 1), length = 30, ovulationDay = 15),
+        )
+
+        val estimate = PeriodForecastCalculator.lutealEstimate(oneCycle)
+
+        assertEquals(1, estimate.personalSampleSize)
+        assertTrue(estimate.centerDays > PeriodForecastCalculator.DEFAULT_LUTEAL_DAYS)
+        assertTrue(estimate.centerDays < 15.0)
+    }
+
+    @Test
+    fun `biological ovulation weights can anchor a period without LH`() {
+        val likelyOvulation = currentCycleStart.plusDays(18)
+        val forecast = PeriodForecastCalculator.forecast(
+            currentCycleStart = currentCycleStart,
+            currentDate = currentCycleStart.plusDays(12),
+            previousCycles = emptyList(),
+            ovulationEstimate = null,
+            typicalCycleLengthDays = 40,
+            ovulationWeights = mapOf(
+                likelyOvulation to 0.65,
+                likelyOvulation.plusDays(1) to 0.35,
+            ),
+        )
+
+        assertEquals(PeriodForecastBasis.OVULATION_AND_DEFAULT_LUTEAL, forecast.basis)
+        assertEquals(likelyOvulation.plusDays(14), forecast.expectedStartRange.start)
+    }
+
+    @Test
     fun `implausible luteal lengths are excluded from the stats`() {
         val cycles = listOf(
             analyzedCycle(LocalDate.of(2026, 1, 1), length = 28, ovulationDay = 14), // luteal 14

@@ -9,7 +9,6 @@ import com.yv.bbttracker.data.backup.RestoreSummary
 import com.yv.bbttracker.data.backup.UnsupportedBackupVersionException
 import com.yv.bbttracker.domain.engine.ENGINE_VERSION
 import com.yv.bbttracker.domain.model.AppSettings
-import com.yv.bbttracker.domain.model.MeasurementSite
 import com.yv.bbttracker.domain.model.TrackingGoal
 import com.yv.bbttracker.domain.repository.SettingsRepository
 import com.yv.bbttracker.notification.ReminderScheduler
@@ -50,7 +49,6 @@ data class SettingsUiState(
 
 sealed interface SettingsEvent {
     data class TrackingGoalChanged(val goal: TrackingGoal) : SettingsEvent
-    data class SiteChanged(val site: MeasurementSite) : SettingsEvent
     data class ReminderChanged(val enabled: Boolean) : SettingsEvent
     data class ReminderTimeChanged(val hour: Int, val minute: Int) : SettingsEvent
     data class BiometricChanged(val enabled: Boolean) : SettingsEvent
@@ -82,7 +80,6 @@ class SettingsViewModel(
     fun onEvent(event: SettingsEvent) {
         when (event) {
             is SettingsEvent.TrackingGoalChanged -> updateSettings { it.copy(trackingGoal = event.goal) }
-            is SettingsEvent.SiteChanged -> updateSettings { it.copy(defaultMeasurementSite = event.site) }
             is SettingsEvent.ReminderChanged -> {
                 updateSettings { it.copy(reminderEnabled = event.enabled) }
                 val settings = state.value.settings

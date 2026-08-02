@@ -77,7 +77,6 @@ import com.yv.bbttracker.domain.model.DailyObservation
 import com.yv.bbttracker.domain.model.DisturbanceFlag
 import com.yv.bbttracker.domain.model.LhResult
 import com.yv.bbttracker.domain.model.LibidoLevel
-import com.yv.bbttracker.domain.model.MeasurementSite
 import com.yv.bbttracker.domain.model.MoodFlag
 import com.yv.bbttracker.domain.model.MucusSensation
 import com.yv.bbttracker.domain.model.OvulationPain
@@ -854,7 +853,6 @@ private fun MeasurementDetailCard(
                 stringResource(R.string.time),
                 Formatters.time(measurement.measuredAtEpochMillis, measurement.zoneId),
             )
-            LabelValueRow(stringResource(R.string.measurement_site), stringResource(measurement.site.labelRes()))
             LabelValueRow(
                 stringResource(R.string.use_for_analysis),
                 stringResource(
@@ -1040,13 +1038,6 @@ private fun cycleDayRange(start: LocalDate, range: ClosedRange<LocalDate>): Stri
 
 private fun minutesOfDay(value: Int): String =
     String.format(Locale.ROOT, "%02d:%02d", value / 60, value % 60)
-
-@StringRes
-private fun MeasurementSite.labelRes(): Int = when (this) {
-    MeasurementSite.ORAL -> R.string.site_oral
-    MeasurementSite.VAGINAL -> R.string.site_vaginal
-    MeasurementSite.RECTAL -> R.string.site_rectal
-}
 
 @StringRes
 private fun BleedingLevel.labelRes(): Int = when (this) {

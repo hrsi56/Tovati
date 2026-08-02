@@ -60,7 +60,7 @@ class FocusedEstimateSelectorTest {
     }
 
     @Test
-    fun `prolonged LH episode moves the displayed pair without widening it`() {
+    fun `prolonged LH episode stays anchored to the first positive`() {
         val episode = LhEpisode(
             firstPositiveDate = start,
             lastPositiveDate = start.plusDays(3),
@@ -68,7 +68,7 @@ class FocusedEstimateSelectorTest {
         )
 
         assertEquals(
-            start.plusDays(3)..start.plusDays(4),
+            start.plusDays(1)..start.plusDays(2),
             FocusedEstimateSelector.lhProspectiveRange(episode, start.plusDays(3)),
         )
     }

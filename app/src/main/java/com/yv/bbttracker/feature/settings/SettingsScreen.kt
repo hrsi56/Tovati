@@ -66,7 +66,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.yv.bbttracker.BuildConfig
 import com.yv.bbttracker.R
-import com.yv.bbttracker.domain.model.MeasurementSite
 import com.yv.bbttracker.domain.model.TrackingGoal
 import java.time.LocalDate
 
@@ -187,13 +186,18 @@ fun SettingsScreen(
             }
             item {
                 SettingsCard(stringResource(R.string.settings_measurement)) {
-                    Text(stringResource(R.string.measurement_site), style = MaterialTheme.typography.titleMedium)
-                    Spacer(Modifier.height(8.dp))
-                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        SiteChip(MeasurementSite.ORAL, R.string.site_oral, state.settings.defaultMeasurementSite, viewModel)
-                        SiteChip(MeasurementSite.VAGINAL, R.string.site_vaginal, state.settings.defaultMeasurementSite, viewModel)
-                        SiteChip(MeasurementSite.RECTAL, R.string.site_rectal, state.settings.defaultMeasurementSite, viewModel)
-                    }
+                    MeasurementGuidance(
+                        title = stringResource(R.string.measure_when_title),
+                        body = stringResource(R.string.measure_when_body),
+                    )
+                    MeasurementGuidance(
+                        title = stringResource(R.string.measure_thermometer_title),
+                        body = stringResource(R.string.measure_thermometer_body),
+                    )
+                    MeasurementGuidance(
+                        title = stringResource(R.string.measure_consistency_title),
+                        body = stringResource(R.string.measure_consistency_body),
+                    )
                 }
             }
             item {
@@ -452,6 +456,18 @@ private fun SettingsCard(title: String, content: @Composable ColumnScope.() -> U
 }
 
 @Composable
+private fun MeasurementGuidance(title: String, body: String) {
+    Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
+        Text(title, style = MaterialTheme.typography.titleMedium)
+        Text(
+            body,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+}
+
+@Composable
 private fun SwitchSetting(
     title: String,
     supporting: String,
@@ -465,15 +481,6 @@ private fun SwitchSetting(
         }
         Switch(checked = checked, onCheckedChange = onCheckedChange)
     }
-}
-
-@Composable
-private fun SiteChip(site: MeasurementSite, label: Int, selected: MeasurementSite, viewModel: SettingsViewModel) {
-    FilterChip(
-        selected = site == selected,
-        onClick = { viewModel.onEvent(SettingsEvent.SiteChanged(site)) },
-        label = { Text(stringResource(label)) },
-    )
 }
 
 @Composable

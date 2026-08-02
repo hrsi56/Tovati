@@ -10,7 +10,7 @@ import java.time.temporal.ChronoUnit
 /**
  * Version persisted with every analysis snapshot. Threshold or rule changes must bump this value.
  */
-const val ENGINE_VERSION = "bbt-fusion-2.3.1"
+const val ENGINE_VERSION = "bbt-fusion-3.0.0"
 
 enum class FertilityStatus {
     INSUFFICIENT_DATA,
@@ -58,6 +58,8 @@ enum class AnalysisSignal {
     RISING_MUCUS,
     MUCUS_PEAK,
     THERMAL_CANDIDATE,
+    /** A limited observed-temperature trend; no missing measurement was interpolated. */
+    THERMAL_TREND,
     THERMAL_SHIFT,
     CONFLICTING_SIGNALS,
     UNRELIABLE_TEMPERATURES_EXCLUDED,
@@ -99,6 +101,7 @@ enum class ReasonCode {
     LH_POSITIVE_RECORDED,
     THREE_HIGH_TEMPERATURES,
     FOURTH_HIGH_TEMPERATURE_REQUIRED,
+    OBSERVED_THERMAL_TREND,
     THERMAL_SHIFT_CONFIRMED,
     THERMAL_PATTERN_REFUTED,
     SIGNS_DO_NOT_ALIGN,

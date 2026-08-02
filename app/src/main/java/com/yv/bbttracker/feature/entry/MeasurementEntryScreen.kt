@@ -1,6 +1,5 @@
 package com.yv.bbttracker.feature.entry
 
-import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
@@ -60,7 +59,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.yv.bbttracker.R
 import com.yv.bbttracker.domain.model.DisturbanceFlag
-import com.yv.bbttracker.domain.model.MeasurementSite
 import com.yv.bbttracker.ui.components.ExpandableFormSection
 import com.yv.bbttracker.ui.components.FormSection
 import com.yv.bbttracker.ui.formatting.Formatters
@@ -182,6 +180,11 @@ fun MeasurementEntryScreen(
                         modifier = Modifier.fillMaxWidth().focusRequester(temperatureFocusRequester),
                     )
                 }
+                Text(
+                    stringResource(R.string.thermometer_choice_guidance),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
                 if (state.error != null) {
                     Text(
                         text = stringResource(
@@ -202,15 +205,6 @@ fun MeasurementEntryScreen(
                 title = stringResource(R.string.measurement_conditions_title),
                 supporting = stringResource(R.string.measurement_conditions_supporting),
             ) {
-                Text(stringResource(R.string.measurement_site), style = MaterialTheme.typography.labelLarge)
-                FlowRow(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(4.dp),
-                ) {
-                    SiteChip(MeasurementSite.ORAL, R.string.site_oral, state, viewModel::onEvent)
-                    SiteChip(MeasurementSite.VAGINAL, R.string.site_vaginal, state, viewModel::onEvent)
-                    SiteChip(MeasurementSite.RECTAL, R.string.site_rectal, state, viewModel::onEvent)
-                }
                 SwitchRow(
                     text = stringResource(R.string.measured_after_waking),
                     supporting = stringResource(R.string.measured_after_waking_supporting),
@@ -378,20 +372,6 @@ fun MeasurementEntryScreen(
             },
         )
     }
-}
-
-@Composable
-private fun SiteChip(
-    site: MeasurementSite,
-    @StringRes label: Int,
-    state: MeasurementEntryUiState,
-    onEvent: (MeasurementEntryEvent) -> Unit,
-) {
-    FilterChip(
-        selected = state.site == site,
-        onClick = { onEvent(MeasurementEntryEvent.SiteChanged(site)) },
-        label = { Text(stringResource(label)) },
-    )
 }
 
 @Composable

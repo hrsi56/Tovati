@@ -627,6 +627,7 @@ private fun signalInsightResource(signal: AnalysisSignal): Int = when (signal) {
     AnalysisSignal.RISING_MUCUS -> R.string.signal_insight_rising_mucus
     AnalysisSignal.MUCUS_PEAK -> R.string.signal_insight_mucus_peak
     AnalysisSignal.THERMAL_CANDIDATE -> R.string.signal_insight_thermal_candidate
+    AnalysisSignal.THERMAL_TREND -> R.string.signal_insight_thermal_candidate
     AnalysisSignal.THERMAL_SHIFT -> R.string.signal_insight_thermal_shift
     AnalysisSignal.CONFLICTING_SIGNALS,
     AnalysisSignal.UNRELIABLE_TEMPERATURES_EXCLUDED,
