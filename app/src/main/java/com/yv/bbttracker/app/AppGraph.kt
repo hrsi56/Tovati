@@ -48,6 +48,7 @@ import com.yv.bbttracker.feature.history.HistoryViewModel
 import com.yv.bbttracker.feature.onboarding.OnboardingScreen
 import com.yv.bbttracker.feature.onboarding.OnboardingViewModel
 import com.yv.bbttracker.feature.settings.SettingsScreen
+import com.yv.bbttracker.feature.settings.InitialRestoreScreen
 import com.yv.bbttracker.feature.settings.SettingsViewModel
 import com.yv.bbttracker.feature.today.TodayScreen
 import com.yv.bbttracker.feature.today.TodayViewModel
@@ -73,6 +74,18 @@ fun AppGraph(
         !securityReady -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
         locked -> AppLockedScreen(onUnlock)
         settings == null -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
+        settings?.onboardingCompleted != true && settings?.initialRestorePromptCompleted != true -> {
+            val restoreViewModel: SettingsViewModel = viewModel(
+                key = "initial-restore",
+                factory = SettingsViewModel.Factory(
+                    container.settingsRepository,
+                    container.reminderScheduler,
+                    container.backupManager,
+                    container.documentGateway,
+                ),
+            )
+            InitialRestoreScreen(restoreViewModel)
+        }
         settings?.onboardingCompleted != true || settings?.acceptedDisclaimerVersion != DISCLAIMER_VERSION -> {
             val onboardingViewModel: OnboardingViewModel = viewModel(
                 key = "onboarding",

@@ -27,6 +27,7 @@ private val Context.settingsDataStore by preferencesDataStore(name = "settings")
 class SettingsRepositoryImpl(private val context: Context) : SettingsRepository {
     private object Keys {
         val onboarding = booleanPreferencesKey("onboarding_completed")
+        val initialRestorePrompt = booleanPreferencesKey("initial_restore_prompt_completed")
         val trackingGoal = stringPreferencesKey("tracking_goal")
         val typicalCycleLength = intPreferencesKey("typical_cycle_length_days")
         val typicalMenstruationLength = intPreferencesKey("typical_menstruation_length_days")
@@ -59,6 +60,7 @@ class SettingsRepositoryImpl(private val context: Context) : SettingsRepository 
 
     private fun toSettings(preferences: Preferences): AppSettings = AppSettings(
         onboardingCompleted = preferences[Keys.onboarding] ?: false,
+        initialRestorePromptCompleted = preferences[Keys.initialRestorePrompt] ?: false,
         trackingGoal = preferences[Keys.trackingGoal]
             ?.let { runCatching { TrackingGoal.valueOf(it) }.getOrNull() }
             ?: TrackingGoal.CYCLE_AWARENESS,
@@ -83,6 +85,7 @@ class SettingsRepositoryImpl(private val context: Context) : SettingsRepository 
 
     private fun writeSettings(preferences: androidx.datastore.preferences.core.MutablePreferences, value: AppSettings) {
         preferences[Keys.onboarding] = value.onboardingCompleted
+        preferences[Keys.initialRestorePrompt] = value.initialRestorePromptCompleted
         preferences[Keys.trackingGoal] = value.trackingGoal.name
         value.typicalCycleLengthDays
             ?.coerceIn(MIN_TYPICAL_CYCLE_LENGTH_DAYS, MAX_TYPICAL_CYCLE_LENGTH_DAYS)

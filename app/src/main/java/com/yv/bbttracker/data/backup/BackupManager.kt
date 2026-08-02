@@ -73,6 +73,7 @@ class BackupManager(
             settingsRepository.update {
                 payload.settings.copy(
                     biometricLockEnabled = false,
+                    initialRestorePromptCompleted = true,
                     lastSuccessfulBackupEpochMillis = it.lastSuccessfulBackupEpochMillis,
                 )
             }

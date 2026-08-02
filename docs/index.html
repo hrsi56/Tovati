@@ -36,7 +36,7 @@
         <a href="#why">למה טובתי</a>
         <a href="#inside">מה בפנים</a>
         <a href="#privacy">הפרטיות שלך</a>
-        <a href="#move">מעבר לטלפון חדש</a>
+        <a href="#backup-guide">עדכון ושחזור</a>
         <a href="#install">איך מתקינים</a>
       </nav>
 
@@ -229,33 +229,132 @@
       </div>
     </section>
 
-    <section class="section move" id="move">
-      <div class="shell move-grid">
-        <div class="move-visual reveal">
-          <div class="backup-card">
-            <span class="backup-lock" aria-hidden="true">
-              <svg viewBox="0 0 24 24"><path d="M7 10V8a5 5 0 0 1 10 0v2M5 10h14v11H5V10Zm7 4v3"/></svg>
-            </span>
-            <span class="file-name">tovati-backup.bbt.json</span>
-            <span class="encrypted-pill">מוצפן בסיסמה</span>
-          </div>
-          <div class="transfer-line" aria-hidden="true"><i></i><i></i><i></i></div>
-          <div class="new-phone" aria-hidden="true">
-            <span class="new-phone-heart">♥</span>
-            <small>המכשיר החדש שלך</small>
-          </div>
+    <section class="section recovery-guide" id="backup-guide">
+      <div class="shell">
+        <div class="section-heading centered reveal">
+          <span class="kicker">הנתונים שלך חוזרים איתך</span>
+          <h2>מדריך לעדכון או להורדה מחדש<br>של טובתי — עם גיבוי.</h2>
+          <p>יוצרות גיבוי מוצפן, שומרות אותו מחוץ לאפליקציה, מורידות מחדש ומשחזרות. הנה כל התהליך, מסך אחר מסך.</p>
         </div>
 
-        <div class="section-heading reveal" data-delay="1">
-          <span class="kicker">הזיכרונות עוברים איתך</span>
-          <h2>טלפון חדש?<br>הנתונים שלך לא נשארים מאחור.</h2>
-          <p>צרי גיבוי מוצפן בסיסמה ושלחי אותו לעצמך. במכשיר החדש בחרי את הקובץ מתיקיית „הורדות”, הזיני את הסיסמה — והיומן שלך יחזור אלייך.</p>
-          <div class="backup-steps">
-            <span><b>1</b> יוצרות גיבוי</span>
-            <span><b>2</b> שולחות למכשיר החדש</span>
-            <span><b>3</b> משחזרות עם הסיסמה</span>
-          </div>
-          <p class="backup-warning"><span aria-hidden="true">♥</span> הסיסמה לא נשמרת ולא נשלחת עם הגיבוי. רק את יודעת אותה.</p>
+        <div class="recovery-update-note recovery-signature-note reveal" role="note">
+          <span aria-hidden="true">!</span>
+          <p><strong>למה צריך למחוק לפני העדכון?</strong> בחלק מהגרסאות הקודמות חתימת ההתקנה שונה, ולכן Android עלולה לסרב להתקין את הגרסה החדשה מעל הקיימת. כדי לא לאבד דבר, מבצעות את הסדר במדויק: יוצרות גיבוי, מוודאות שהקובץ נשמר, מוחקות, מורידות מחדש ומשחזרות.</p>
+        </div>
+
+        <div class="recovery-steps">
+          <article class="recovery-step reveal">
+            <div class="recovery-copy">
+              <span class="recovery-number">01</span>
+              <span class="kicker">לפני שמוחקות משהו</span>
+              <h3>יוצרות גיבוי מוצפן</h3>
+              <p>בטובתי פתחי <strong>„הגדרות ופרטיות”</strong>, גללי אל <strong>„הנתונים שלך”</strong> ולחצי <strong>„יצירת גיבוי מוצפן”</strong>. בחרי סיסמה בת שמונה תווים לפחות שתוכלי לזכור.</p>
+              <p class="recovery-tip">הסיסמה אינה נשמרת בטובתי, ולכן אי אפשר לשחזר אותה אחר כך.</p>
+            </div>
+            <div class="recovery-shot app-settings-shot" role="img" aria-label="מסך הגדרות טובתי עם כפתור יצירת גיבוי מוצפן ודיאלוג סיסמה">
+              <div class="shot-status"><span>07:12</span><span>● ◔ ᯤ</span></div>
+              <div class="shot-appbar"><b>הגדרות ופרטיות</b><span>♥</span></div>
+              <div class="shot-card">
+                <strong>הנתונים שלך</strong>
+                <span>↓ ייצוא CSV</span>
+                <span class="shot-highlight">▣ יצירת גיבוי מוצפן</span>
+                <span>✉ שליחת הגיבוי במייל או בשיתוף</span>
+              </div>
+              <div class="shot-dialog">
+                <strong>יצירת גיבוי מוצפן</strong>
+                <label>סיסמת הגיבוי</label><span class="password-dots">••••••••••</span>
+                <label>אימות הסיסמה</label><span class="password-dots">••••••••••</span>
+                <div><small>ביטול</small><b>המשך</b></div>
+              </div>
+            </div>
+          </article>
+
+          <article class="recovery-step reveal" data-delay="1">
+            <div class="recovery-copy">
+              <span class="recovery-number">02</span>
+              <span class="kicker">מוודאות שהקובץ בטוח</span>
+              <h3>שומרות ושולחות לעצמך</h3>
+              <p>במסך השמירה בחרי את תיקיית <strong>„הורדות”</strong> ולחצי <strong>„שמירה”</strong>. לאחר מכן אפשר ללחוץ בטובתי על <strong>„שליחת הגיבוי במייל או בשיתוף”</strong> ולשלוח אותו לעצמך.</p>
+              <p class="recovery-tip">אל תמחקי את טובתי לפני שפתחת את המייל או את „הקבצים” וראית שהקובץ אכן נמצא שם.</p>
+            </div>
+            <div class="recovery-shot file-save-shot" role="img" aria-label="מסך שמירת קובץ הגיבוי בתיקיית הורדות">
+              <div class="shot-status"><span>07:14</span><span>● ◔ ᯤ</span></div>
+              <div class="files-toolbar"><span>×</span><strong>שמירה אל…</strong><b>שמירה</b></div>
+              <div class="folder-pill">▾ הורדות</div>
+              <div class="backup-file-row">
+                <span class="file-lock">▣</span>
+                <span><b dir="ltr">bbt-backup-2026-08-03.bbt.json</b><small>גיבוי מוצפן של טובתי</small></span>
+                <i>✓</i>
+              </div>
+              <div class="mail-confirm"><span>✉</span><p><b>נשלח אלייך</b><small>הקובץ מצורף. הסיסמה לא.</small></p></div>
+            </div>
+          </article>
+
+          <article class="recovery-step reveal">
+            <div class="recovery-copy">
+              <span class="recovery-number">03</span>
+              <span class="kicker">רק אחרי שהגיבוי נשמר</span>
+              <h3>מוחקות את האפליקציה הישנה</h3>
+              <p>בגלל ההבדל בחתימה אי אפשר לסמוך על עדכון מעל הגרסה הקיימת. לחצי לחיצה ארוכה על הסמל של טובתי ובחרי <strong>„הסרת התקנה”</strong>. Android תזהיר שנתוני האפליקציה יימחקו — זה צפוי, ולכן שמרנו קודם את קובץ הגיבוי מחוץ לאפליקציה.</p>
+              <p class="recovery-danger"><strong>עצרי רגע:</strong> אין קובץ גיבוי נגיש או שאינך זוכרת את הסיסמה? אל תמחקי עדיין.</p>
+            </div>
+            <div class="recovery-shot uninstall-shot" role="img" aria-label="חלון הסרת ההתקנה של טובתי ב-Android">
+              <div class="android-home">
+                <span class="home-cloud cloud-one"></span><span class="home-cloud cloud-two"></span>
+                <div class="home-app"><span>♥</span><small>טובתי</small></div>
+              </div>
+              <div class="android-dialog">
+                <span class="dialog-heart">♥</span>
+                <strong>להסיר את טובתי?</strong>
+                <p>פעולה זו תמחק את נתוני האפליקציה מהמכשיר.</p>
+                <div><small>ביטול</small><b>אישור</b></div>
+              </div>
+            </div>
+          </article>
+
+          <article class="recovery-step reveal" data-delay="1">
+            <div class="recovery-copy">
+              <span class="recovery-number">04</span>
+              <span class="kicker">מתחילות מחדש בבטחה</span>
+              <h3>מורידות את טובתי שוב</h3>
+              <p>הורידי את הגרסה החדשה מהאתר. אם Android מבקשת אישור להתקנה חיצונית, המשיכי לפי <a href="#install">מדריך ההתקנה המאויר</a> שבהמשך העמוד.</p>
+              <a class="button button-primary recovery-download" href="https://github.com/hrsi56/Tovati/releases/latest/download/Tovati.apk" data-download>הורידי את טובתי</a>
+            </div>
+            <div class="recovery-shot download-shot" role="img" aria-label="אתר טובתי עם כפתור הורדת הגרסה החדשה">
+              <div class="shot-status"><span>07:20</span><span>● ◔ ᯤ</span></div>
+              <div class="browser-address" dir="ltr">◆ hrsi56.github.io/Tovati</div>
+              <span class="download-heart">♥</span>
+              <strong>טובתי מחכה לך.</strong>
+              <p>חינמית, פרטית וללא אינטרנט</p>
+              <span class="fake-download">↓ הורידי את טובתי<small>הגרסה העדכנית</small></span>
+              <div class="download-complete"><span>↓</span><p><b dir="ltr">Tovati.apk</b><small>ההורדה הושלמה · פתחי</small></p><i>✓</i></div>
+            </div>
+          </article>
+
+          <article class="recovery-step reveal">
+            <div class="recovery-copy">
+              <span class="recovery-number">05</span>
+              <span class="kicker">הכול חוזר למקום</span>
+              <h3>בוחרות את הגיבוי ומשחזרות</h3>
+              <p>בפתיחה הראשונה יופיע המסך <strong>„השתמשת באפליקציה בעבר?”</strong>. לחצי <strong>„בחרי גיבוי”</strong>, בחרי את הקובץ מ„הורדות”, הזיני את הסיסמה ואשרי את השחזור.</p>
+              <p class="recovery-tip">המחזורים, המדידות, היומן וההגדרות יחזרו מהגיבוי — ואין צורך לעבור שוב את כל ההגדרה הראשונית.</p>
+            </div>
+            <div class="recovery-shot restore-shot" role="img" aria-label="מסך הפתיחה של טובתי המציע לבחור גיבוי ולשחזר">
+              <div class="shot-status"><span>07:23</span><span>● ◔ ᯤ</span></div>
+              <span class="restore-icon">⇧</span>
+              <strong>השתמשת באפליקציה בעבר?</strong>
+              <p>אפשר להתחיל עם גיבוי משוחזר ולהמשיך בדיוק מהמקום שבו הפסקת.</p>
+              <div class="restore-private"><span>▣</span><small>הגיבוי מוצפן. נבקש את הסיסמה ורק אז נשחזר.</small></div>
+              <span class="restore-button">⇧ בחרי גיבוי</span>
+              <small class="restore-skip">דלגי</small>
+              <div class="restore-file-pop"><span>▣</span><p><b dir="ltr">bbt-backup-2026-08-03.bbt.json</b><small>הורדות</small></p><i>✓</i></div>
+            </div>
+          </article>
+        </div>
+
+        <div class="recovery-finish reveal">
+          <span aria-hidden="true">♥</span>
+          <div><strong>זה הכול. טובתי שוב איתך.</strong><p>שמרי את קובץ הגיבוי גם לאחר השחזור — הוא עדיין מוצפן ויכול לעזור אם תצטרכי להתקין מחדש בעתיד.</p></div>
         </div>
       </div>
     </section>
@@ -443,7 +542,7 @@
       <div class="footer-links">
         <a href="https://github.com/hrsi56/Tovati">GitHub</a>
         <a href="https://github.com/hrsi56/Tovati/blob/main/docs/PRIVACY_HE.md">פרטיות ואבטחה</a>
-        <a href="https://github.com/hrsi56/Tovati/blob/main/docs/RELEASE_REPORT_1.6.4_HE.md">דו״ח גרסה</a>
+        <a href="https://github.com/hrsi56/Tovati/blob/main/docs/RELEASE_REPORT_1.6.5_HE.md">דו״ח גרסה</a>
       </div>
       <p>נבנתה ללא מטרות רווח, באהבה לפרטיות שלך. <span aria-hidden="true">♥</span></p>
     </div>
