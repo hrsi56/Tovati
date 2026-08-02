@@ -51,7 +51,7 @@
     <string name="measure_when_title">מתי למדוד</string>
     <string name="measure_when_body">מיד כשאת מתעוררת, לפני שאת קמה מהמיטה, מדברת, שותה, אוכלת או מתחילה פעילות. נסי למדוד בערך באותה שעה ולאחר לפחות 3 שעות שינה רצופה.</string>
     <string name="measure_thermometer_title">באיזה מדחום</string>
-    <string name="measure_thermometer_body">מדחום ביוץ (מדחום לחום בסיסי) שמציג שתי ספרות אחרי הנקודה, למשל 36.47°C, רגיש יותר לשינויים הקטנים שאנחנו מחפשות. אפשר להשתמש גם במדחום דיגיטלי רגיל, אך המדידה תהיה פחות מפורטת.</string>
+    <string name="measure_thermometer_body">מדחום דיגיטלי מדויק שמציג שתי ספרות אחרי הנקודה, למשל 36.47°C, רגיש יותר לשינויים הקטנים שאנחנו מחפשות. אפשר להשתמש גם במדחום דיגיטלי רגיל, אך המדידה תהיה פחות מפורטת.</string>
     <string name="measure_consistency_title">איך לשמור על עקביות</string>
     <string name="measure_consistency_body">מדדי תמיד באותו מקום בגוף ובאותה דרך, לפי הוראות המדחום. אין צורך לדווח לטובתי היכן בחרת למדוד.</string>
     <string name="onboarding_reminder_title">תזכורת בוקר</string>

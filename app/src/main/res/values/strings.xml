@@ -51,7 +51,7 @@
     <string name="measure_when_title">When to measure</string>
     <string name="measure_when_body">Measure as soon as you wake, before getting out of bed, talking, drinking, eating, or starting any activity. Aim for roughly the same time after at least 3 hours of uninterrupted sleep.</string>
     <string name="measure_thermometer_title">Which thermometer to use</string>
-    <string name="measure_thermometer_body">A basal or fertility thermometer that shows two decimal places, such as 36.47°C, is more sensitive to the small changes we are looking for. A regular digital thermometer can also be used, but its reading will be less detailed.</string>
+    <string name="measure_thermometer_body">A precise digital thermometer that shows two decimal places, such as 36.47°C, is more sensitive to the small changes we are looking for. A regular digital thermometer can also be used, but its reading will be less detailed.</string>
     <string name="measure_consistency_title">How to stay consistent</string>
     <string name="measure_consistency_body">Measure at the same body site and in the same way every day, following the thermometer instructions. You do not need to tell Tovati which site you chose.</string>
     <string name="onboarding_reminder_title">Morning reminder</string>
