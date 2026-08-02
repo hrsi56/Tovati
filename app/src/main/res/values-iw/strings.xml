@@ -50,10 +50,10 @@
     <string name="onboarding_site_body">חום השחר הוא טמפרטורת הגוף במנוחה מלאה. כמה הרגלים פשוטים יעזרו לראות את השינויים הקטנים לאורך המחזור.</string>
     <string name="measure_when_title">מתי למדוד</string>
     <string name="measure_when_body">מיד כשאת מתעוררת, לפני שאת קמה מהמיטה, מדברת, שותה, אוכלת או מתחילה פעילות. נסי למדוד בערך באותה שעה ולאחר לפחות 3 שעות שינה רצופה.</string>
-    <string name="measure_thermometer_title">באיזה מדחום</string>
-    <string name="measure_thermometer_body">מדחום דיגיטלי מדויק שמציג שתי ספרות אחרי הנקודה, למשל 36.47°C, רגיש יותר לשינויים הקטנים שאנחנו מחפשות. אפשר להשתמש גם במדחום דיגיטלי רגיל, אך המדידה תהיה פחות מפורטת.</string>
+    <string name="measure_device_title">באיזה מכשיר להשתמש</string>
+    <string name="measure_device_body">מכשיר מדידה מדויק שמציג שתי ספרות אחרי הנקודה, למשל 36.47°C, רגיש יותר לשינויים הקטנים שאנחנו מחפשות. אפשר להשתמש גם במכשיר מדידה רגיל, אך המדידה תהיה פחות מפורטת.</string>
     <string name="measure_consistency_title">איך לשמור על עקביות</string>
-    <string name="measure_consistency_body">מדדי תמיד באותו מקום בגוף ובאותה דרך, לפי הוראות המדחום. אין צורך לדווח לטובתי היכן בחרת למדוד.</string>
+    <string name="measure_consistency_body">מדדי תמיד באותו מקום בגוף ובאותה דרך, לפי הוראות המכשיר. אין צורך לדווח לטובתי היכן בחרת למדוד.</string>
     <string name="onboarding_reminder_title">תזכורת בוקר</string>
     <string name="onboarding_reminder_body">אופציונלית ובשעה משוערת. ניתן לשנות זאת בהמשך.</string>
     <string name="enable_reminder">הפעלת תזכורת יומית</string>
@@ -139,7 +139,7 @@
     <string name="temperature_helper">במעלות צלזיוס, למשל 36.47 או 36.5</string>
     <string name="measurement_conditions_title">איך הייתה המדידה?</string>
     <string name="measurement_conditions_supporting">כמה סימונים קטנים שיעזרו לטובתי לדייק.</string>
-    <string name="thermometer_choice_guidance">שתי ספרות מדויקות יותר — גם מדחום רגיל מתאים.</string>
+    <string name="measurement_device_guidance">שתי ספרות מדויקות יותר — גם מכשיר מדידה רגיל מתאים.</string>
     <string name="sleep_duration">משך שינה</string>
     <string name="sleep_hours">שעות</string>
     <string name="sleep_minutes">דקות</string>

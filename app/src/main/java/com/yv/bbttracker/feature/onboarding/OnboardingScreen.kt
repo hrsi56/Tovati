@@ -359,7 +359,7 @@ private fun HowToMeasurePage() {
     Spacer(Modifier.height(22.dp))
     MeasurementGuidancePoint(R.string.measure_when_title, R.string.measure_when_body)
     Spacer(Modifier.height(18.dp))
-    MeasurementGuidancePoint(R.string.measure_thermometer_title, R.string.measure_thermometer_body)
+    MeasurementGuidancePoint(R.string.measure_device_title, R.string.measure_device_body)
     Spacer(Modifier.height(18.dp))
     MeasurementGuidancePoint(R.string.measure_consistency_title, R.string.measure_consistency_body)
 }

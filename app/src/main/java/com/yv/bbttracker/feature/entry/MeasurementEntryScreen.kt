@@ -181,7 +181,7 @@ fun MeasurementEntryScreen(
                     )
                 }
                 Text(
-                    stringResource(R.string.thermometer_choice_guidance),
+                    stringResource(R.string.measurement_device_guidance),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )

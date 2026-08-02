@@ -191,8 +191,8 @@ fun SettingsScreen(
                         body = stringResource(R.string.measure_when_body),
                     )
                     MeasurementGuidance(
-                        title = stringResource(R.string.measure_thermometer_title),
-                        body = stringResource(R.string.measure_thermometer_body),
+                        title = stringResource(R.string.measure_device_title),
+                        body = stringResource(R.string.measure_device_body),
                     )
                     MeasurementGuidance(
                         title = stringResource(R.string.measure_consistency_title),
