@@ -17,3 +17,9 @@ val Plum80 = Color(0xFFDCC0D4)
 val Teal80 = Color(0xFFAFCFC7)
 val DarkSurface = Color(0xFF1C1116)
 val DarkSurfaceVariant = Color(0xFF493D42)
+
+// Fertility-phase colors shared between the diary calendar and the today forecast band.
+val MenstruationColor = Color(0xFFF3C2D2)
+val ConceptionColor = Color(0xFFFFE5A3)
+val ProspectiveOvulationColor = Color(0xFFD9CEF4)
+val RetrospectiveOvulationColor = Color(0xFFB8E3D9)

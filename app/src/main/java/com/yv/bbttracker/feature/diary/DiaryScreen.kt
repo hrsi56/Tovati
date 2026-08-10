@@ -28,6 +28,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.TrendingUp
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Edit
@@ -61,6 +62,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -85,21 +87,25 @@ import com.yv.bbttracker.domain.model.SexualContact
 import com.yv.bbttracker.domain.model.TemperatureMeasurement
 import com.yv.bbttracker.ui.components.LabelValueRow
 import com.yv.bbttracker.ui.formatting.Formatters
+import com.yv.bbttracker.ui.theme.ConceptionColor
+import com.yv.bbttracker.ui.theme.MenstruationColor
+import com.yv.bbttracker.ui.theme.Plum40
+import com.yv.bbttracker.ui.theme.ProspectiveOvulationColor
+import com.yv.bbttracker.ui.theme.Rose80
+import com.yv.bbttracker.ui.theme.RetrospectiveOvulationColor
+import com.yv.bbttracker.ui.theme.Teal40
+import com.yv.bbttracker.ui.theme.Teal80
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
-private val ActualPeriodColor = Color(0xFFF3C2D2)
-private val ConceptionColor = Color(0xFFFFE5A3)
-private val ProspectiveOvulationColor = Color(0xFFD9CEF4)
-private val RetrospectiveOvulationColor = Color(0xFFB8E3D9)
-private val PossibleMenstruationEndColor = Color(0xFF8F5A70)
-private val PossibleNextCycleColor = Color(0xFFAD3E67)
+private val PossibleMenstruationEndColor = Teal40
+private val PossibleNextCycleColor = Plum40
 private val PossibleCycleEndColor = Color(0xFFD17A3D)
-private val ActualCycleStartBorderColor = Color(0xFF3C2630)
 private val CalendarCellShape = RoundedCornerShape(13.dp)
 private val DayDateFormatter = DateTimeFormatter.ofPattern("dd/MM")
-private enum class DayCellSignal { LH, FLUID, CONTACT, WELLBEING }
+private enum class DayCellSignal { THERMAL_SHIFT, LH, FLUID, CONTACT, WELLBEING, SPOTTING }
+private val SexualContactHeartColor = Color(0xFFE0527A)
 
 @Composable
 fun DiaryScreen(
@@ -162,6 +168,12 @@ private fun DiaryContent(
     val selectedDay = remember(calendar.days, selectedDayEpoch) {
         selectedDayEpoch?.let { epoch -> calendar.days.firstOrNull { it.date.toEpochDay() == epoch } }
     }
+    val tempRange = remember(calendar.days) {
+        val temps = calendar.days.mapNotNull { it.selectedMeasurement?.temperatureCentiC }
+        val min = temps.minOrNull()
+        val max = temps.maxOrNull()
+        if (min != null && max != null) min to max else null
+    }
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -198,6 +210,7 @@ private fun DiaryContent(
             CycleWeek(
                 weekNumber = weekIndex + 1,
                 days = calendar.days.chunked(7)[weekIndex],
+                tempRange = tempRange,
                 onDayClick = { selectedDayEpoch = it.date.toEpochDay() },
             )
         }
@@ -435,11 +448,11 @@ private fun CalendarLegend() {
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            LegendItem(ActualPeriodColor, stringResource(R.string.diary_legend_actual_period))
+            LegendItem(MenstruationColor, stringResource(R.string.diary_legend_actual_period))
             LegendItem(
                 color = Color.Transparent,
                 label = stringResource(R.string.diary_legend_cycle_start),
-                borderColor = ActualCycleStartBorderColor,
+                borderColor = MaterialTheme.colorScheme.onSurface,
             )
             LegendItem(ConceptionColor, stringResource(R.string.diary_legend_conception))
             LegendItem(ProspectiveOvulationColor, stringResource(R.string.diary_legend_ovulation_expected))
@@ -476,10 +489,12 @@ private fun CalendarLegend() {
             horizontalArrangement = Arrangement.spacedBy(14.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
+            SymbolLegendItem(DayCellSignal.THERMAL_SHIFT, stringResource(R.string.diary_legend_thermal_shift_symbol))
             SymbolLegendItem(DayCellSignal.LH, stringResource(R.string.diary_legend_lh_symbol))
             SymbolLegendItem(DayCellSignal.FLUID, stringResource(R.string.diary_legend_fluid_symbol))
             SymbolLegendItem(DayCellSignal.CONTACT, stringResource(R.string.diary_legend_contact_symbol))
             SymbolLegendItem(DayCellSignal.WELLBEING, stringResource(R.string.diary_legend_wellbeing_symbol))
+            SymbolLegendItem(DayCellSignal.SPOTTING, stringResource(R.string.diary_legend_spotting_symbol))
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(5.dp)) {
                 Text("36.5°", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.SemiBold)
                 Text(stringResource(R.string.diary_legend_temperature_symbol), style = MaterialTheme.typography.labelMedium)
@@ -517,6 +532,7 @@ private fun LegendItem(color: Color, label: String, borderColor: Color? = null) 
 private fun CycleWeek(
     weekNumber: Int,
     days: List<DiaryDay>,
+    tempRange: Pair<Int, Int>?,
     onDayClick: (DiaryDay) -> Unit,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -531,7 +547,12 @@ private fun CycleWeek(
             horizontalArrangement = Arrangement.spacedBy(5.dp),
         ) {
             days.forEach { day ->
-                CycleDayCell(day = day, onClick = { onDayClick(day) }, modifier = Modifier.weight(1f))
+                CycleDayCell(
+                    day = day,
+                    tempRange = tempRange,
+                    onClick = { onDayClick(day) },
+                    modifier = Modifier.weight(1f),
+                )
             }
             repeat(7 - days.size) { Spacer(Modifier.weight(1f)) }
         }
@@ -539,17 +560,35 @@ private fun CycleWeek(
 }
 
 @Composable
-private fun CycleDayCell(day: DiaryDay, onClick: () -> Unit, modifier: Modifier = Modifier) {
+private fun CycleDayCell(
+    day: DiaryDay,
+    tempRange: Pair<Int, Int>?,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     val background = when {
-        DiaryDayMarker.BLEEDING in day.markers -> ActualPeriodColor
+        DiaryDayMarker.BLEEDING in day.markers -> MenstruationColor
         DiaryDayMarker.RETROSPECTIVE_OVULATION in day.markers -> RetrospectiveOvulationColor
         DiaryDayMarker.PROSPECTIVE_OVULATION in day.markers -> ProspectiveOvulationColor
         DiaryDayMarker.CONCEPTION_WINDOW in day.markers -> ConceptionColor
-        else -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = if (day.isFuture) 0.38f else 0.7f)
+        else -> {
+            val baseAlpha = if (day.isFuture) 0.38f else 0.7f
+            val baseColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = baseAlpha)
+            val temp = day.selectedMeasurement?.temperatureCentiC
+            if (temp != null && tempRange != null && tempRange.first != tempRange.second) {
+                val position = (temp - tempRange.first).toFloat() /
+                    (tempRange.second - tempRange.first).toFloat()
+                androidx.compose.ui.graphics.lerp(Teal80, Rose80, position.coerceIn(0f, 1f))
+                    .copy(alpha = 0.32f)
+                    .compositeOver(baseColor)
+            } else {
+                baseColor
+            }
+        }
     }
     val borderColor = when {
         day.isToday -> MaterialTheme.colorScheme.primary
-        DiaryDayMarker.CYCLE_START in day.markers -> ActualCycleStartBorderColor
+        DiaryDayMarker.CYCLE_START in day.markers -> MaterialTheme.colorScheme.onSurface
         DiaryDayMarker.POSSIBLE_NEXT_CYCLE_START in day.markers -> PossibleNextCycleColor
         DiaryDayMarker.POSSIBLE_MENSTRUATION_END in day.markers -> PossibleMenstruationEndColor
         DiaryDayMarker.POSSIBLE_CYCLE_END in day.markers -> PossibleCycleEndColor
@@ -562,7 +601,7 @@ private fun CycleDayCell(day: DiaryDay, onClick: () -> Unit, modifier: Modifier 
     }
     Surface(
         modifier = modifier
-            .aspectRatio(0.78f)
+            .aspectRatio(0.7f)
             .clip(CalendarCellShape)
             .clickable(onClick = onClick),
         color = background,
@@ -571,9 +610,15 @@ private fun CycleDayCell(day: DiaryDay, onClick: () -> Unit, modifier: Modifier 
         tonalElevation = if (day.isToday) 2.dp else 0.dp,
     ) {
         Column(
-            modifier = Modifier.padding(horizontal = 3.dp, vertical = 6.dp),
+            modifier = Modifier.padding(horizontal = 3.dp, vertical = 5.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
+            Text(
+                stringResource(R.string.diary_day_number_label),
+                style = MaterialTheme.typography.labelSmall.copy(fontSize = 7.sp),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                lineHeight = 8.sp,
+            )
             Text(
                 day.cycleDay.toString(),
                 style = MaterialTheme.typography.titleMedium,
@@ -602,7 +647,8 @@ private fun CycleDayCell(day: DiaryDay, onClick: () -> Unit, modifier: Modifier 
 
 @Composable
 private fun DaySignalDots(day: DiaryDay) {
-    val signals = buildList {
+    val allSignals = buildList {
+        if (DiaryDayMarker.THERMAL_SHIFT_FIRST_HIGH in day.markers) add(DayCellSignal.THERMAL_SHIFT)
         if (DiaryDayMarker.LH_POSITIVE in day.markers) add(DayCellSignal.LH)
         if (DiaryDayMarker.FERTILE_FLUID in day.markers) add(DayCellSignal.FLUID)
         if (DiaryDayMarker.SEXUAL_CONTACT in day.markers) add(DayCellSignal.CONTACT)
@@ -610,7 +656,9 @@ private fun DaySignalDots(day: DiaryDay) {
             day.observation?.physicalSymptomMask?.let { it != 0L } == true ||
             day.observation?.moodMask?.let { it != 0L } == true
         ) add(DayCellSignal.WELLBEING)
-    }.take(3)
+        if (DiaryDayMarker.SPOTTING in day.markers) add(DayCellSignal.SPOTTING)
+    }
+    val signals = allSignals.take(3)
     Row(
         modifier = Modifier.height(13.dp),
         horizontalArrangement = Arrangement.spacedBy(3.dp),
@@ -618,6 +666,13 @@ private fun DaySignalDots(day: DiaryDay) {
     ) {
         signals.forEach { signal ->
             DaySignalSymbol(signal)
+        }
+        if (allSignals.size > 3) {
+            Text(
+                "+${allSignals.size - 3}",
+                fontSize = 7.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
         }
     }
 }
@@ -650,11 +705,23 @@ private fun DaySignalSymbol(signal: DayCellSignal) {
             Icons.Filled.Favorite,
             contentDescription = null,
             modifier = Modifier.size(11.dp),
-            tint = PossibleNextCycleColor,
+            tint = SexualContactHeartColor,
         )
         DayCellSignal.WELLBEING -> Box(
             Modifier.size(4.dp).clip(CircleShape)
                 .background(MaterialTheme.colorScheme.onSurfaceVariant),
+        )
+        DayCellSignal.SPOTTING -> Icon(
+            Icons.Outlined.WaterDrop,
+            contentDescription = null,
+            modifier = Modifier.size(8.dp),
+            tint = MenstruationColor.copy(alpha = 0.8f),
+        )
+        DayCellSignal.THERMAL_SHIFT -> Icon(
+            Icons.AutoMirrored.Outlined.TrendingUp,
+            contentDescription = null,
+            modifier = Modifier.size(11.dp),
+            tint = RetrospectiveOvulationColor,
         )
     }
 }
@@ -772,13 +839,13 @@ private fun ForecastAndMarkerSection(day: DiaryDay) {
 private fun markerDescriptions(day: DiaryDay): List<Pair<String, Color>> = buildList {
     if (day.isToday) add(stringResource(R.string.diary_today) to MaterialTheme.colorScheme.primaryContainer)
     if (DiaryDayMarker.CYCLE_START in day.markers) {
-        add(stringResource(R.string.diary_cycle_start_yes) to ActualPeriodColor)
+        add(stringResource(R.string.diary_cycle_start_yes) to MenstruationColor)
     }
     if (DiaryDayMarker.BLEEDING in day.markers) {
-        add(stringResource(R.string.diary_bleeding_day) to ActualPeriodColor)
+        add(stringResource(R.string.diary_bleeding_day) to MenstruationColor)
     }
     if (DiaryDayMarker.SPOTTING in day.markers) {
-        add(stringResource(R.string.diary_spotting_day) to ActualPeriodColor.copy(alpha = 0.65f))
+        add(stringResource(R.string.diary_spotting_day) to MenstruationColor.copy(alpha = 0.65f))
     }
     if (DiaryDayMarker.CONCEPTION_WINDOW in day.markers) {
         add(stringResource(R.string.diary_conception_day) to ConceptionColor)

@@ -18,9 +18,11 @@ import com.yv.bbttracker.domain.repository.CycleRepository
 import com.yv.bbttracker.domain.repository.MeasurementRepository
 import com.yv.bbttracker.domain.repository.ObservationRepository
 import com.yv.bbttracker.domain.repository.SettingsRepository
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
@@ -35,6 +37,7 @@ data class TodayUiState(
     val cycle: Cycle? = null,
     val cycleDay: Int? = null,
     val measurements: List<TemperatureMeasurement> = emptyList(),
+    val recentMeasurements: List<TemperatureMeasurement> = emptyList(),
     val observation: DailyObservation? = null,
     val analysis: CycleAnalysisResult? = null,
     val insights: List<PersonalInsight> = emptyList(),
@@ -74,6 +77,14 @@ class TodayViewModel(
     ) { (currentCycle, cycles), measurements, observations, settings, today ->
         val todayMeasurements = measurements.filter { it.measurementEpochDay == today.toEpochDay() }
         val todayObservation = observations.firstOrNull { it.epochDay == today.toEpochDay() }
+        val recentMeasurements = measurements
+            .filter { !it.date.isBefore(today.minusDays(6)) && !it.date.isAfter(today) }
+            .groupBy { it.date }
+            .mapNotNull { (_, dayMeasurements) ->
+                dayMeasurements.firstOrNull { it.selectedForAnalysis }
+                    ?: dayMeasurements.maxByOrNull { it.measuredAtEpochMillis }
+            }
+            .sortedBy { it.date }
         val result = currentCycle?.let { cycle ->
             val currentMeasurements = measurements.filter { cycle.contains(it.date) }
             val currentSite = cycle.analysisSite
@@ -103,6 +114,7 @@ class TodayViewModel(
             cycle = currentCycle,
             cycleDay = currentCycle?.let { (today.toEpochDay() - it.startEpochDay + 1).toInt() }?.takeIf { it > 0 },
             measurements = todayMeasurements,
+            recentMeasurements = recentMeasurements,
             observation = todayObservation,
             analysis = result,
             insights = PersonalInsightsCalculator.calculate(
@@ -113,7 +125,8 @@ class TodayViewModel(
             ),
             trackingGoal = settings.trackingGoal,
         )
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), TodayUiState())
+    }.flowOn(Dispatchers.Default)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), TodayUiState())
     class Factory(
         private val cycleRepository: CycleRepository,
         private val measurementRepository: MeasurementRepository,

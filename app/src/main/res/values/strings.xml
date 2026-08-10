@@ -22,6 +22,13 @@
     <string name="loading">Loading…</string>
     <string name="not_recorded">Not recorded</string>
     <string name="none">None</string>
+    <string name="recorded_badge">Recorded</string>
+    <string name="not_recorded_badge">Not recorded</string>
+    <string name="intimate_content_title">Intimate details</string>
+    <string name="discard_changes_title">Discard changes?</string>
+    <string name="discard_changes_body">The changes you made to this form have not been saved.</string>
+    <string name="discard_and_exit">Discard and exit</string>
+    <string name="continue_editing">Continue editing</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="optional">Optional</string>
@@ -403,6 +410,10 @@
     <string name="fertility_level_high">Recorded signs support higher fertility today</string>
     <string name="fertility_level_peak">Peak-fertility signal detected</string>
     <string name="background_not_safe_day">This does not mean that today is infertile or safe.</string>
+    <string name="fertility_status_no_cycle">Start tracking to get a fertility estimate</string>
+    <string name="fertility_status_cycle_day_only">Day %1$d of cycle</string>
+    <string name="fertility_status_before_window">Day %1$d of cycle · before the estimated fertile window</string>
+    <string name="fertility_status_after_window">Day %1$d of cycle · after the estimated fertile window</string>
 
     <string name="reliability_insufficient">Estimate support: insufficient</string>
     <string name="reliability_limited">Estimate support: limited</string>
@@ -438,6 +449,7 @@
     <string name="chart_period_range">Expected next period: %1$s</string>
     <string name="chart_contact_in_window">Sexual contact was recorded on %1$d days within the estimated fertile window.</string>
     <string name="forecast_ranges_disclaimer">The app intentionally shows the two highest-weight days, not its full computational uncertainty. It can miss and will update as data arrives. The fertile window runs from five days before the ovulation estimate through its end; days outside it are not considered safe or infertile.</string>
+    <string name="forecast_disclaimer_summary">The estimate can be wrong and updates as new data comes in.</string>
     <string name="forecast_conflict_pair_note">The retrospective ovulation estimate and the new forecast do not align. Both are shown intentionally, but support is limited.</string>
     <string name="short_safety_disclaimer">Home estimate only — not ovulation confirmation or contraception.</string>
 
@@ -533,7 +545,10 @@
     <string name="diary_legend_fluid_symbol">Egg-white-like fluid or slippery sensation</string>
     <string name="diary_legend_contact_symbol">Sexual contact</string>
     <string name="diary_legend_wellbeing_symbol">Mood or physical symptom</string>
+    <string name="diary_legend_spotting_symbol">Spotting</string>
+    <string name="diary_legend_thermal_shift_symbol">First temperature rise</string>
     <string name="diary_legend_temperature_symbol">Temperature measurement</string>
+    <string name="diary_day_number_label">Day</string>
     <string name="diary_conflict_title">Two estimates do not align</string>
     <string name="diary_conflict_body">Green is the retrospective ovulation day; purple and yellow are a new forecast prompted by a later sign. The app shows both, lowers support and does not color the days between them.</string>
     <string name="diary_today">Today</string>

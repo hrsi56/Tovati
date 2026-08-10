@@ -54,6 +54,7 @@ data class ObservationUiState(
     val note: String = "",
     val isLoading: Boolean = true,
     val isSaving: Boolean = false,
+    val isDirty: Boolean = false,
     val showCycleConfirmation: Boolean = false,
     val nearbyCycleWarning: Boolean = false,
     val cycleStartRequiresBleeding: Boolean = false,
@@ -144,11 +145,15 @@ class ObservationViewModel(
     fun onEvent(event: ObservationEvent) {
         when (event) {
             is ObservationEvent.BleedingChanged -> _state.update {
-                it.copy(bleeding = event.value, cycleStartRequiresBleeding = false)
+                it.copy(bleeding = event.value, cycleStartRequiresBleeding = false, isDirty = true)
             }
-            is ObservationEvent.MucusChanged -> _state.update { it.copy(mucus = event.value) }
-            is ObservationEvent.MucusSensationChanged -> _state.update { it.copy(mucusSensation = event.value) }
-            is ObservationEvent.MucusObscuredChanged -> _state.update { it.copy(mucusObscured = event.value) }
+            is ObservationEvent.MucusChanged -> _state.update { it.copy(mucus = event.value, isDirty = true) }
+            is ObservationEvent.MucusSensationChanged -> _state.update {
+                it.copy(mucusSensation = event.value, isDirty = true)
+            }
+            is ObservationEvent.MucusObscuredChanged -> _state.update {
+                it.copy(mucusObscured = event.value, isDirty = true)
+            }
             is ObservationEvent.LhChanged -> _state.update {
                 if (event.value == LhResult.NOT_TESTED) {
                     it.copy(
@@ -157,44 +162,54 @@ class ObservationViewModel(
                         lhTestBrand = "",
                         lhTestSensitivityText = "",
                         lhSensitivityInvalid = false,
+                        isDirty = true,
                     )
                 } else {
-                    it.copy(lhResult = event.value)
+                    it.copy(lhResult = event.value, isDirty = true)
                 }
             }
             is ObservationEvent.LhTestTimeChanged -> _state.update {
-                it.copy(lhTestMinutesOfDay = event.minutesOfDay?.coerceIn(0, 1_439))
+                it.copy(lhTestMinutesOfDay = event.minutesOfDay?.coerceIn(0, 1_439), isDirty = true)
             }
             is ObservationEvent.LhTestBrandChanged -> _state.update {
-                it.copy(lhTestBrand = event.value.take(LH_TEST_BRAND_MAX_LENGTH))
+                it.copy(lhTestBrand = event.value.take(LH_TEST_BRAND_MAX_LENGTH), isDirty = true)
             }
             is ObservationEvent.LhTestSensitivityChanged -> _state.update {
                 it.copy(
                     lhTestSensitivityText = event.value.filter(Char::isDigit).take(3),
                     lhSensitivityInvalid = false,
+                    isDirty = true,
                 )
             }
-            is ObservationEvent.PainChanged -> _state.update { it.copy(ovulationPain = event.value) }
+            is ObservationEvent.PainChanged -> _state.update {
+                it.copy(ovulationPain = event.value, isDirty = true)
+            }
             is ObservationEvent.MoodToggled -> _state.update {
                 val selected = it.moodMask and event.flag != 0L
-                it.copy(moodMask = if (selected) it.moodMask and event.flag.inv() else it.moodMask or event.flag)
+                it.copy(
+                    moodMask = if (selected) it.moodMask and event.flag.inv() else it.moodMask or event.flag,
+                    isDirty = true,
+                )
             }
             is ObservationEvent.MoodNoteChanged -> _state.update {
-                it.copy(moodNote = event.value.take(MOOD_NOTE_MAX_LENGTH))
+                it.copy(moodNote = event.value.take(MOOD_NOTE_MAX_LENGTH), isDirty = true)
             }
-            is ObservationEvent.LibidoChanged -> _state.update { it.copy(libidoLevel = event.value) }
+            is ObservationEvent.LibidoChanged -> _state.update {
+                it.copy(libidoLevel = event.value, isDirty = true)
+            }
             is ObservationEvent.SexualContactChanged -> _state.update {
                 it.copy(
                     sexualContact = event.value,
                     sexualContactInitiatedByUser = it.sexualContactInitiatedByUser
                         .takeIf { event.value == SexualContact.YES },
+                    isDirty = true,
                 )
             }
             is ObservationEvent.SexualContactInitiatedChanged -> _state.update {
                 if (it.sexualContact == SexualContact.YES) {
-                    it.copy(sexualContactInitiatedByUser = event.value)
+                    it.copy(sexualContactInitiatedByUser = event.value, isDirty = true)
                 } else {
-                    it.copy(sexualContactInitiatedByUser = null)
+                    it.copy(sexualContactInitiatedByUser = null, isDirty = true)
                 }
             }
             is ObservationEvent.PhysicalSymptomToggled -> _state.update {
@@ -205,6 +220,7 @@ class ObservationViewModel(
                     } else {
                         it.physicalSymptomMask or event.flag
                     },
+                    isDirty = true,
                 )
             }
             is ObservationEvent.PainReliefPillCountChanged -> _state.update {
@@ -214,19 +230,27 @@ class ObservationViewModel(
                     painReliefMedicationNote = it.painReliefMedicationNote
                         .takeIf { count != null && count > 0 }
                         .orEmpty(),
+                    isDirty = true,
                 )
             }
             is ObservationEvent.PainReliefMedicationNoteChanged -> _state.update {
                 it.copy(
                     painReliefMedicationNote = event.value
                         .take(PAIN_RELIEF_MEDICATION_NOTE_MAX_LENGTH),
+                    isDirty = true,
                 )
             }
             is ObservationEvent.CycleStartChanged -> _state.update {
                 if (it.isExistingCycleStart && !event.value) it
-                else it.copy(isExplicitCycleStart = event.value, cycleStartRequiresBleeding = false)
+                else it.copy(
+                    isExplicitCycleStart = event.value,
+                    cycleStartRequiresBleeding = false,
+                    isDirty = true,
+                )
             }
-            is ObservationEvent.NoteChanged -> _state.update { it.copy(note = event.value.take(1000)) }
+            is ObservationEvent.NoteChanged -> _state.update {
+                it.copy(note = event.value.take(1000), isDirty = true)
+            }
             ObservationEvent.Save -> requestSave()
             ObservationEvent.ConfirmCycleStart -> save(confirmCycleStart = true)
             ObservationEvent.DismissCycleStart -> _state.update { it.copy(showCycleConfirmation = false) }

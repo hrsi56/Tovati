@@ -1,5 +1,6 @@
 package com.yv.bbttracker.feature.entry
 
+import androidx.activity.compose.BackHandler
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -10,16 +11,24 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.outlined.Bloodtype
+import androidx.compose.material.icons.outlined.Mood
+import androidx.compose.material.icons.outlined.Science
+import androidx.compose.material.icons.outlined.Sick
+import androidx.compose.material.icons.outlined.WaterDrop
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -85,14 +94,19 @@ fun ObservationScreen(viewModel: ObservationViewModel, onBack: () -> Unit) {
                 ),
         )
     }
+    var intimateExpanded by remember(state.isLoading, state.date) { mutableStateOf(false) }
+    var showDiscardConfirm by remember { mutableStateOf(false) }
     LaunchedEffect(viewModel) { viewModel.effects.collectLatest { onBack() } }
+    BackHandler(enabled = state.isDirty) { showDiscardConfirm = true }
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.observation_title)) },
                 navigationIcon = {
-                    IconButton(onClick = onBack) {
+                    IconButton(
+                        onClick = { if (state.isDirty) showDiscardConfirm = true else onBack() },
+                    ) {
                         Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = stringResource(R.string.back))
                     }
                 },
@@ -129,6 +143,8 @@ fun ObservationScreen(viewModel: ObservationViewModel, onBack: () -> Unit) {
             FormSection(
                 title = stringResource(R.string.bleeding),
                 supporting = stringResource(R.string.bleeding_supporting),
+                icon = Icons.Outlined.Bloodtype,
+                recorded = state.bleeding != BleedingLevel.NOT_RECORDED,
             ) {
                 EnumChips(
                     options = listOf(
@@ -141,6 +157,7 @@ fun ObservationScreen(viewModel: ObservationViewModel, onBack: () -> Unit) {
                     ),
                     selected = state.bleeding,
                     onSelected = { viewModel.onEvent(ObservationEvent.BleedingChanged(it)) },
+                    neutralValue = BleedingLevel.NOT_RECORDED,
                 )
                 HorizontalDivider()
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
@@ -176,6 +193,9 @@ fun ObservationScreen(viewModel: ObservationViewModel, onBack: () -> Unit) {
             FormSection(
                 title = stringResource(R.string.mucus),
                 supporting = stringResource(R.string.mucus_tracking_guidance),
+                icon = Icons.Outlined.WaterDrop,
+                recorded = state.mucus != CervicalMucus.NOT_CHECKED || state.mucusSensation != MucusSensation.NOT_CHECKED,
+                supportingEmphasis = false,
             ) {
                 Text(stringResource(R.string.mucus_appearance), style = MaterialTheme.typography.labelLarge)
                 EnumChips(
@@ -189,6 +209,7 @@ fun ObservationScreen(viewModel: ObservationViewModel, onBack: () -> Unit) {
                     ),
                     selected = state.mucus,
                     onSelected = { viewModel.onEvent(ObservationEvent.MucusChanged(it)) },
+                    neutralValue = CervicalMucus.NOT_CHECKED,
                 )
                 Text(stringResource(R.string.mucus_sensation), style = MaterialTheme.typography.labelLarge)
                 EnumChips(
@@ -201,12 +222,16 @@ fun ObservationScreen(viewModel: ObservationViewModel, onBack: () -> Unit) {
                     ),
                     selected = state.mucusSensation,
                     onSelected = { viewModel.onEvent(ObservationEvent.MucusSensationChanged(it)) },
+                    neutralValue = MucusSensation.NOT_CHECKED,
                 )
             }
 
             FormSection(
                 title = stringResource(R.string.lh_result),
                 supporting = stringResource(R.string.lh_test_guidance),
+                icon = Icons.Outlined.Science,
+                recorded = state.lhResult != LhResult.NOT_TESTED,
+                supportingEmphasis = false,
             ) {
                 EnumChips(
                     options = listOf(
@@ -218,6 +243,7 @@ fun ObservationScreen(viewModel: ObservationViewModel, onBack: () -> Unit) {
                     ),
                     selected = state.lhResult,
                     onSelected = { viewModel.onEvent(ObservationEvent.LhChanged(it)) },
+                    neutralValue = LhResult.NOT_TESTED,
                 )
             }
             if (state.lhResult != LhResult.NOT_TESTED) {
@@ -277,6 +303,8 @@ fun ObservationScreen(viewModel: ObservationViewModel, onBack: () -> Unit) {
             FormSection(
                 title = stringResource(R.string.daily_wellbeing_title),
                 supporting = stringResource(R.string.daily_wellbeing_supporting),
+                icon = Icons.Outlined.Mood,
+                recorded = state.moodMask != 0L || state.moodNote.isNotBlank(),
             ) {
                 Text(stringResource(R.string.mood_title), style = MaterialTheme.typography.labelLarge)
                 MultiSelectChips(
@@ -291,7 +319,15 @@ fun ObservationScreen(viewModel: ObservationViewModel, onBack: () -> Unit) {
                     modifier = Modifier.fillMaxWidth(),
                     minLines = 2,
                 )
+            }
 
+            ExpandableFormSection(
+                title = stringResource(R.string.intimate_content_title),
+                expanded = intimateExpanded,
+                onExpandedChange = { intimateExpanded = it },
+                expandContentDescription = stringResource(R.string.expand),
+                collapseContentDescription = stringResource(R.string.collapse),
+            ) {
                 Text(stringResource(R.string.libido_title), style = MaterialTheme.typography.labelLarge)
                 Text(
                     stringResource(R.string.libido_supporting),
@@ -312,6 +348,7 @@ fun ObservationScreen(viewModel: ObservationViewModel, onBack: () -> Unit) {
                     },
                     selected = state.libidoLevel,
                     onSelected = { viewModel.onEvent(ObservationEvent.LibidoChanged(it)) },
+                    neutralValue = LibidoLevel.NOT_RECORDED,
                 )
 
                 Text(stringResource(R.string.sexual_contact_title), style = MaterialTheme.typography.labelLarge)
@@ -324,6 +361,7 @@ fun ObservationScreen(viewModel: ObservationViewModel, onBack: () -> Unit) {
                     ),
                     selected = state.sexualContact,
                     onSelected = { viewModel.onEvent(ObservationEvent.SexualContactChanged(it)) },
+                    neutralValue = SexualContact.NOT_RECORDED,
                 )
                 if (state.sexualContact == SexualContact.YES) {
                     Text(
@@ -345,6 +383,7 @@ fun ObservationScreen(viewModel: ObservationViewModel, onBack: () -> Unit) {
                         onSelected = {
                             viewModel.onEvent(ObservationEvent.SexualContactInitiatedChanged(it))
                         },
+                        neutralValue = null,
                     )
                 }
             }
@@ -352,6 +391,8 @@ fun ObservationScreen(viewModel: ObservationViewModel, onBack: () -> Unit) {
             FormSection(
                 title = stringResource(R.string.physical_symptoms_title),
                 supporting = stringResource(R.string.physical_symptoms_supporting),
+                icon = Icons.Outlined.Sick,
+                recorded = state.physicalSymptomMask != 0L || state.painReliefPillCount != null,
             ) {
                 MultiSelectChips(
                     options = physicalSymptomOptions(),
@@ -367,21 +408,45 @@ fun ObservationScreen(viewModel: ObservationViewModel, onBack: () -> Unit) {
                 )
                 FlowRow(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
+                    val notRecordedSelected = state.painReliefPillCount == null
                     FilterChip(
-                        selected = state.painReliefPillCount == null,
+                        selected = notRecordedSelected,
                         onClick = {
                             viewModel.onEvent(ObservationEvent.PainReliefPillCountChanged(null))
                         },
                         label = { Text(stringResource(R.string.not_recorded)) },
+                        colors = if (notRecordedSelected) {
+                            FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                selectedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        } else {
+                            FilterChipDefaults.filterChipColors()
+                        },
+                        border = if (notRecordedSelected) {
+                            FilterChipDefaults.filterChipBorder(
+                                enabled = true,
+                                selected = true,
+                                borderColor = MaterialTheme.colorScheme.outline,
+                            )
+                        } else {
+                            FilterChipDefaults.filterChipBorder(enabled = true, selected = notRecordedSelected)
+                        },
                     )
+                    val noneSelected = state.painReliefPillCount == 0
                     FilterChip(
-                        selected = state.painReliefPillCount == 0,
+                        selected = noneSelected,
                         onClick = {
                             viewModel.onEvent(ObservationEvent.PainReliefPillCountChanged(0))
                         },
                         label = { Text(stringResource(R.string.pain_relief_none)) },
+                        leadingIcon = if (noneSelected) {
+                            { Icon(Icons.Filled.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
+                        } else {
+                            null
+                        },
                     )
                 }
                 state.painReliefPillCount?.let { count ->
@@ -464,6 +529,7 @@ fun ObservationScreen(viewModel: ObservationViewModel, onBack: () -> Unit) {
                     ),
                     selected = state.ovulationPain,
                     onSelected = { viewModel.onEvent(ObservationEvent.PainChanged(it)) },
+                    neutralValue = OvulationPain.NOT_RECORDED,
                 )
                 OutlinedTextField(
                     value = state.note,
@@ -533,19 +599,71 @@ fun ObservationScreen(viewModel: ObservationViewModel, onBack: () -> Unit) {
             },
         )
     }
+
+    if (showDiscardConfirm) {
+        AlertDialog(
+            onDismissRequest = { showDiscardConfirm = false },
+            title = { Text(stringResource(R.string.discard_changes_title)) },
+            text = { Text(stringResource(R.string.discard_changes_body)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showDiscardConfirm = false
+                        onBack()
+                    },
+                ) {
+                    Text(stringResource(R.string.discard_and_exit), color = MaterialTheme.colorScheme.error)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDiscardConfirm = false }) {
+                    Text(stringResource(R.string.continue_editing))
+                }
+            },
+        )
+    }
 }
 
 @Composable
-private fun <T> EnumChips(options: List<Pair<T, Int>>, selected: T, onSelected: (T) -> Unit) {
+private fun <T> EnumChips(
+    options: List<Pair<T, Int>>,
+    selected: T,
+    onSelected: (T) -> Unit,
+    neutralValue: T? = null,
+) {
     FlowRow(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalArrangement = Arrangement.spacedBy(4.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         options.forEach { (value, label) ->
+            val isSelected = selected == value
+            val isNeutral = value == neutralValue
             FilterChip(
-                selected = selected == value,
+                selected = isSelected,
                 onClick = { onSelected(value) },
                 label = { Text(stringResource(label)) },
+                colors = if (isSelected && isNeutral) {
+                    FilterChipDefaults.filterChipColors(
+                        selectedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                        selectedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                } else {
+                    FilterChipDefaults.filterChipColors()
+                },
+                border = if (isSelected && isNeutral) {
+                    FilterChipDefaults.filterChipBorder(
+                        enabled = true,
+                        selected = true,
+                        borderColor = MaterialTheme.colorScheme.outline,
+                    )
+                } else {
+                    FilterChipDefaults.filterChipBorder(enabled = true, selected = isSelected)
+                },
+                leadingIcon = if (isSelected && !isNeutral) {
+                    { Icon(Icons.Filled.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
+                } else {
+                    null
+                },
             )
         }
     }
@@ -559,7 +677,7 @@ private fun MultiSelectChips(
 ) {
     FlowRow(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalArrangement = Arrangement.spacedBy(4.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         options.forEach { (flag, label) ->
             FilterChip(

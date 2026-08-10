@@ -1,8 +1,11 @@
 package com.yv.bbttracker.feature.today
 
 import androidx.annotation.StringRes
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -10,8 +13,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AutoGraph
@@ -19,13 +25,17 @@ import androidx.compose.material.icons.outlined.Bloodtype
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.ChevronLeft
 import androidx.compose.material.icons.outlined.EventRepeat
+import androidx.compose.material.icons.outlined.ExpandLess
+import androidx.compose.material.icons.outlined.ExpandMore
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Thermostat
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
@@ -37,6 +47,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -52,15 +66,22 @@ import com.yv.bbttracker.domain.engine.PeriodForecastBasis
 import com.yv.bbttracker.domain.insights.PersonalInsight
 import com.yv.bbttracker.domain.model.BleedingLevel
 import com.yv.bbttracker.domain.model.CervicalMucus
+import com.yv.bbttracker.domain.model.Cycle
 import com.yv.bbttracker.domain.model.DailyObservation
 import com.yv.bbttracker.domain.model.LhResult
 import com.yv.bbttracker.domain.model.LibidoLevel
 import com.yv.bbttracker.domain.model.MucusSensation
 import com.yv.bbttracker.domain.model.PhysicalSymptomFlag
 import com.yv.bbttracker.domain.model.SexualContact
+import com.yv.bbttracker.domain.model.TemperatureMeasurement
 import com.yv.bbttracker.domain.model.TrackingGoal
 import com.yv.bbttracker.ui.components.ExpandableFormSection
 import com.yv.bbttracker.ui.formatting.Formatters
+import com.yv.bbttracker.ui.theme.ConceptionColor
+import com.yv.bbttracker.ui.theme.MenstruationColor
+import com.yv.bbttracker.ui.theme.ProspectiveOvulationColor
+import com.yv.bbttracker.ui.theme.RetrospectiveOvulationColor
+import java.time.temporal.ChronoUnit
 
 @Composable
 fun TodayScreen(
@@ -71,6 +92,12 @@ fun TodayScreen(
     onOpenChart: () -> Unit,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    if (state.isLoading) {
+        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            CircularProgressIndicator()
+        }
+        return
+    }
     var explanationExpanded by remember { mutableStateOf(false) }
     Column(
         modifier = Modifier
@@ -124,8 +151,8 @@ fun TodayScreen(
         if (state.insights.isNotEmpty()) {
             PersonalInsightsCard(state.insights)
         }
-        StatusCard(state.analysis, state.trackingGoal)
-        ForecastCard(state.analysis)
+        ForecastCard(state.analysis, state.date)
+        StatusCard(state.analysis, state.trackingGoal, state.cycle, state.cycleDay, state.date)
 
         ExpandableFormSection(
             title = stringResource(R.string.why_this_status),
@@ -192,6 +219,11 @@ private fun DailyLogCard(
                 } ?: stringResource(R.string.measurement_not_recorded),
                 completed = measurement != null,
                 onClick = onMeasurement,
+                trailingContent = if (state.recentMeasurements.size > 1) {
+                    { TemperatureSparkline(state.recentMeasurements) }
+                } else {
+                    null
+                },
             )
             HorizontalDivider(Modifier.padding(horizontal = 18.dp))
             DailyActionRow(
@@ -339,6 +371,7 @@ private fun DailyActionRow(
     summary: String,
     completed: Boolean,
     onClick: () -> Unit,
+    trailingContent: (@Composable () -> Unit)? = null,
 ) {
     Row(
         modifier = Modifier
@@ -371,6 +404,7 @@ private fun DailyActionRow(
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
+        trailingContent?.invoke()
         Icon(
             Icons.Outlined.ChevronLeft,
             contentDescription = stringResource(if (completed) R.string.edit else R.string.add),
@@ -380,7 +414,40 @@ private fun DailyActionRow(
 }
 
 @Composable
-private fun StatusCard(analysis: CycleAnalysisResult?, trackingGoal: TrackingGoal) {
+private fun TemperatureSparkline(measurements: List<TemperatureMeasurement>, modifier: Modifier = Modifier) {
+    if (measurements.isEmpty()) return
+    val lineColor = MaterialTheme.colorScheme.primary
+    Canvas(modifier = modifier.width(64.dp).height(28.dp)) {
+        val temps = measurements.map { it.temperatureCentiC }
+        val minTemp = temps.min()
+        val maxTemp = temps.max()
+        val inset = 4.dp.toPx()
+        val plotWidth = size.width - inset * 2
+        val plotHeight = size.height - inset * 2
+        if (minTemp == maxTemp || measurements.size < 2) {
+            drawCircle(color = lineColor, radius = 3.dp.toPx(), center = Offset(size.width / 2, size.height / 2))
+            return@Canvas
+        }
+        val points = measurements.mapIndexed { index, m ->
+            val x = inset + (index.toFloat() / (measurements.size - 1)) * plotWidth
+            val y = inset + (1f - (m.temperatureCentiC - minTemp).toFloat() / (maxTemp - minTemp)) * plotHeight
+            Offset(x, y)
+        }
+        for (i in 0 until points.size - 1) {
+            drawLine(color = lineColor, start = points[i], end = points[i + 1], strokeWidth = 1.5.dp.toPx())
+        }
+        points.forEach { point -> drawCircle(color = lineColor, radius = 2.dp.toPx(), center = point) }
+    }
+}
+
+@Composable
+private fun StatusCard(
+    analysis: CycleAnalysisResult?,
+    trackingGoal: TrackingGoal,
+    cycle: Cycle?,
+    cycleDay: Int?,
+    today: java.time.LocalDate,
+) {
     val level = analysis?.fertilityLevelToday
     val containerColor = when (level) {
         FertilityLevelToday.HIGH,
@@ -399,12 +466,25 @@ private fun StatusCard(analysis: CycleAnalysisResult?, trackingGoal: TrackingGoa
                 Icon(Icons.Outlined.EventRepeat, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                 Text(stringResource(R.string.fertility_today_title), style = MaterialTheme.typography.titleMedium)
             }
+            visibleNextAction(analysis?.nextAction)?.let { action ->
+                Text(
+                    stringResource(R.string.next_action_title),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.primary,
+                )
+                Text(
+                    stringResource(nextActionResource(action, trackingGoal)),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.primary,
+                )
+                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+            }
             Text(
-                stringResource(fertilityLevelResource(analysis?.fertilityLevelToday)),
+                fertilityHeadline(analysis, cycle, cycleDay, today),
                 style = MaterialTheme.typography.titleLarge,
             )
             Text(stringResource(statusResource(analysis?.status)), style = MaterialTheme.typography.bodyLarge)
-            if (analysis?.fertilityLevelToday in setOf(
+            if (analysis == null || analysis.fertilityLevelToday in setOf(
                     FertilityLevelToday.UNKNOWN,
                     FertilityLevelToday.BACKGROUND,
                 )
@@ -443,20 +523,44 @@ private fun StatusCard(analysis: CycleAnalysisResult?, trackingGoal: TrackingGoa
                     },
                 )
             }
-            visibleNextAction(analysis?.nextAction)?.let { action ->
-                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                Text(
-                    stringResource(R.string.next_action_title),
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.primary,
-                )
-                Text(
-                    stringResource(nextActionResource(action, trackingGoal)),
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.primary,
-                )
-            }
         }
+    }
+}
+
+@Composable
+private fun fertilityHeadline(
+    analysis: CycleAnalysisResult?,
+    cycle: Cycle?,
+    cycleDay: Int?,
+    today: java.time.LocalDate,
+): String {
+    val level = analysis?.fertilityLevelToday
+    if (level != null && level != FertilityLevelToday.UNKNOWN && level != FertilityLevelToday.BACKGROUND) {
+        return stringResource(fertilityLevelResource(level))
+    }
+    if (cycle == null) {
+        return stringResource(R.string.fertility_status_no_cycle)
+    }
+    if (analysis == null || level == FertilityLevelToday.UNKNOWN || cycleDay == null) {
+        return cycleDay?.let { stringResource(R.string.fertility_status_cycle_day_only, it) }
+            ?: stringResource(fertilityLevelResource(level))
+    }
+    val windowStarts = listOfNotNull(
+        analysis.conceptionOpportunityWindow?.start,
+        analysis.prospectiveOvulationRange?.start,
+        analysis.retrospectiveOvulationRange?.start,
+    )
+    val windowEnds = listOfNotNull(
+        analysis.conceptionOpportunityWindow?.endInclusive,
+        analysis.prospectiveOvulationRange?.endInclusive,
+        analysis.retrospectiveOvulationRange?.endInclusive,
+    )
+    return when {
+        windowStarts.isNotEmpty() && today.isBefore(windowStarts.min()) ->
+            stringResource(R.string.fertility_status_before_window, cycleDay)
+        windowEnds.isNotEmpty() && today.isAfter(windowEnds.max()) ->
+            stringResource(R.string.fertility_status_after_window, cycleDay)
+        else -> stringResource(R.string.fertility_status_cycle_day_only, cycleDay)
     }
 }
 
@@ -480,7 +584,7 @@ private fun ForecastBasisRow(text: String) {
 }
 
 @Composable
-private fun ForecastCard(analysis: CycleAnalysisResult?) {
+private fun ForecastCard(analysis: CycleAnalysisResult?, today: java.time.LocalDate) {
     val conceptionWindow = analysis?.conceptionOpportunityWindow
     val prospectiveRange = analysis?.prospectiveOvulationRange
     val retrospectiveRange = analysis?.retrospectiveOvulationRange
@@ -492,21 +596,23 @@ private fun ForecastCard(analysis: CycleAnalysisResult?) {
     ) {
         return
     }
+    var disclaimerExpanded by remember { mutableStateOf(false) }
 
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
     ) {
         Column(Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Text(stringResource(R.string.forecast_ranges_title), style = MaterialTheme.typography.titleMedium)
             conceptionWindow?.takeIf { showProspectiveRanges }?.let {
-                DateRangeRow(R.string.conception_window_label, it)
+                DateRangeRow(R.string.conception_window_label, it, today)
             }
             prospectiveRange?.takeIf { showProspectiveRanges }?.let {
-                DateRangeRow(R.string.prospective_ovulation_label, it)
+                DateRangeRow(R.string.prospective_ovulation_label, it, today)
             }
             retrospectiveRange?.let {
-                DateRangeRow(R.string.retrospective_ovulation_label, it)
+                DateRangeRow(R.string.retrospective_ovulation_label, it, today)
             }
             if (hasConflict && retrospectiveRange != null && prospectiveRange != null) {
                 Text(
@@ -515,23 +621,113 @@ private fun ForecastCard(analysis: CycleAnalysisResult?) {
                     color = MaterialTheme.colorScheme.error,
                 )
             }
-            periodForecast?.let { PeriodForecastRow(it) }
-            Text(
-                stringResource(R.string.forecast_ranges_disclaimer),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSecondaryContainer,
-            )
+            periodForecast?.let { PeriodForecastRow(it, today) }
+            checkNotNull(analysis)
+            FertilityPhaseBand(analysis, today, modifier = Modifier.padding(vertical = 2.dp))
+            Row(verticalAlignment = Alignment.Top, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                Text(
+                    stringResource(R.string.forecast_disclaimer_summary),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                    modifier = Modifier.weight(1f),
+                )
+                IconButton(
+                    onClick = { disclaimerExpanded = !disclaimerExpanded },
+                    modifier = Modifier.size(20.dp),
+                ) {
+                    Icon(
+                        imageVector = if (disclaimerExpanded) Icons.Outlined.ExpandLess else Icons.Outlined.ExpandMore,
+                        contentDescription = if (disclaimerExpanded) {
+                            stringResource(R.string.collapse)
+                        } else {
+                            stringResource(R.string.expand)
+                        },
+                        tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                    )
+                }
+            }
+            AnimatedVisibility(visible = disclaimerExpanded) {
+                Text(
+                    stringResource(R.string.forecast_ranges_disclaimer),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                )
+            }
         }
     }
 }
 
 @Composable
-private fun PeriodForecastRow(forecast: PeriodForecast) {
+private fun FertilityPhaseBand(analysis: CycleAnalysisResult, today: java.time.LocalDate, modifier: Modifier = Modifier) {
+    val conceptionWindow = analysis.conceptionOpportunityWindow
+    val prospectiveRange = analysis.prospectiveOvulationRange
+    val retrospectiveRange = analysis.retrospectiveOvulationRange
+    val periodForecast = analysis.nextPeriodForecast
+    val hasConflict = analysis.signals.contains(AnalysisSignal.CONFLICTING_SIGNALS)
+    val showProspectiveRanges = retrospectiveRange == null || hasConflict
+
+    val boundaryDates = buildList {
+        add(today)
+        if (showProspectiveRanges) conceptionWindow?.let { add(it.start); add(it.endInclusive) }
+        if (showProspectiveRanges) prospectiveRange?.let { add(it.start); add(it.endInclusive) }
+        retrospectiveRange?.let { add(it.start); add(it.endInclusive) }
+        periodForecast?.let { add(it.expectedStartRange.start); add(it.expectedStartRange.endInclusive) }
+    }
+    val spanStart = boundaryDates.min()
+    val spanEnd = boundaryDates.max()
+    val totalDays = ChronoUnit.DAYS.between(spanStart, spanEnd.plusDays(1))
+    if (totalDays <= 0L) return
+
+    val trackColor = MaterialTheme.colorScheme.surface
+    val todayRingColor = MaterialTheme.colorScheme.surface
+    val todayDotColor = MaterialTheme.colorScheme.primary
+
+    Canvas(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(12.dp)
+            .clip(RoundedCornerShape(6.dp)),
+    ) {
+        drawRect(color = trackColor)
+
+        fun segmentX(date: java.time.LocalDate): Float =
+            (ChronoUnit.DAYS.between(spanStart, date).toFloat() / totalDays.toFloat()) * size.width
+
+        fun drawSegment(range: ClosedRange<java.time.LocalDate>, color: Color) {
+            val x0 = segmentX(range.start).coerceIn(0f, size.width)
+            val x1 = segmentX(range.endInclusive.plusDays(1)).coerceIn(0f, size.width)
+            if (x1 > x0) {
+                drawRect(color = color, topLeft = Offset(x0, 0f), size = Size(x1 - x0, size.height))
+            }
+        }
+
+        if (showProspectiveRanges) {
+            conceptionWindow?.let { drawSegment(it, ConceptionColor) }
+            prospectiveRange?.let { drawSegment(it, ProspectiveOvulationColor) }
+        }
+        retrospectiveRange?.let { drawSegment(it, RetrospectiveOvulationColor) }
+        periodForecast?.let { drawSegment(it.expectedStartRange, MenstruationColor) }
+
+        val todayX = segmentX(today).coerceIn(size.height / 2, size.width - size.height / 2)
+        drawCircle(color = todayRingColor, radius = size.height / 2, center = Offset(todayX, size.height / 2))
+        drawCircle(
+            color = todayDotColor,
+            radius = size.height / 2 - 2.dp.toPx(),
+            center = Offset(todayX, size.height / 2),
+        )
+    }
+}
+
+@Composable
+private fun PeriodForecastRow(forecast: PeriodForecast, today: java.time.LocalDate) {
     Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
         Text(stringResource(R.string.next_period_label), style = MaterialTheme.typography.labelLarge)
         Text(
-            stringResource(R.string.date_range_value, Formatters.dateRange(forecast.expectedStartRange)),
-            style = MaterialTheme.typography.titleMedium,
+            stringResource(
+                R.string.date_range_value,
+                Formatters.relativeDateRange(forecast.expectedStartRange, today),
+            ),
+            style = MaterialTheme.typography.titleLarge,
         )
         Text(
             periodBasisText(forecast),
@@ -563,15 +759,15 @@ private fun periodBasisText(forecast: PeriodForecast): String = when (forecast.b
 }
 
 @Composable
-private fun DateRangeRow(labelRes: Int, range: ClosedRange<java.time.LocalDate>) {
+private fun DateRangeRow(labelRes: Int, range: ClosedRange<java.time.LocalDate>, today: java.time.LocalDate) {
     Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
         Text(stringResource(labelRes), style = MaterialTheme.typography.labelLarge)
         Text(
             stringResource(
                 R.string.date_range_value,
-                Formatters.dateRange(range),
+                Formatters.relativeDateRange(range, today),
             ),
-            style = MaterialTheme.typography.titleMedium,
+            style = MaterialTheme.typography.titleLarge,
         )
     }
 }

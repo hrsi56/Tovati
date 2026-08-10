@@ -22,6 +22,13 @@
     <string name="loading">טוען…</string>
     <string name="not_recorded">לא נרשם</string>
     <string name="none">ללא</string>
+    <string name="recorded_badge">נרשם</string>
+    <string name="not_recorded_badge">לא נרשם</string>
+    <string name="intimate_content_title">תכנים אינטימיים</string>
+    <string name="discard_changes_title">לצאת בלי לשמור?</string>
+    <string name="discard_changes_body">השינויים שביצעת בטופס הזה לא נשמרו.</string>
+    <string name="discard_and_exit">צא בלי לשמור</string>
+    <string name="continue_editing">המשך בעריכה</string>
     <string name="yes">כן</string>
     <string name="no">לא</string>
     <string name="optional">אופציונלי</string>
@@ -403,6 +410,10 @@
     <string name="fertility_level_high">הסימנים תומכים בפוריות מוגברת היום</string>
     <string name="fertility_level_peak">זוהה אות לפוריות שיא</string>
     <string name="background_not_safe_day">זה לא אומר שהיום אינו פורה או בטוח.</string>
+    <string name="fertility_status_no_cycle">התחילי לעקוב כדי לקבל הערכת פוריות</string>
+    <string name="fertility_status_cycle_day_only">יום %1$d במחזור</string>
+    <string name="fertility_status_before_window">יום %1$d במחזור · לפני חלון הפוריות המשוער</string>
+    <string name="fertility_status_after_window">יום %1$d במחזור · אחרי חלון הפוריות המשוער</string>
 
     <string name="reliability_insufficient">תמיכה בהערכה: לא מספקת</string>
     <string name="reliability_limited">תמיכה בהערכה: מוגבלת</string>
@@ -438,6 +449,7 @@
     <string name="chart_period_range">הווסת הבאה צפויה: %1$s</string>
     <string name="chart_contact_in_window">נרשם מגע מיני ב־%1$d ימים בתוך חלון הפוריות המשוער.</string>
     <string name="forecast_ranges_disclaimer">האפליקציה מציגה בכוונה את שני הימים בעלי המשקל הגבוה ביותר, לא את מלוא אי־הוודאות החישובית. היא עלולה להחטיא והאומדן יתעדכן עם נתונים חדשים. חלון הפוריות נגזר מחמשת הימים שלפני אומדן הביוץ ועד סופו; ימים מחוץ לו אינם נחשבים בטוחים או לא־פוריים.</string>
+    <string name="forecast_disclaimer_summary">האומדן עלול להחטיא ומתעדכן עם נתונים חדשים.</string>
     <string name="forecast_conflict_pair_note">הערכת הביוץ בדיעבד והתחזית החדשה אינן מתיישבות. שתיהן מוצגות במכוון, אך התמיכה בהן מוגבלת.</string>
     <string name="short_safety_disclaimer">הערכה ביתית בלבד — לא אישור ביוץ ולא אמצעי מניעה.</string>
 
@@ -533,7 +545,10 @@
     <string name="diary_legend_fluid_symbol">נוזל דמוי חלבון ביצה או תחושה חלקלקה</string>
     <string name="diary_legend_contact_symbol">מגע מיני</string>
     <string name="diary_legend_wellbeing_symbol">מצב רוח או תסמין גופני</string>
+    <string name="diary_legend_spotting_symbol">הכתמה</string>
+    <string name="diary_legend_thermal_shift_symbol">עלייה ראשונה בחום</string>
     <string name="diary_legend_temperature_symbol">מדידת חום</string>
+    <string name="diary_day_number_label">יום</string>
     <string name="diary_conflict_title">יש כאן שתי הערכות שאינן מתיישבות</string>
     <string name="diary_conflict_body">הירוק הוא יום הביוץ שנבחר בדיעבד; הסגול והצהוב הם תחזית חדשה בעקבות סימן מאוחר. האפליקציה מציגה את שתיהן, מורידה את רמת התמיכה ואינה צובעת את הימים שביניהן.</string>
     <string name="diary_today">היום</string>
