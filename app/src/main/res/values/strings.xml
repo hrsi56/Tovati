@@ -25,6 +25,7 @@
     <string name="recorded_badge">Recorded</string>
     <string name="not_recorded_badge">Not recorded</string>
     <string name="intimate_content_title">Intimate details</string>
+    <string name="forecast_band_today_marker">The dot marks today</string>
     <string name="discard_changes_title">Discard changes?</string>
     <string name="discard_changes_body">The changes you made to this form have not been saved.</string>
     <string name="discard_and_exit">Discard and exit</string>
@@ -594,4 +595,17 @@
     <string name="diary_spotting_day">Spotting was recorded</string>
     <string name="diary_bleeding_day">Bleeding was recorded</string>
     <string name="diary_forecast_disclaimer">Future days are the app’s focused guess and can miss; they update with new data. A retrospective ovulation day is not medical confirmation, and the diary never marks safe days.</string>
+    <string name="relative_date_today">Today</string>
+    <string name="relative_date_tomorrow">Tomorrow</string>
+    <string name="relative_date_yesterday">Yesterday</string>
+    <string name="relative_date_in_days">In %1$d days</string>
+    <string name="relative_date_days_ago">%1$d days ago</string>
+    <string name="relative_date_today_through_tomorrow">Today–tomorrow</string>
+    <string name="relative_date_yesterday_through_today">Yesterday–today</string>
+    <string name="relative_date_today_through_future">Today–in %1$d days</string>
+    <string name="relative_date_tomorrow_through_future">Tomorrow–in %1$d days</string>
+    <string name="relative_date_future_range">In %1$d–%2$d days</string>
+    <string name="relative_date_past_through_today">%1$d days ago–today</string>
+    <string name="relative_date_past_through_yesterday">%1$d days ago–yesterday</string>
+    <string name="relative_date_past_range">%1$d–%2$d days ago</string>
 </resources>

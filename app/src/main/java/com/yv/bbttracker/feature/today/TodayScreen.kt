@@ -3,6 +3,7 @@ package com.yv.bbttracker.feature.today
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -220,7 +221,7 @@ private fun DailyLogCard(
                 completed = measurement != null,
                 onClick = onMeasurement,
                 trailingContent = if (state.recentMeasurements.size > 1) {
-                    { TemperatureSparkline(state.recentMeasurements) }
+                    { TemperatureSparkline(state.recentMeasurements, state.date) }
                 } else {
                     null
                 },
@@ -414,29 +415,71 @@ private fun DailyActionRow(
 }
 
 @Composable
-private fun TemperatureSparkline(measurements: List<TemperatureMeasurement>, modifier: Modifier = Modifier) {
-    if (measurements.isEmpty()) return
+private fun TemperatureSparkline(
+    measurements: List<TemperatureMeasurement>,
+    endDate: java.time.LocalDate,
+    modifier: Modifier = Modifier,
+) {
+    val samples = temperatureSparklineSamples(measurements, endDate)
+    if (samples.isEmpty()) return
     val lineColor = MaterialTheme.colorScheme.primary
     Canvas(modifier = modifier.width(64.dp).height(28.dp)) {
-        val temps = measurements.map { it.temperatureCentiC }
+        val temps = samples.map { it.temperatureCentiC }
         val minTemp = temps.min()
         val maxTemp = temps.max()
         val inset = 4.dp.toPx()
         val plotWidth = size.width - inset * 2
         val plotHeight = size.height - inset * 2
-        if (minTemp == maxTemp || measurements.size < 2) {
-            drawCircle(color = lineColor, radius = 3.dp.toPx(), center = Offset(size.width / 2, size.height / 2))
-            return@Canvas
-        }
-        val points = measurements.mapIndexed { index, m ->
-            val x = inset + (index.toFloat() / (measurements.size - 1)) * plotWidth
-            val y = inset + (1f - (m.temperatureCentiC - minTemp).toFloat() / (maxTemp - minTemp)) * plotHeight
-            Offset(x, y)
+        val points = samples.map { sample ->
+            val x = inset +
+                (sample.dayOffset.toFloat() / (RECENT_TEMPERATURE_WINDOW_DAYS - 1).toFloat()) * plotWidth
+            val y = if (minTemp == maxTemp) {
+                size.height / 2f
+            } else {
+                inset +
+                    (1f - (sample.temperatureCentiC - minTemp).toFloat() / (maxTemp - minTemp)) * plotHeight
+            }
+            sample to Offset(x, y)
         }
         for (i in 0 until points.size - 1) {
-            drawLine(color = lineColor, start = points[i], end = points[i + 1], strokeWidth = 1.5.dp.toPx())
+            val (_, point) = points[i]
+            val (nextSample, nextPoint) = points[i + 1]
+            if (nextSample.connectToPrevious) {
+                drawLine(color = lineColor, start = point, end = nextPoint, strokeWidth = 1.5.dp.toPx())
+            }
         }
-        points.forEach { point -> drawCircle(color = lineColor, radius = 2.dp.toPx(), center = point) }
+        points.forEach { (_, point) ->
+            drawCircle(color = lineColor, radius = 2.dp.toPx(), center = point)
+        }
+    }
+}
+
+internal data class TemperatureSparklineSample(
+    val dayOffset: Int,
+    val temperatureCentiC: Int,
+    val connectToPrevious: Boolean,
+)
+
+/** Keeps each point in its real calendar-day slot; missing days remain visible as gaps. */
+internal fun temperatureSparklineSamples(
+    measurements: List<TemperatureMeasurement>,
+    endDate: java.time.LocalDate,
+): List<TemperatureSparklineSample> {
+    val startDate = endDate.minusDays((RECENT_TEMPERATURE_WINDOW_DAYS - 1).toLong())
+    val datedSamples = measurements
+        .asSequence()
+        .filter { it.date in startDate..endDate }
+        .sortedBy { it.date }
+        .map { measurement ->
+            ChronoUnit.DAYS.between(startDate, measurement.date).toInt() to measurement.temperatureCentiC
+        }
+        .toList()
+    return datedSamples.mapIndexed { index, (dayOffset, temperatureCentiC) ->
+        TemperatureSparklineSample(
+            dayOffset = dayOffset,
+            temperatureCentiC = temperatureCentiC,
+            connectToPrevious = index > 0 && dayOffset - datedSamples[index - 1].first == 1,
+        )
     }
 }
 
@@ -606,13 +649,13 @@ private fun ForecastCard(analysis: CycleAnalysisResult?, today: java.time.LocalD
         Column(Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Text(stringResource(R.string.forecast_ranges_title), style = MaterialTheme.typography.titleMedium)
             conceptionWindow?.takeIf { showProspectiveRanges }?.let {
-                DateRangeRow(R.string.conception_window_label, it, today)
+                DateRangeRow(R.string.conception_window_label, it, today, ConceptionColor)
             }
             prospectiveRange?.takeIf { showProspectiveRanges }?.let {
-                DateRangeRow(R.string.prospective_ovulation_label, it, today)
+                DateRangeRow(R.string.prospective_ovulation_label, it, today, ProspectiveOvulationColor)
             }
             retrospectiveRange?.let {
-                DateRangeRow(R.string.retrospective_ovulation_label, it, today)
+                DateRangeRow(R.string.retrospective_ovulation_label, it, today, RetrospectiveOvulationColor)
             }
             if (hasConflict && retrospectiveRange != null && prospectiveRange != null) {
                 Text(
@@ -621,9 +664,25 @@ private fun ForecastCard(analysis: CycleAnalysisResult?, today: java.time.LocalD
                     color = MaterialTheme.colorScheme.error,
                 )
             }
-            periodForecast?.let { PeriodForecastRow(it, today) }
+            periodForecast?.let { PeriodForecastRow(it, today, MenstruationColor) }
             checkNotNull(analysis)
             FertilityPhaseBand(analysis, today, modifier = Modifier.padding(vertical = 2.dp))
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+            ) {
+                Box(
+                    Modifier
+                        .size(8.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.primary),
+                )
+                Text(
+                    stringResource(R.string.forecast_band_today_marker),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                )
+            }
             Row(verticalAlignment = Alignment.Top, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 Text(
                     stringResource(R.string.forecast_disclaimer_summary),
@@ -719,9 +778,9 @@ private fun FertilityPhaseBand(analysis: CycleAnalysisResult, today: java.time.L
 }
 
 @Composable
-private fun PeriodForecastRow(forecast: PeriodForecast, today: java.time.LocalDate) {
+private fun PeriodForecastRow(forecast: PeriodForecast, today: java.time.LocalDate, color: Color) {
     Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-        Text(stringResource(R.string.next_period_label), style = MaterialTheme.typography.labelLarge)
+        ForecastRangeLabel(R.string.next_period_label, color)
         Text(
             stringResource(
                 R.string.date_range_value,
@@ -759,9 +818,14 @@ private fun periodBasisText(forecast: PeriodForecast): String = when (forecast.b
 }
 
 @Composable
-private fun DateRangeRow(labelRes: Int, range: ClosedRange<java.time.LocalDate>, today: java.time.LocalDate) {
+private fun DateRangeRow(
+    @StringRes labelRes: Int,
+    range: ClosedRange<java.time.LocalDate>,
+    today: java.time.LocalDate,
+    color: Color,
+) {
     Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-        Text(stringResource(labelRes), style = MaterialTheme.typography.labelLarge)
+        ForecastRangeLabel(labelRes, color)
         Text(
             stringResource(
                 R.string.date_range_value,
@@ -769,6 +833,22 @@ private fun DateRangeRow(labelRes: Int, range: ClosedRange<java.time.LocalDate>,
             ),
             style = MaterialTheme.typography.titleLarge,
         )
+    }
+}
+
+@Composable
+private fun ForecastRangeLabel(@StringRes labelRes: Int, color: Color) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(7.dp),
+    ) {
+        Box(
+            Modifier
+                .size(10.dp)
+                .clip(CircleShape)
+                .background(color),
+        )
+        Text(stringResource(labelRes), style = MaterialTheme.typography.labelLarge)
     }
 }
 

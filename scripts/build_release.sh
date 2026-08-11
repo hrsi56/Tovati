@@ -55,8 +55,8 @@ fi
 
 cd "$ROOT_DIR"
 
-printf 'Running unit tests, release lint, and signed release assembly...\n'
-./gradlew --no-daemon test lintRelease assembleRelease
+printf 'Running unit tests, release lint, and signed APK/AAB assembly...\n'
+./gradlew --no-daemon testDebugUnitTest lintRelease assembleRelease bundleRelease
 
 apk_path="$ROOT_DIR/app/build/outputs/apk/release/app-release.apk"
 if [[ ! -f "$apk_path" ]]; then
@@ -65,22 +65,48 @@ if [[ ! -f "$apk_path" ]]; then
 fi
 [[ -n "$apk_path" && -f "$apk_path" ]] || fail "no signed release APK was produced"
 
+aab_path="$ROOT_DIR/app/build/outputs/bundle/release/app-release.aab"
+[[ -f "$aab_path" ]] || fail "no signed release AAB was produced"
+
 "$SCRIPT_DIR/verify_permissions.sh" "$apk_path"
 
 apksigner="$(find_apksigner || true)"
 [[ -n "$apksigner" ]] || fail "apksigner is required to verify the release APK"
 "$apksigner" verify --verbose --print-certs "$apk_path"
+jarsigner -verify "$aab_path" >/dev/null || fail "release AAB signature verification failed"
 
-checksum_path="${apk_path}.sha256"
-if command -v shasum >/dev/null 2>&1; then
-    (cd "$(dirname -- "$apk_path")" && shasum -a 256 "$(basename -- "$apk_path")") \
-        > "$checksum_path"
-elif command -v sha256sum >/dev/null 2>&1; then
-    (cd "$(dirname -- "$apk_path")" && sha256sum "$(basename -- "$apk_path")") \
-        > "$checksum_path"
-else
-    fail "neither shasum nor sha256sum is available"
-fi
+version_name="$(sed -n 's/^[[:space:]]*versionName[[:space:]]*=[[:space:]]*"\([^"]*\)".*/\1/p' \
+    "$ROOT_DIR/app/build.gradle.kts" | head -n 1)"
+[[ -n "$version_name" ]] || fail "could not read versionName from app/build.gradle.kts"
 
-printf 'Release APK: %s\n' "$apk_path"
-printf 'SHA-256:    %s\n' "$checksum_path"
+release_dir="$ROOT_DIR/release"
+mkdir -p "$release_dir"
+versioned_apk="$release_dir/Tovati-${version_name}.apk"
+versioned_aab="$release_dir/Tovati-${version_name}.aab"
+stable_apk="$release_dir/Tovati.apk"
+cp "$apk_path" "$versioned_apk"
+cp "$apk_path" "$stable_apk"
+cp "$aab_path" "$versioned_aab"
+
+write_checksum() {
+    local source_path="$1"
+    local checksum_path="${source_path}.sha256"
+
+    if command -v shasum >/dev/null 2>&1; then
+        (cd "$(dirname -- "$source_path")" && shasum -a 256 "$(basename -- "$source_path")") \
+            > "$checksum_path"
+    elif command -v sha256sum >/dev/null 2>&1; then
+        (cd "$(dirname -- "$source_path")" && sha256sum "$(basename -- "$source_path")") \
+            > "$checksum_path"
+    else
+        fail "neither shasum nor sha256sum is available"
+    fi
+}
+
+write_checksum "$versioned_apk"
+write_checksum "$versioned_aab"
+
+printf 'Release APK: %s\n' "$versioned_apk"
+printf 'Release AAB: %s\n' "$versioned_aab"
+printf 'Stable APK:  %s\n' "$stable_apk"
+printf 'Checksums:   %s, %s\n' "${versioned_apk}.sha256" "${versioned_aab}.sha256"
