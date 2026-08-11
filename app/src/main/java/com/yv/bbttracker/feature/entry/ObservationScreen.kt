@@ -327,6 +327,15 @@ fun ObservationScreen(viewModel: ObservationViewModel, onBack: () -> Unit) {
                 onExpandedChange = { intimateExpanded = it },
                 expandContentDescription = stringResource(R.string.expand),
                 collapseContentDescription = stringResource(R.string.collapse),
+                summary = if (
+                    state.libidoLevel != LibidoLevel.NOT_RECORDED ||
+                    state.sexualContact != SexualContact.NOT_RECORDED ||
+                    state.sexualContactInitiatedByUser != null
+                ) {
+                    stringResource(R.string.recorded_badge)
+                } else {
+                    null
+                },
             ) {
                 Text(stringResource(R.string.libido_title), style = MaterialTheme.typography.labelLarge)
                 Text(

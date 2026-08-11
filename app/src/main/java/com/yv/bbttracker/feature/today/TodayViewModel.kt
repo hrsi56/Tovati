@@ -12,6 +12,7 @@ import com.yv.bbttracker.domain.insights.PersonalInsight
 import com.yv.bbttracker.domain.insights.PersonalInsightsCalculator
 import com.yv.bbttracker.domain.model.Cycle
 import com.yv.bbttracker.domain.model.DailyObservation
+import com.yv.bbttracker.domain.model.MeasurementSite
 import com.yv.bbttracker.domain.model.TemperatureMeasurement
 import com.yv.bbttracker.domain.model.TrackingGoal
 import com.yv.bbttracker.domain.repository.CycleRepository
@@ -30,6 +31,8 @@ import kotlinx.coroutines.isActive
 import java.time.Duration
 import java.time.LocalDate
 import java.time.ZonedDateTime
+
+internal const val RECENT_TEMPERATURE_WINDOW_DAYS = 7
 
 data class TodayUiState(
     val isLoading: Boolean = true,
@@ -77,18 +80,17 @@ class TodayViewModel(
     ) { (currentCycle, cycles), measurements, observations, settings, today ->
         val todayMeasurements = measurements.filter { it.measurementEpochDay == today.toEpochDay() }
         val todayObservation = observations.firstOrNull { it.epochDay == today.toEpochDay() }
-        val recentMeasurements = measurements
-            .filter { !it.date.isBefore(today.minusDays(6)) && !it.date.isAfter(today) }
-            .groupBy { it.date }
-            .mapNotNull { (_, dayMeasurements) ->
-                dayMeasurements.firstOrNull { it.selectedForAnalysis }
-                    ?: dayMeasurements.maxByOrNull { it.measuredAtEpochMillis }
-            }
-            .sortedBy { it.date }
+        val currentMeasurements = currentCycle
+            ?.let { cycle -> measurements.filter { cycle.contains(it.date) } }
+            .orEmpty()
+        val currentSite = currentCycle?.analysisSite
+            ?: ThermalShiftDetector.preferredSite(currentMeasurements, settings.defaultMeasurementSite)
+        val recentMeasurements = selectRecentThermalMeasurements(
+            measurements = measurements,
+            today = today,
+            measurementSite = currentSite,
+        )
         val result = currentCycle?.let { cycle ->
-            val currentMeasurements = measurements.filter { cycle.contains(it.date) }
-            val currentSite = cycle.analysisSite
-                ?: ThermalShiftDetector.preferredSite(currentMeasurements, settings.defaultMeasurementSite)
             val historical = HistoricalCycleBuilder.buildAll(
                 cycles = cycles.filter { it.id != cycle.id },
                 measurements = measurements,
@@ -137,4 +139,20 @@ class TodayViewModel(
         override fun <T : ViewModel> create(modelClass: Class<T>): T =
             TodayViewModel(cycleRepository, measurementRepository, observationRepository, settingsRepository) as T
     }
+}
+
+/**
+ * Uses the exact same eligibility rules as the thermal analysis: selected, reliable measurements
+ * from one stable measurement site, with at most the latest saved measurement for each date.
+ */
+internal fun selectRecentThermalMeasurements(
+    measurements: List<TemperatureMeasurement>,
+    today: LocalDate,
+    measurementSite: MeasurementSite,
+): List<TemperatureMeasurement> {
+    val windowStart = today.minusDays((RECENT_TEMPERATURE_WINDOW_DAYS - 1).toLong())
+    return ThermalShiftDetector.chooseValidMeasurements(
+        measurements = measurements.filter { it.date in windowStart..today },
+        defaultMeasurementSite = measurementSite,
+    )
 }
