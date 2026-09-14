@@ -14,14 +14,12 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/hrsi56/Tovati/releases/latest/download/Tovati.apk">
-    <img src="docs/assets/download-button.svg" width="330" alt="Download For Android">
+  <a href="https://play.google.com/store/apps/details?id=com.yv.bbttracker">
+    Download For Android
   </a>
 </p>
 
 <p align="center">
-  <a href="https://hrsi56.github.io/Tovati/">לאתר של טובתי</a>
-  ·
   <a href="docs/PRIVACY_HE.md">לפרטיות ואבטחה</a>
   ·
   <a href="docs/RELEASE_REPORT_1.7.2_HE.md">לדו״ח הגרסה</a>
