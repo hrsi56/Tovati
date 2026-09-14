@@ -110,15 +110,6 @@
 
 ## מתחילות?
 
-1. הורידי את קובץ ה־APK.
-2. פתחי אותו במכשיר Android ואשרי התקנה מהמקור שבחרת, אם תתבקשי.
-3. פתחי את טובתי והתחילי במחזור הנוכחי שלך.
-
-<p align="center">
-  <a href="https://github.com/hrsi56/Tovati/releases/latest/download/Tovati.apk">
-    <img src="docs/assets/download-button.svg" width="330" alt="Download For Android">
-  </a>
-</p>
 
 <p align="center">
   <sub>הגרסה העדכנית · קובץ חתום · כ־3.1 MB</sub>
